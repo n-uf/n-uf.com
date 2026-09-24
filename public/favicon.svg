@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#020617"/>
+  <rect x="5" y="7" width="3.2" height="3.2" fill="#f472b6"/>
+  <rect x="9.6" y="7" width="3.2" height="3.2" fill="#fb923c"/>
+  <rect x="14.2" y="7" width="3.2" height="3.2" fill="#fbbf24"/>
+  <rect x="18.8" y="7" width="3.2" height="3.2" fill="#34d399"/>
+  <rect x="23.4" y="7" width="3.2" height="3.2" fill="#22d3ee"/>
+  <text x="6" y="25" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="600" fill="#e2e8f0">n</text>
+</svg>

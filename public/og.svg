@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#020617"/>
+  <g transform="translate(96 196)">
+    <rect width="36" height="8" fill="#f472b6"/>
+    <rect x="48" width="36" height="8" fill="#fb923c"/>
+    <rect x="96" width="36" height="8" fill="#fbbf24"/>
+    <rect x="144" width="36" height="8" fill="#34d399"/>
+    <rect x="192" width="36" height="8" fill="#22d3ee"/>
+  </g>
+  <text x="96" y="320" font-family="ui-sans-serif, system-ui, sans-serif" font-size="92" font-weight="560" fill="#f1f5f9">n-uf</text>
+  <text x="96" y="390" font-family="ui-sans-serif, system-ui, sans-serif" font-size="28" fill="#94a3b8">A small studio that builds open-source interface tools.</text>
+</svg>

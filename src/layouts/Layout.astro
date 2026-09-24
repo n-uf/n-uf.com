@@ -1,0 +1,66 @@
+---
+import '../styles/global.css';
+import { siteUrl, studioName, githubOrgUrl } from '../data/projects';
+
+interface Props {
+  title: string;
+  description: string;
+  path?: string;
+  robots?: string;
+}
+
+const {
+  title,
+  description,
+  path = '/',
+  robots = 'index, follow',
+} = Astro.props;
+
+const canonicalUrl: string = new URL(path, siteUrl).href;
+const imageUrl: string = new URL('/og.svg', siteUrl).href;
+
+const jsonLd: {
+  '@context': string;
+  '@type': string;
+  name: string;
+  url: string;
+  description: string;
+  sameAs: string[];
+} = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: studioName,
+  url: siteUrl,
+  description,
+  sameAs: [githubOrgUrl],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#020617" />
+    <meta name="color-scheme" content="dark" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta name="robots" content={robots} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="n-uf" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
