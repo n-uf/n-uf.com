@@ -1,8 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Wordmark from '../components/Wordmark.astro';
 import {
   listedProjects,
-  studioName,
   studioSummary,
   githubOrgUrl,
   type Project,
@@ -11,65 +11,40 @@ import {
 const pageTitle: string = 'n-uf';
 const pageDescription: string = studioSummary;
 const listed: readonly Project[] = listedProjects();
-const bars: readonly number[] = [0, 1, 2, 3, 4];
-
-function metaLine(project: Project): string {
-  const parts: string[] = [new URL(project.url).host];
-  if (project.repo !== undefined) {
-    const repo: URL = new URL(project.repo);
-    const path: string = repo.pathname.replace(/\/$/, '');
-    parts.push(`${repo.host}${path}`);
-  }
-  if (project.npm !== undefined) {
-    parts.push(project.npm);
-  }
-  return parts.join(' · ');
-}
-
-function indexLabel(index: number): string {
-  const number: number = index + 1;
-  const padded: string = number < 10 ? `0${String(number)}` : String(number);
-  return padded;
-}
+const wordmarkSize: string = 'clamp(84px, 18vw, 200px)';
 ---
 
 <Layout title={pageTitle} description={pageDescription} path="/">
-  <div class="page">
-    <header class="intro">
-      <div class="mark" aria-hidden="true">
-        {bars.map((index: number) => (
-          <span class="bar" data-bar={String(index)}></span>
-        ))}
-      </div>
-      <div class="topline" aria-hidden="true"></div>
-      <h1 class="hero">{studioName}</h1>
-      <p class="tagline">{studioSummary}</p>
-      <p class="kicker">
-        <a href={githubOrgUrl}>github.com/n-uf</a>
-      </p>
-    </header>
+  <div class="page home">
+    <h1 class="wordmark-heading" aria-label="n-uf">
+      <Wordmark size={wordmarkSize} />
+    </h1>
 
-    <div class="air" aria-hidden="true"></div>
-
-    <main class="sheet">
+    <main>
       <ul class="projects">
         {
-          listed.map((project: Project, index: number) => (
-            <li>
-              <article>
-                <a class="row" href={project.url} data-bar={String(index % bars.length)}>
-                  <span class="index">{indexLabel(index)}</span>
-                  <div class="copy">
-                    <h2 class="name">{project.name}</h2>
-                    <p class="tagline">{project.tagline}</p>
-                    <p class="meta">{metaLine(project)}</p>
-                  </div>
+          listed.map((project: Project, index: number) => {
+            const host: string = new URL(project.url).host;
+            return (
+              <li data-bar={String(index)}>
+                <a class="name" href={project.url}>
+                  {project.name}
                 </a>
-              </article>
-            </li>
-          ))
+                <p class="desc">{project.tagline}</p>
+                <p class="meta">
+                  <a href={project.url}>{host}</a>
+                </p>
+              </li>
+            );
+          })
         }
       </ul>
     </main>
+
+    <p class="foot">
+      {studioSummary}
+      {' · '}
+      <a href={githubOrgUrl}>github.com/n-uf</a>
+    </p>
   </div>
 </Layout>

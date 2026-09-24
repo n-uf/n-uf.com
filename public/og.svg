@@ -1,10 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="og-title">
+  <title id="og-title">n-uf</title>
   <rect width="1200" height="630" fill="#0a0a0c"/>
-  <g transform="translate(64 80)">
-    <rect width="72" height="6" fill="#f472b6"/>
-    <rect x="84" width="72" height="6" fill="#fb923c"/>
-    <rect x="168" width="72" height="6" fill="#fbbf24"/>
-    <rect x="252" width="72" height="6" fill="#34d399"/>
-    <rect x="336" width="72" height="6" fill="#22d3ee"/>
+  <g fill="#f2f2f0" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="800" font-size="168" letter-spacing="-10">
+    <text x="536" y="292" text-anchor="end">n</text>
+    <text x="664" y="292" text-anchor="start">uf</text>
+  </g>
+  <g transform="translate(562 232)">
+    <rect width="13.6" height="15" rx="2" fill="#f472b6"/>
+    <rect x="15.6" width="13.6" height="15" rx="2" fill="#fb923c"/>
+    <rect x="31.2" width="13.6" height="15" rx="2" fill="#fbbf24"/>
+    <rect x="46.8" width="13.6" height="15" rx="2" fill="#34d399"/>
+    <rect x="62.4" width="13.6" height="15" rx="2" fill="#22d3ee"/>
+  </g>
+  <g fill="#f2f2f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" font-weight="400">
+    <text x="390" y="400" text-anchor="middle">hypr-tiling</text>
+    <text x="600" y="400" text-anchor="middle">DOODL</text>
+    <text x="810" y="400" text-anchor="middle">debugsy</text>
+  </g>
+  <g>
+    <rect x="332" y="410" width="116" height="1" fill="#f472b6"/>
+    <rect x="574" y="410" width="52" height="1" fill="#fb923c"/>
+    <rect x="770" y="410" width="80" height="1" fill="#fbbf24"/>
   </g>
 </svg>

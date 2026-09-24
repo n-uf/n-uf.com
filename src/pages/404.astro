@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Wordmark from '../components/Wordmark.astro';
 
-const bars: readonly number[] = [0, 1, 2, 3, 4];
-const missingBar: number = 2;
+const wordmarkSize: string = 'clamp(56px, 10vw, 96px)';
+const missingSegment: number = 2;
 ---
 
 <Layout
@@ -12,20 +13,9 @@ const missingBar: number = 2;
   robots="noindex"
 >
   <div class="page">
-    <header class="intro">
-      <div class="mark" aria-hidden="true">
-        {
-          bars.map((index: number) => (
-            <span
-              class:list={['bar', index === missingBar && 'is-missing']}
-              data-bar={String(index)}
-            />
-          ))
-        }
-      </div>
-      <div class="topline" aria-hidden="true"></div>
-      <h1 class="code">404</h1>
-      <p class="miss">404 — page not found. <a href="/">n-uf.com</a></p>
-    </header>
+    <Wordmark size={wordmarkSize} missingSegment={missingSegment} />
+    <h1 class="miss">
+      404 — page not found. <a href="/">n-uf.com</a>
+    </h1>
   </div>
 </Layout>

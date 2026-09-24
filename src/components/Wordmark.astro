@@ -1,0 +1,65 @@
+---
+import { studioName } from '../data/projects';
+
+interface Props {
+  missingSegment?: number;
+  size: string;
+}
+
+const { missingSegment, size } = Astro.props;
+const parts: readonly string[] = studioName.split('-');
+const lead: string = parts[0] ?? 'n';
+const tail: string = parts[1] ?? 'uf';
+const segments: readonly number[] = [0, 1, 2, 3, 4];
+---
+
+<span class="wordmark" style={`--wm-size: ${size}`} aria-hidden="true">
+  <span class="wm-lead">{lead}</span><span class="hyphen">{
+    segments.map((index: number) => (
+      <span
+        class:list={['seg', index === missingSegment && 'is-missing']}
+        data-bar={String(index)}
+      />
+    ))
+  }</span><span class="wm-tail">{tail}</span>
+</span>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: var(--wm-size);
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .hyphen {
+    display: inline-flex;
+    align-self: center;
+    width: 0.42em;
+    height: 0.09em;
+    margin-inline: 0.07em;
+    gap: 0.014em;
+    transform: translateY(0.02em);
+  }
+
+  .seg {
+    flex: 1 1 0;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  .seg[data-bar='0'] { --accent: var(--accent-0); }
+  .seg[data-bar='1'] { --accent: var(--accent-1); }
+  .seg[data-bar='2'] { --accent: var(--accent-2); }
+  .seg[data-bar='3'] { --accent: var(--accent-3); }
+  .seg[data-bar='4'] { --accent: var(--accent-4); }
+
+  .seg.is-missing {
+    background: transparent;
+  }
+</style>
