@@ -1,4 +1,22 @@
+@import "@fontsource-variable/fraunces";
+@import "@fontsource-variable/geist-mono";
 @import "tailwindcss";
+
+:root {
+  --bg: #0a0a0c;
+  --ink: #f2f2f0;
+  --muted: color-mix(in srgb, var(--ink) 55%, transparent);
+  --hairline: color-mix(in srgb, var(--ink) 8%, transparent);
+  --inset: clamp(1.5rem, 4.5vw, 4.5rem);
+  --bar-w: clamp(2rem, 5vw, 4.5rem);
+  --serif: "Fraunces Variable", "Fraunces", ui-serif, Georgia, serif;
+  --mono: "Geist Mono Variable", "Geist Mono", ui-monospace, monospace;
+  --accent-0: #f472b6;
+  --accent-1: #fb923c;
+  --accent-2: #fbbf24;
+  --accent-3: #34d399;
+  --accent-4: #22d3ee;
+}
 
 html {
   color-scheme: dark;
@@ -7,13 +25,220 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: #020617;
-  color: #e2e8f0;
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }
 
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+a {
+  color: inherit;
+}
+
 a:focus-visible {
-  outline: 2px solid #22d3ee;
+  outline: 1px solid color-mix(in srgb, var(--ink) 70%, transparent);
   outline-offset: 3px;
+}
+
+.page {
+  min-height: 100vh;
+}
+
+.intro {
+  padding: clamp(2.75rem, 8vh, 5.5rem) var(--inset) 0;
+}
+
+.mark {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--bar-w) * 12 / 72);
+  margin: 0 0 clamp(1.75rem, 4.5vh, 3rem);
+}
+
+.bar {
+  display: block;
+  width: var(--bar-w);
+  height: calc(var(--bar-w) * 6 / 72);
+  background: var(--accent);
+  transition: opacity 320ms ease;
+}
+
+.bar[data-bar="0"] { --accent: var(--accent-0); }
+.bar[data-bar="1"] { --accent: var(--accent-1); }
+.bar[data-bar="2"] { --accent: var(--accent-2); }
+.bar[data-bar="3"] { --accent: var(--accent-3); }
+.bar[data-bar="4"] { --accent: var(--accent-4); }
+
+.bar.is-missing {
+  background: transparent;
+}
+
+.hero {
+  margin: 0;
+  max-width: 72ch;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(2.15rem, 4vw, 3.35rem);
+  font-variation-settings: "opsz" 144;
+  font-optical-sizing: auto;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+.air {
+  height: 20vh;
+}
+
+.projects {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  --accent: var(--ink);
+  position: relative;
+  display: block;
+  container-type: inline-size;
+  overflow: hidden;
+  padding: 2.5rem 0;
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 320ms ease;
+}
+
+.row[data-bar="0"] { --accent: var(--accent-0); }
+.row[data-bar="1"] { --accent: var(--accent-1); }
+.row[data-bar="2"] { --accent: var(--accent-2); }
+.row[data-bar="3"] { --accent: var(--accent-3); }
+.row[data-bar="4"] { --accent: var(--accent-4); }
+
+.project + .project .row {
+  box-shadow: inset 0 1px 0 var(--hairline);
+}
+
+.row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: var(--accent);
+  transform: scaleX(1);
+  transform-origin: left center;
+  will-change: transform;
+  transition: transform 320ms ease;
+}
+
+.row:is(:hover, :focus-visible)::before {
+  transform: scaleX(calc(100cqw / 4px));
+}
+
+.row:is(:hover, :focus-visible) {
+  color: var(--bg);
+}
+
+.row:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--ink) 55%, transparent);
+  outline-offset: -1px;
+}
+
+.copy {
+  position: relative;
+  z-index: 1;
+  margin-left: var(--inset);
+  margin-right: var(--inset);
+  max-width: 72ch;
+}
+
+.name {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 2rem;
+  font-variation-settings: "opsz" 72;
+  font-optical-sizing: auto;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  margin: 0.55rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.meta {
+  margin: 0.85rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--muted);
+  transition: color 320ms ease;
+}
+
+.row:is(:hover, :focus-visible) .meta {
+  color: color-mix(in srgb, var(--bg) 62%, transparent);
+}
+
+.page:has(.row[data-bar="0"]:is(:hover, :focus-visible)) .mark .bar:not([data-bar="0"]),
+.page:has(.row[data-bar="1"]:is(:hover, :focus-visible)) .mark .bar:not([data-bar="1"]),
+.page:has(.row[data-bar="2"]:is(:hover, :focus-visible)) .mark .bar:not([data-bar="2"]),
+.page:has(.row[data-bar="3"]:is(:hover, :focus-visible)) .mark .bar:not([data-bar="3"]),
+.page:has(.row[data-bar="4"]:is(:hover, :focus-visible)) .mark .bar:not([data-bar="4"]) {
+  opacity: 0.25;
+}
+
+.foot {
+  padding: 4.5rem var(--inset) 3rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.foot a {
+  text-decoration: none;
+}
+
+.foot a:hover {
+  color: var(--ink);
+}
+
+.miss {
+  margin: 0;
+  max-width: 72ch;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.miss a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.miss a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar,
+  .row,
+  .row::before,
+  .meta {
+    transition: none;
+  }
 }

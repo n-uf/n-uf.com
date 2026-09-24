@@ -11,8 +11,7 @@ export interface Project {
 
 export const studioName: string = "n-uf";
 
-export const studioSummary: string =
-  "A small studio that builds open-source interface tools.";
+export const studioSummary: string = "Interface tools, built in the open.";
 
 export const siteUrl: string = "https://n-uf.com";
 
@@ -50,3 +49,9 @@ export const projects: readonly Project[] = [
     status: "live",
   },
 ];
+
+export function listedProjects(): readonly Project[] {
+  return projects.filter(
+    (project: Project): boolean => project.status !== "preview",
+  );
+}
