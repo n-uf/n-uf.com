@@ -1,4 +1,4 @@
-@import "@fontsource-variable/fraunces";
+@import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
 @import "tailwindcss";
 
@@ -6,10 +6,11 @@
   --bg: #0a0a0c;
   --ink: #f2f2f0;
   --muted: color-mix(in srgb, var(--ink) 55%, transparent);
-  --hairline: color-mix(in srgb, var(--ink) 8%, transparent);
+  --hairline: rgba(242, 242, 240, 0.1);
   --inset: clamp(1.5rem, 4.5vw, 4.5rem);
+  --gutter: 3.25rem;
   --bar-w: clamp(2rem, 5vw, 4.5rem);
-  --serif: "Fraunces Variable", "Fraunces", ui-serif, Georgia, serif;
+  --sans: "Geist Variable", "Geist", ui-sans-serif, sans-serif;
   --mono: "Geist Mono Variable", "Geist Mono", ui-monospace, monospace;
   --accent-0: #f472b6;
   --accent-1: #fb923c;
@@ -51,14 +52,14 @@ a:focus-visible {
 }
 
 .intro {
-  padding: clamp(2.75rem, 8vh, 5.5rem) var(--inset) 0;
+  padding: clamp(1.5rem, 3.5vh, 2.25rem) var(--inset) 0;
 }
 
 .mark {
   display: flex;
   align-items: center;
   gap: calc(var(--bar-w) * 12 / 72);
-  margin: 0 0 clamp(1.75rem, 4.5vh, 3rem);
+  margin: 0 0 1rem;
 }
 
 .bar {
@@ -66,7 +67,7 @@ a:focus-visible {
   width: var(--bar-w);
   height: calc(var(--bar-w) * 6 / 72);
   background: var(--accent);
-  transition: opacity 320ms ease;
+  transition: opacity 220ms ease;
 }
 
 .bar[data-bar="0"] { --accent: var(--accent-0); }
@@ -79,20 +80,48 @@ a:focus-visible {
   background: transparent;
 }
 
+.topline {
+  height: 1px;
+  margin: 0 calc(var(--inset) * -1) 1.15rem;
+  background: var(--hairline);
+}
+
 .hero {
   margin: 0;
-  max-width: 72ch;
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: clamp(2.15rem, 4vw, 3.35rem);
-  font-variation-settings: "opsz" 144;
-  font-optical-sizing: auto;
-  line-height: 1.12;
+  max-width: 11.5em;
+  font-family: var(--sans);
+  font-weight: 760;
+  font-size: clamp(2.5rem, 4.6vw, 4.5rem);
+  line-height: 0.94;
   letter-spacing: -0.03em;
 }
 
+.kicker {
+  margin: 0.85rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 450;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
 .air {
-  height: 20vh;
+  height: 10vh;
+}
+
+.sheet {
+  position: relative;
+}
+
+.sheet::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--inset) + var(--gutter));
+  width: 1px;
+  background: var(--hairline);
+  pointer-events: none;
 }
 
 .projects {
@@ -104,13 +133,12 @@ a:focus-visible {
 .row {
   --accent: var(--ink);
   position: relative;
-  display: block;
-  container-type: inline-size;
-  overflow: hidden;
-  padding: 2.5rem 0;
+  display: grid;
+  grid-template-columns: calc(var(--inset) + var(--gutter)) minmax(0, 1fr);
+  padding: 1.05rem 0 1.15rem;
+  border-top: 1px solid var(--hairline);
   color: var(--ink);
   text-decoration: none;
-  transition: color 320ms ease;
 }
 
 .row[data-bar="0"] { --accent: var(--accent-0); }
@@ -119,75 +147,83 @@ a:focus-visible {
 .row[data-bar="3"] { --accent: var(--accent-3); }
 .row[data-bar="4"] { --accent: var(--accent-4); }
 
-.project + .project .row {
-  box-shadow: inset 0 1px 0 var(--hairline);
-}
-
 .row::before {
   content: "";
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: -1px;
   left: 0;
-  width: 4px;
+  width: 100%;
+  height: 2px;
   background: var(--accent);
-  transform: scaleX(1);
-  transform-origin: left center;
-  will-change: transform;
-  transition: transform 320ms ease;
+  opacity: 0.6;
+  transform-origin: center top;
+  transition: height 220ms ease, opacity 220ms ease;
 }
 
 .row:is(:hover, :focus-visible)::before {
-  transform: scaleX(calc(100cqw / 4px));
-}
-
-.row:is(:hover, :focus-visible) {
-  color: var(--bg);
+  height: 3px;
+  opacity: 1;
 }
 
 .row:focus-visible {
-  outline: 1px solid color-mix(in srgb, var(--ink) 55%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--ink) 45%, transparent);
   outline-offset: -1px;
 }
 
+.index {
+  padding: 0.4rem 0.75rem 0 var(--inset);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
 .copy {
-  position: relative;
-  z-index: 1;
-  margin-left: var(--inset);
-  margin-right: var(--inset);
   max-width: 72ch;
+  padding-right: var(--inset);
+  padding-left: 1.15rem;
 }
 
 .name {
+  display: inline;
   margin: 0;
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: 2rem;
-  font-variation-settings: "opsz" 72;
-  font-optical-sizing: auto;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-family: var(--sans);
+  font-weight: 740;
+  font-size: 1.75rem;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 2px;
+  transition: background-size 220ms ease;
+}
+
+.row:is(:hover, :focus-visible) .name {
+  background-size: 100% 2px;
 }
 
 .tagline {
-  margin: 0.55rem 0 0;
+  margin: 0.4rem 0 0;
   font-family: var(--mono);
-  font-size: 0.95rem;
+  font-size: 0.86rem;
   font-weight: 400;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .meta {
-  margin: 0.85rem 0 0;
+  margin: 0.45rem 0 0;
   font-family: var(--mono);
-  font-size: 0.78rem;
-  line-height: 1.5;
-  color: var(--muted);
-  transition: color 320ms ease;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--ink);
+  opacity: 0.55;
+  transition: opacity 220ms ease;
 }
 
 .row:is(:hover, :focus-visible) .meta {
-  color: color-mix(in srgb, var(--bg) 62%, transparent);
+  opacity: 1;
 }
 
 .page:has(.row[data-bar="0"]:is(:hover, :focus-visible)) .mark .bar:not([data-bar="0"]),
@@ -199,11 +235,22 @@ a:focus-visible {
 }
 
 .foot {
-  padding: 4.5rem var(--inset) 3rem;
+  margin-top: 0.35rem;
+  padding: 0.85rem var(--inset) 1.15rem;
+  border-top: 1px solid var(--hairline);
   font-family: var(--mono);
-  font-size: 0.8rem;
-  line-height: 1.6;
-  color: var(--muted);
+}
+
+.foot-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.foot-row p {
+  margin: 0;
 }
 
 .foot a {
@@ -214,12 +261,27 @@ a:focus-visible {
   color: var(--ink);
 }
 
+.legal {
+  margin: 0.4rem 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  opacity: 0.4;
+}
+
+.code {
+  margin: 0.15rem 0 0.65rem;
+  font-family: var(--sans);
+  font-weight: 760;
+  font-size: clamp(3rem, 7vw, 4.75rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+}
+
 .miss {
   margin: 0;
-  max-width: 72ch;
   font-family: var(--mono);
-  font-size: 0.95rem;
-  font-weight: 400;
+  font-size: 0.9rem;
   line-height: 1.5;
   color: var(--muted);
 }
@@ -231,13 +293,13 @@ a:focus-visible {
 
 .miss a:hover {
   text-decoration: underline;
-  text-underline-offset: 0.22em;
+  text-underline-offset: 0.2em;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .bar,
-  .row,
   .row::before,
+  .name,
   .meta {
     transition: none;
   }
