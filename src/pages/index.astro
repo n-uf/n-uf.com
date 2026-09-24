@@ -44,7 +44,9 @@ function indexLabel(index: number): string {
       <div class="topline" aria-hidden="true"></div>
       <h1 class="hero">{studioName}</h1>
       <p class="tagline">{studioSummary}</p>
-      <p class="kicker">github.com/n-uf</p>
+      <p class="kicker">
+        <a href={githubOrgUrl}>github.com/n-uf</a>
+      </p>
     </header>
 
     <div class="air" aria-hidden="true"></div>
@@ -69,9 +71,5 @@ function indexLabel(index: number): string {
         }
       </ul>
     </main>
-
-    <footer class="foot">
-      <a href={githubOrgUrl}>github.com/n-uf</a>
-    </footer>
   </div>
 </Layout>
