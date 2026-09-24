@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import {
   listedProjects,
+  studioName,
   studioSummary,
   githubOrgUrl,
   type Project,
@@ -42,8 +43,9 @@ function indexLabel(index: number): string {
         ))}
       </div>
       <div class="topline" aria-hidden="true"></div>
-      <h1 class="hero">{studioSummary}</h1>
-      <p class="kicker">n-uf · open-source · est. {founded}</p>
+      <h1 class="hero">{studioName}</h1>
+      <p class="tagline">{studioSummary}</p>
+      <p class="kicker">github.com/n-uf · est. {founded}</p>
     </header>
 
     <div class="air" aria-hidden="true"></div>

@@ -11,7 +11,8 @@ export interface Project {
 
 export const studioName: string = "n-uf";
 
-export const studioSummary: string = "Interface tools, built in the open.";
+export const studioSummary: string =
+  "Libraries and a debugging panel for web interfaces. hypr-tiling and DOODL: source on GitHub, packages on npm.";
 
 export const siteUrl: string = "https://n-uf.com";
 
@@ -21,9 +22,10 @@ export const projects: readonly Project[] = [
   {
     id: "hypr-tiling",
     name: "hypr-tiling",
-    tagline: "Rearrange the interface, at runtime.",
+    tagline:
+      "React tiling layout library: split and resize panes, tab groups, multiple workspaces, serialisable layouts.",
     description:
-      "A dynamic tiling renderer for React: drag, resize, group, keyboard, and workspaces. Licence: PolyForm Perimeter 1.0.1.",
+      "Keyboard commands. Licence: PolyForm Perimeter 1.0.1.",
     url: "https://hypr-tiling.n-uf.com",
     repo: "https://github.com/n-uf/hypr-tiling",
     npm: "@n-uf/hypr-tiling",
@@ -32,9 +34,10 @@ export const projects: readonly Project[] = [
   {
     id: "doodl",
     name: "DOODL",
-    tagline: "Canvas drawing and annotation for the web.",
+    tagline:
+      "Canvas drawing and annotation library for the web: freehand, shapes, text markup, PDF pages.",
     description:
-      "A canvas library for drawing and annotation, with React, PDF, and ready-made UI bindings.",
+      "React bindings and JSON export. npm: @n-uf/pdf-doodl. Licence: PolyForm Perimeter 1.0.1.",
     url: "https://doodl.n-uf.com",
     repo: "https://github.com/n-uf/pdf-doodl",
     status: "live",
@@ -42,9 +45,10 @@ export const projects: readonly Project[] = [
   {
     id: "debugsy",
     name: "debugsy",
-    tagline: "real-time React debugging panel",
+    tagline:
+      "In-process React debugging panel: logs renders, effects, state, and fetch.",
     description:
-      "An in-process React inspector. It logs renders, effects, state, and fetch in one panel.",
+      "Records re-render causes from dependency and prop changes.",
     url: "https://debugsy.n-uf.com",
     status: "live",
   },
