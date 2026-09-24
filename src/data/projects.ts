@@ -12,7 +12,7 @@ export interface Project {
 export const studioName: string = "n-uf";
 
 export const studioSummary: string =
-  "Libraries and a debugging panel for web interfaces. hypr-tiling and DOODL: source on GitHub, packages on npm.";
+  "Utilities for fun and for professional work. Open source, or nearly — source on GitHub, licence stated per project.";
 
 export const siteUrl: string = "https://n-uf.com";
 
