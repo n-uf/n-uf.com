@@ -32,25 +32,40 @@ const segments: readonly number[] = [0, 1, 2, 3, 4];
     font-family: var(--sans);
     font-size: var(--wm-size);
     font-weight: 800;
-    letter-spacing: -0.06em;
+    letter-spacing: 0;
     line-height: 1;
     white-space: nowrap;
   }
 
+  .wm-lead {
+    margin-right: -0.006em;
+  }
+
+  .wm-tail {
+    letter-spacing: -0.06em;
+  }
+
   .hyphen {
     display: inline-flex;
-    align-self: center;
+    align-self: baseline;
     width: 0.42em;
     height: 0.09em;
-    margin-inline: 0.07em;
-    gap: 0.014em;
-    transform: translateY(0.02em);
+    margin: 0 0.05em;
+    gap: 0;
+    overflow: hidden;
+    border-radius: 2px;
+    transform: translateY(calc(0.045em - 0.5ex));
   }
 
   .seg {
     flex: 1 1 0;
-    border-radius: 2px;
+    min-width: 0;
+    border-radius: 0;
     background: var(--accent);
+  }
+
+  .seg + .seg {
+    margin-left: -1px;
   }
 
   .seg[data-bar='0'] { --accent: var(--accent-0); }
