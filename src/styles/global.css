@@ -239,18 +239,8 @@ a:focus-visible {
   padding: 0.85rem var(--inset) 1.15rem;
   border-top: 1px solid var(--hairline);
   font-family: var(--mono);
-}
-
-.foot-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 1.5rem;
   font-size: 0.75rem;
   line-height: 1.5;
-}
-
-.foot-row p {
-  margin: 0;
 }
 
 .foot a {
@@ -259,14 +249,6 @@ a:focus-visible {
 
 .foot a:hover {
   color: var(--ink);
-}
-
-.legal {
-  margin: 0.4rem 0 0;
-  font-size: 0.68rem;
-  letter-spacing: 0.04em;
-  color: var(--ink);
-  opacity: 0.4;
 }
 
 .code {
