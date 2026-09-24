@@ -5,12 +5,12 @@
     <text x="536" y="292" text-anchor="end">n</text>
     <text x="664" y="292" text-anchor="start">uf</text>
   </g>
-  <g transform="translate(562 232)">
-    <rect width="13.6" height="15" rx="2" fill="#f472b6"/>
-    <rect x="15.6" width="13.6" height="15" rx="2" fill="#fb923c"/>
-    <rect x="31.2" width="13.6" height="15" rx="2" fill="#fbbf24"/>
-    <rect x="46.8" width="13.6" height="15" rx="2" fill="#34d399"/>
-    <rect x="62.4" width="13.6" height="15" rx="2" fill="#22d3ee"/>
+  <g transform="translate(557.5 232.4)">
+    <rect width="14.3" height="14.3" rx="3.4" fill="#f472b6"/>
+    <rect x="17.7" width="14.3" height="14.3" rx="3.4" fill="#fb923c"/>
+    <rect x="35.4" width="14.3" height="14.3" rx="3.4" fill="#fbbf24"/>
+    <rect x="53.1" width="14.3" height="14.3" rx="3.4" fill="#34d399"/>
+    <rect x="70.8" width="14.3" height="14.3" rx="3.4" fill="#22d3ee"/>
   </g>
   <g fill="#f2f2f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" font-weight="400">
     <text x="390" y="400" text-anchor="middle">hypr-tiling</text>

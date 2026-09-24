@@ -55,10 +55,11 @@ function repoLine(repo: string): string {
       </ul>
     </main>
 
-    <p class="foot">
-      {studioSummary}
-      {' · '}
-      <a href={githubOrgUrl}>github.com/n-uf</a>
-    </p>
+    <div class="foot">
+      <p class="foot-summary">{studioSummary}</p>
+      <p class="foot-link">
+        <a href={githubOrgUrl}>github.com/n-uf</a>
+      </p>
+    </div>
   </div>
 </Layout>

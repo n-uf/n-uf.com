@@ -48,24 +48,19 @@ const segments: readonly number[] = [0, 1, 2, 3, 4];
   .hyphen {
     display: inline-flex;
     align-self: baseline;
-    width: 0.42em;
-    height: 0.09em;
+    align-items: center;
+    gap: 0.02em;
+    height: 0.085em;
     margin: 0 0.05em;
-    gap: 0;
-    overflow: hidden;
-    border-radius: 2px;
-    transform: translateY(calc(0.045em - 0.5ex));
+    transform: translateY(calc(0.0425em - 0.5ex));
   }
 
   .seg {
-    flex: 1 1 0;
-    min-width: 0;
-    border-radius: 0;
+    flex: 0 0 0.085em;
+    width: 0.085em;
+    height: 0.085em;
+    border-radius: 0.02em;
     background: var(--accent);
-  }
-
-  .seg + .seg {
-    margin-left: -1px;
   }
 
   .seg[data-bar='0'] { --accent: var(--accent-0); }

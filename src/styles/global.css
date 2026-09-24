@@ -6,6 +6,7 @@
   --bg: #0a0a0c;
   --ink: #f2f2f0;
   --copy: color-mix(in srgb, var(--ink) 70%, transparent);
+  --lead: color-mix(in srgb, var(--ink) 75%, transparent);
   --muted: color-mix(in srgb, var(--ink) 55%, transparent);
   --faint: color-mix(in srgb, var(--ink) 45%, transparent);
   --sans: "Geist Variable", "Geist", ui-sans-serif, sans-serif;
@@ -166,7 +167,29 @@ a:focus-visible {
 }
 
 .foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   white-space: normal;
+}
+
+.foot-summary {
+  margin: 0;
+  max-width: 72ch;
+  color: var(--lead);
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.foot-link {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.45;
 }
 
 .miss {
