@@ -12,6 +12,12 @@ const pageTitle: string = 'n-uf';
 const pageDescription: string = studioSummary;
 const listed: readonly Project[] = listedProjects();
 const wordmarkSize: string = 'clamp(84px, 18vw, 200px)';
+
+function repoLine(repo: string): string {
+  const url: URL = new URL(repo);
+  const path: string = url.pathname.replace(/\/$/, '');
+  return `${url.host}${path}`;
+}
 ---
 
 <Layout title={pageTitle} description={pageDescription} path="/">
@@ -25,6 +31,9 @@ const wordmarkSize: string = 'clamp(84px, 18vw, 200px)';
         {
           listed.map((project: Project, index: number) => {
             const host: string = new URL(project.url).host;
+            const repoHref: string | undefined = project.repo;
+            const repoText: string | undefined =
+              repoHref === undefined ? undefined : repoLine(repoHref);
             return (
               <li data-bar={String(index)}>
                 <a class="name" href={project.url}>
@@ -34,6 +43,11 @@ const wordmarkSize: string = 'clamp(84px, 18vw, 200px)';
                 <p class="meta">
                   <a href={project.url}>{host}</a>
                 </p>
+                {repoHref !== undefined && repoText !== undefined && (
+                  <p class="meta">
+                    <a href={repoHref}>{repoText}</a>
+                  </p>
+                )}
               </li>
             );
           })

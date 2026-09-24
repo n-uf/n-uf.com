@@ -147,6 +147,10 @@ a:focus-visible {
   white-space: nowrap;
 }
 
+.meta + .meta {
+  margin-top: 4px;
+}
+
 .foot,
 .miss {
   max-width: 100%;
