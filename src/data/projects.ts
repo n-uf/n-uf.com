@@ -37,9 +37,9 @@ export const projects: readonly Project[] = [
     tagline:
       "Canvas drawing and annotation library for the web: freehand, shapes, text markup, PDF pages.",
     description:
-      "React bindings and JSON export. npm: @n-uf/pdf-doodl. Licence: PolyForm Perimeter 1.0.1.",
+      "Packages: @n-uf/doodl, @n-uf/doodl-react, @n-uf/doodl-react-pdf, @n-uf/doodl-go. JSON export. Licence: PolyForm Perimeter 1.0.1.",
     url: "https://doodl.n-uf.com",
-    repo: "https://github.com/n-uf/pdf-doodl",
+    repo: "https://github.com/n-uf/doodl",
     status: "live",
   },
   {
