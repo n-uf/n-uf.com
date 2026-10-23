@@ -63,6 +63,36 @@ export const projects: readonly Project[] = [
     repo: "https://github.com/n-uf/cl_audit",
     status: "live",
   },
+  {
+    id: "harbuz",
+    name: "harbuz",
+    tagline:
+      "React UI kit: composable primitives, blocks and shells (dossier, terminal, explorers) with a CSS-variable theme system.",
+    description:
+      "The site is one HarbuzDossier: page through it, switch themes, draw on the pages with DOODL tools. Source not public yet.",
+    url: "https://harbuz.n-uf.com",
+    status: "live",
+  },
+  {
+    id: "kavun",
+    name: "kavun",
+    tagline:
+      "React UI kit in a panel language: engraved monospace chrome, caution pink and LED cyan. A file explorer and a document dossier.",
+    description:
+      "Five themes, fit-to-page, several documents open side by side. Source not public yet.",
+    url: "https://kavun.n-uf.com",
+    status: "live",
+  },
+  {
+    id: "dynia",
+    name: "dynia",
+    tagline:
+      "React UI kit in the pdfized.com look, with a PDF dossier whose every part moves.",
+    description:
+      "Control blocks dock in the title, top, bottom and side bars, the thumbnail rail or a card, or float; the rail and cards move and resize. Source not public yet.",
+    url: "https://dynia.n-uf.com",
+    status: "live",
+  },
 ];
 
 export function listedProjects(): readonly Project[] {
