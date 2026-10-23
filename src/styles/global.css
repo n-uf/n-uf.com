@@ -88,9 +88,9 @@ a:focus-visible {
 
 .projects {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: start;
-  column-gap: 48px;
+  column-gap: 40px;
   row-gap: 28px;
   width: 100%;
   margin: 0;
@@ -213,6 +213,12 @@ a:focus-visible {
 .foot a:is(:hover, :focus-visible),
 .miss a:is(:hover, :focus-visible) {
   background-size: 100% 1px;
+}
+
+@media (max-width: 900px) {
+  .projects {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {

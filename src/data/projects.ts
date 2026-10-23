@@ -52,6 +52,17 @@ export const projects: readonly Project[] = [
     url: "https://debugsy.n-uf.com",
     status: "live",
   },
+  {
+    id: "cl_audit",
+    name: "cl_audit",
+    tagline:
+      "macOS app for several Claude accounts: a separate Claude desktop app per account, usage limits in the Dock, a usage dashboard.",
+    description:
+      "Limits read directly from Anthropic; usage history from the Claude Code session logs on the Mac. Licence: PolyForm Perimeter 1.0.1. Not affiliated with Anthropic.",
+    url: "https://cl-audit.n-uf.com",
+    repo: "https://github.com/n-uf/cl_audit",
+    status: "live",
+  },
 ];
 
 export function listedProjects(): readonly Project[] {
