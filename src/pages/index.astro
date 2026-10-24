@@ -35,7 +35,7 @@ function repoLine(repo: string): string {
             const repoText: string | undefined =
               repoHref === undefined ? undefined : repoLine(repoHref);
             return (
-              <li data-bar={String(index)}>
+              <li data-bar={String(index % 5)}>
                 <a class="name" href={project.url}>
                   {project.name}
                 </a>
