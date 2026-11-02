@@ -7,6 +7,8 @@ interface Props {
   description: string;
   path?: string;
   robots?: string;
+  /** Extra JSON-LD nodes for this page, published next to the Organization node */
+  structuredData?: Record<string, unknown>[];
 }
 
 const {
@@ -14,6 +16,7 @@ const {
   description,
   path = '/',
   robots = 'index, follow',
+  structuredData = [],
 } = Astro.props;
 
 const canonicalUrl: string = new URL(path, siteUrl).href;
@@ -62,7 +65,10 @@ const jsonLd: {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(structuredData.length > 0 ? [jsonLd, ...structuredData] : jsonLd)}
+    />
   </head>
   <body>
     <slot />
