@@ -39,9 +39,11 @@ function repoLine(repo: string): string {
               repoHref === undefined ? undefined : repoLine(repoHref);
             return (
               <li data-bar={String(index % 5)}>
-                <a class="name" href={project.url}>
-                  {project.name}
-                </a>
+                <h2 class="name-heading">
+                  <a class="name" href={project.url}>
+                    {project.name}
+                  </a>
+                </h2>
                 <p class="desc">{project.tagline}</p>
                 <p class="meta">
                   <a href={project.url}>{host}</a>

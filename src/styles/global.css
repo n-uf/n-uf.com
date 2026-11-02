@@ -111,6 +111,15 @@ a:focus-visible {
 .projects li[data-bar="3"] { --accent: var(--accent-3); }
 .projects li[data-bar="4"] { --accent: var(--accent-4); }
 
+/* Each project name is a heading for search engines and screen readers;
+   it takes the link's own size so the page looks the same. */
+.name-heading {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
 .name {
   color: var(--ink);
   font-family: var(--mono);
