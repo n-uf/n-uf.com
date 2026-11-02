@@ -8,8 +8,11 @@ import {
   type Project,
 } from '../data/projects';
 
-const pageTitle: string = 'n-uf';
-const pageDescription: string = studioSummary;
+// What a search result shows: name what is here (Google cuts titles near 60 characters,
+// descriptions near 155). The studio summary stays in the footer and the Organization data.
+const pageTitle: string = 'n-uf: React UI kits, web libraries and macOS tools';
+const pageDescription: string =
+  'React UI kits (harbuz, kavun, dynia), a tiling layout, a canvas drawing library, a React debug panel and cl_audit, a Mac app for Claude usage limits.';
 const listed: readonly Project[] = listedProjects();
 const wordmarkSize: string = 'clamp(84px, 18vw, 200px)';
 
