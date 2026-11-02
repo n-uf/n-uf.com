@@ -16,6 +16,20 @@ const pageDescription: string =
 const listed: readonly Project[] = listedProjects();
 const wordmarkSize: string = 'clamp(84px, 18vw, 200px)';
 
+// Structured data: the projects as a list, each with its own site
+const projectList: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'n-uf projects',
+  itemListElement: listed.map((project: Project, index: number) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: project.name,
+    url: project.url,
+    description: project.tagline,
+  })),
+};
+
 function repoLine(repo: string): string {
   const url: URL = new URL(repo);
   const path: string = url.pathname.replace(/\/$/, '');
@@ -23,7 +37,7 @@ function repoLine(repo: string): string {
 }
 ---
 
-<Layout title={pageTitle} description={pageDescription} path="/">
+<Layout title={pageTitle} description={pageDescription} path="/" structuredData={[projectList]}>
   <div class="page home">
     <h1 class="wordmark-heading" aria-label="n-uf">
       <Wordmark size={wordmarkSize} />
