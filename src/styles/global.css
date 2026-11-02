@@ -112,8 +112,10 @@ a:focus-visible {
 .projects li[data-bar="4"] { --accent: var(--accent-4); }
 
 /* Each project name is a heading for search engines and screen readers;
-   it takes the link's own size so the page looks the same. */
+   it takes the link's own size so the page looks the same. Flex keeps the
+   link a block-level box as before, so its underline sits where it did. */
 .name-heading {
+  display: flex;
   margin: 0;
   font-size: 20px;
   font-weight: 400;
