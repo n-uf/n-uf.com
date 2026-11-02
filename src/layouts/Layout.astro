@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { siteUrl, studioName, githubOrgUrl } from '../data/projects';
+import { siteUrl, studioName, studioSummary, githubOrgUrl } from '../data/projects';
 
 interface Props {
   title: string;
@@ -31,7 +31,7 @@ const jsonLd: {
   '@type': 'Organization',
   name: studioName,
   url: siteUrl,
-  description,
+  description: studioSummary,
   sameAs: [githubOrgUrl],
 };
 ---
