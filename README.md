@@ -1,3 +1,11 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.svg">
+    <img alt="n-uf.com by n-uf" src="docs/logo-light.svg" height="60">
+  </picture>
+</p>
+
 # n-uf.com
 
 Organisation homepage for [n-uf](https://github.com/n-uf). Static site. Production branch is `main`. Host is Vercel.
