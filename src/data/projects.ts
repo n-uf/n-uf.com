@@ -11,6 +11,13 @@ export interface Project {
 
 export const studioName: string = "n-uf";
 
+// How people spell the name when they search for it: the wordmark reads "nuf"
+// (Search Console shows "nuf", "nauf" and "n u f" queries).
+export const studioAlternateNames: readonly string[] = ["nuf", "n uf"];
+
+// The Organization node's id; harbuz, kavun, dynia and doodl point to the same id.
+export const studioId: string = "https://n-uf.com/#org";
+
 export const studioSummary: string =
   "Utilities for fun and for professional work. Open source, or nearly — source on GitHub, licence stated per project.";
 
