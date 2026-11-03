@@ -1,6 +1,13 @@
 ---
 import '../styles/global.css';
-import { siteUrl, studioName, studioSummary, githubOrgUrl } from '../data/projects';
+import {
+  siteUrl,
+  studioName,
+  studioAlternateNames,
+  studioId,
+  studioSummary,
+  githubOrgUrl,
+} from '../data/projects';
 
 interface Props {
   title: string;
@@ -25,14 +32,18 @@ const imageUrl: string = new URL('/og.png', siteUrl).href;
 const jsonLd: {
   '@context': string;
   '@type': string;
+  '@id': string;
   name: string;
+  alternateName: string[];
   url: string;
   description: string;
   sameAs: string[];
 } = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': studioId,
   name: studioName,
+  alternateName: [...studioAlternateNames],
   url: siteUrl,
   description: studioSummary,
   sameAs: [githubOrgUrl],
