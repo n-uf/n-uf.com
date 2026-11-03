@@ -55,8 +55,9 @@ export const projects: readonly Project[] = [
     tagline:
       "In-process React debugging panel: logs renders, effects, state, and fetch.",
     description:
-      "Records re-render causes from dependency and prop changes.",
+      "Records re-render causes from dependency and prop changes. Licence: PolyForm Perimeter 1.0.1.",
     url: "https://debugsy.n-uf.com",
+    repo: "https://github.com/n-uf/debugsy",
     status: "live",
   },
   {
