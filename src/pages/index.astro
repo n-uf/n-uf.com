@@ -4,6 +4,9 @@ import Wordmark from '../components/Wordmark.astro';
 import {
   listedProjects,
   studioSummary,
+  studioName,
+  studioId,
+  siteUrl,
   githubOrgUrl,
   type Project,
 } from '../data/projects';
@@ -30,6 +33,16 @@ const projectList: Record<string, unknown> = {
   })),
 };
 
+// Google takes the site name shown above the result from this node
+const website: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${siteUrl}/#website`,
+  name: studioName,
+  url: `${siteUrl}/`,
+  publisher: { '@id': studioId },
+};
+
 function repoLine(repo: string): string {
   const url: URL = new URL(repo);
   const path: string = url.pathname.replace(/\/$/, '');
@@ -37,7 +50,7 @@ function repoLine(repo: string): string {
 }
 ---
 
-<Layout title={pageTitle} description={pageDescription} path="/" structuredData={[projectList]}>
+<Layout title={pageTitle} description={pageDescription} path="/" structuredData={[website, projectList]}>
   <div class="page home">
     <h1 class="wordmark-heading" aria-label="n-uf">
       <Wordmark size={wordmarkSize} />
