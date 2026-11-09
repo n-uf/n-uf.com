@@ -9,6 +9,14 @@ export default defineConfig({
   integrations: [
     sitemap({
       customPages: [`${siteUrl}/llms.txt`],
+      // Canonical URLs have no trailing slash (Layout.astro); list pages the same way.
+      serialize(item) {
+        const url = new URL(item.url);
+        if (url.pathname !== '/' && url.pathname.endsWith('/')) {
+          url.pathname = url.pathname.slice(0, -1);
+        }
+        return { ...item, url: url.href };
+      },
     }),
   ],
   vite: {

@@ -1,0 +1,355 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { siteUrl, studioId } from '../data/projects';
+
+const pageTitle: string = 'machine-transfer: move a Claude Code workspace to a new Mac';
+const pageDescription: string =
+  'machine-transfer, a Claude Code skill, moves a multi-session workspace to a new Mac by fresh restarts, one sidebar section at a time, branch heads checked.';
+const pagePath: string = '/claude-machine-transfer';
+const pageUrl: string = new URL(pagePath, siteUrl).href;
+const repoUrl: string = 'https://github.com/n-uf/claude-machine-transfer';
+
+// The skill's own node: the Organization node comes from the layout
+const software: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  '@id': `${pageUrl}#software`,
+  name: 'machine-transfer',
+  description: pageDescription,
+  url: pageUrl,
+  codeRepository: repoUrl,
+  programmingLanguage: 'Bash',
+  license: 'https://polyformproject.org/licenses/perimeter/1.0.1',
+  author: { '@id': studioId },
+  publisher: { '@id': studioId },
+};
+
+const breadcrumbs: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'n-uf',
+      item: `${siteUrl}/`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'machine-transfer',
+      item: pageUrl,
+    },
+  ],
+};
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  path={pagePath}
+  structuredData={[software, breadcrumbs]}
+>
+  <div class="doc">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/">n-uf</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">machine-transfer</span>
+    </nav>
+
+    <main>
+      <article>
+        <h1>Move a Claude Code workspace to a new Mac</h1>
+
+        <p>
+          machine-transfer is a Claude Code skill that helps you move a Claude Code workspace to a
+          new Mac without losing work in flight. A busy workspace is more than files. It has lead
+          sessions that run child sessions, branches with unpushed commits, sidebar sections, memory
+          and skills in <code>~/.claude</code>, scheduled tasks and signed-in tools.
+        </p>
+        <p>
+          Copying the disk moves the files and loses the rest. So the skill moves the workspace by
+          fresh restarts. Each lead session writes down where it stands. A successor session on the
+          new Mac checks that record against git and takes over. The old session goes idle and stays
+          in the sidebar as history.
+        </p>
+        <p>
+          A lead session is a top-level session that owns a scope, such as an app or a set of repos.
+          The skill covers a move from one Mac to another, with the Claude desktop app and Remote
+          Control.
+        </p>
+
+        <h2>How a move works, one wave at a time</h2>
+        <p>
+          You move one sidebar section at a time. The skill calls that a wave. Start with a quiet
+          one to prove the method.
+        </p>
+        <ol>
+          <li>
+            <strong>Take stock.</strong> List every open session by sidebar section.
+            <code>scan-workspace.sh</code> inventories each folder two levels down;
+            <code>scan-unpushed.sh</code> lists folders with no remote and commits that are on no
+            remote.
+          </li>
+          <li>
+            <strong>Agree the layout.</strong> Decide what moves now, what waits, and how files
+            travel.
+          </li>
+          <li>
+            <strong>Prepare the new Mac.</strong> Same folder paths (and the same user name, if you
+            can), matching tool versions, <code>gh</code> signed in over HTTPS, sidebar sections in
+            the same order.
+          </li>
+          <li>
+            <strong>Push everything to remotes.</strong> A folder with no remote becomes a private
+            repo after a secret scan. A branch that can't be pushed goes into a
+            <code>git bundle</code>.
+          </li>
+          <li>
+            <strong>Freeze and hand off.</strong> Each lead session reaches a safe point, pushes its
+            branches with no force, and writes a handoff note, a branch ledger (every branch and its
+            commit) and a handover message. <code>scan-unpushed.sh</code> must print nothing. Then
+            the wave stops shipping, merging, pushing and publishing.
+          </li>
+          <li>
+            <strong>Carry over.</strong> Repos are cloned from GitHub over HTTPS. Everything else
+            travels as a sealed archive: scanned with <code>gitleaks</code>, listed in a checksum
+            manifest, and encrypted with <code>age</code> when it's private.
+          </li>
+          <li>
+            <strong>Restart sessions.</strong> A successor starts on the new Mac with Remote Control
+            on and waits for its handover. It runs <code>check-heads.sh</code> against the ledger.
+            Any mismatch stops it, and it doesn't reset anything to make the numbers fit. When every
+            branch matches, it replies "ready" and restarts its own child sessions from the handoff
+            note.
+          </li>
+          <li>
+            <strong>Verify and switch.</strong> Run one real flow end to end on the new Mac, such as
+            a test suite or a dev server. Lift the freeze, then move the next wave.
+          </li>
+        </ol>
+
+        <h2>Moving files without opening SSH</h2>
+        <p>
+          By default the skill doesn't turn on SSH or Remote Login between the two Macs. SSH gives
+          the whole user account to the other side: every file, every signed-in tool, any program.
+          It uses two bridges instead.
+        </p>
+        <ul>
+          <li>
+            <strong>GitHub.</strong> A private repo holds small files with no secrets: notes,
+            briefs, scripts. Private files go as <code>age</code>-encrypted archives on a private
+            release, encrypted to a key that is made on the new Mac and never leaves it.
+          </li>
+          <li>
+            <strong>Syncthing.</strong> For large folders, or ones you keep working in until the
+            switch. Pair the Macs by device ID. Share the folder send-only from the old Mac and
+            receive-only on the new one, at the same absolute path. Turn off relaying, global
+            discovery and NAT traversal so it stays on your LAN.
+          </li>
+        </ul>
+        <p>AirDrop and a USB drive are fallbacks for one-off files.</p>
+
+        <h2>What went wrong in the real move</h2>
+        <p>
+          The skill came out of a real move of a workspace with many sessions. These failed along
+          the way, and the checklist now covers each one.
+        </p>
+        <ul>
+          <li>
+            A fresh <code>gh auth login</code> lacks the <code>read:packages</code> scope, so every
+            install from <code>npm.pkg.github.com</code> fails with a 403.
+            <code>gh auth refresh -h github.com -s read:packages</code> fixes it.
+          </li>
+          <li>
+            Headless Chrome dies with <code>path_service … Failed to get the path for 1001</code>
+            until you've opened Google Chrome once from Finder.
+          </li>
+          <li>
+            The Claude desktop app won't start sessions from a turn that another session's message
+            began. You type the go yourself, in the entry session on the new Mac.
+          </li>
+          <li>
+            A session with Remote Control off can't see or message sessions on the other Mac, so its
+            handover goes into a file.
+          </li>
+          <li>
+            Some providers track an OAuth grant per user and app, not per machine. Revoke the old
+            machine's grant first, then create the new one. Do it the other way round and you revoke
+            both.
+          </li>
+          <li>
+            A scheduled task runs on one Mac only. Recreate it on the new one, then disable it on
+            the old one.
+          </li>
+          <li>
+            Memory you write after the first <code>~/.claude</code> archive has to be sent again
+            before each wave's successors start.
+          </li>
+        </ul>
+        <p>
+          Not every session has to move. One that needs something only the old Mac has can stay
+          there, and you use it from the new Mac over Remote Control.
+        </p>
+        <p>
+          Credentials never travel. You sign in again on the new Mac, and service keys are made
+          fresh there.
+        </p>
+
+        <h2>What's in the repo</h2>
+        <ul>
+          <li><code>SKILL.md</code>: the method, the roles and the rules.</li>
+          <li>
+            References: a glossary, each stage in detail, the restart protocol, file bridges,
+            new-Mac setup, credentials and scheduled tasks, and when copying session history is the
+            better choice.
+          </li>
+          <li>
+            Templates, among them the freeze brief, handoff note, branch ledger, handover message
+            and transfer board.
+          </li>
+          <li>
+            Scripts in plain bash for macOS: <code>scan-workspace.sh</code>,
+            <code>scan-unpushed.sh</code>, <code>stage-claude-home.sh</code>,
+            <code>seal-archive.sh</code>, <code>check-archive.sh</code>,
+            <code>check-heads.sh</code>.
+          </li>
+        </ul>
+
+        <h2>Install</h2>
+        <p>Install the skill from inside Claude Code:</p>
+        <pre><code>/plugin marketplace add n-uf/claude-machine-transfer
+/plugin install machine-transfer@n-uf-machine-transfer</code></pre>
+        <p>
+          Or copy <code>skills/machine-transfer</code> into <code>~/.claude/skills/</code>. Install
+          it on both Macs. Then, in the session that will run the move, ask Claude to plan a move of
+          your workspace to the new Mac, or type the command (<code>/machine-transfer</code> when
+          copied, <code>/machine-transfer:machine-transfer</code> as a plugin).
+        </p>
+        <p>
+          Source on GitHub: <a href={repoUrl}>n-uf/claude-machine-transfer</a>. Licence: PolyForm
+          Perimeter 1.0.1.
+        </p>
+
+        <p class="note">
+          n-uf is not affiliated with Anthropic. Claude and Claude Code are Anthropic's products.
+        </p>
+      </article>
+    </main>
+  </div>
+</Layout>
+
+<style>
+  .doc {
+    box-sizing: border-box;
+    width: min(100%, 760px);
+    margin-inline: auto;
+    padding: 32px 24px 96px;
+  }
+
+  .crumbs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 56px;
+    color: var(--faint);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .crumbs a {
+    text-decoration: none;
+    color: var(--muted);
+  }
+
+  .crumbs a:is(:hover, :focus-visible) {
+    color: var(--ink);
+  }
+
+  h1 {
+    margin: 0 0 28px;
+    font-family: var(--sans);
+    font-size: clamp(30px, 6vw, 44px);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    margin: 56px 0 16px;
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    font-family: var(--sans);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  p,
+  li {
+    color: var(--copy);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  p {
+    margin: 0 0 16px;
+  }
+
+  ol,
+  ul {
+    margin: 0 0 16px;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+
+  li::marker {
+    color: var(--muted);
+  }
+
+  strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  code {
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--ink) 9%, transparent);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 0.92em;
+    overflow-wrap: anywhere;
+  }
+
+  pre {
+    margin: 0 0 16px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  pre code {
+    padding: 0;
+    background: none;
+    overflow-wrap: normal;
+  }
+
+  article a {
+    color: var(--ink);
+    text-underline-offset: 3px;
+  }
+
+  .note {
+    margin-top: 48px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+</style>
