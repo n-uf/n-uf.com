@@ -164,7 +164,9 @@ a:focus-visible {
 
 .meta {
   margin-top: 10px;
-  white-space: nowrap;
+  max-width: 100%;
+  /* A long link (github.com/n-uf/claude-machine-transfer) wraps inside its column */
+  overflow-wrap: anywhere;
 }
 
 .meta + .meta {
