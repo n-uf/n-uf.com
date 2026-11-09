@@ -60,7 +60,7 @@ function repoLine(repo: string): string {
       <ul class="projects">
         {
           listed.map((project: Project, index: number) => {
-            const host: string = new URL(project.url).host;
+            const host: string = repoLine(project.url);
             const repoHref: string | undefined = project.repo;
             const repoText: string | undefined =
               repoHref === undefined ? undefined : repoLine(repoHref);

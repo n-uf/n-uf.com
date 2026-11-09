@@ -101,6 +101,17 @@ export const projects: readonly Project[] = [
     url: "https://dynia.n-uf.com",
     status: "live",
   },
+  {
+    id: "machine-transfer",
+    name: "machine-transfer",
+    tagline:
+      "Claude Code skill: move a multi-session workspace to a new Mac by fresh restarts, one sidebar section at a time.",
+    description:
+      "Handoff notes, branch-head checks, sealed archives over GitHub or Syncthing. Licence: PolyForm Perimeter 1.0.1.",
+    url: "https://n-uf.com/claude-machine-transfer",
+    repo: "https://github.com/n-uf/claude-machine-transfer",
+    status: "live",
+  },
 ];
 
 export function listedProjects(): readonly Project[] {
