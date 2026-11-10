@@ -107,7 +107,7 @@ export const projects: readonly Project[] = [
     tagline:
       "Claude Code skill: move a multi-session workspace to a new Mac by fresh restarts, one sidebar section at a time.",
     description:
-      "Handoff notes, branch-head checks, sealed archives over GitHub or Syncthing. Licence: PolyForm Perimeter 1.0.1.",
+      "Handoff notes, branch-head checks, sealed archives over GitHub or Syncthing. Open source, MIT licence.",
     url: "https://n-uf.com/claude-machine-transfer",
     repo: "https://github.com/n-uf/claude-machine-transfer",
     status: "live",
