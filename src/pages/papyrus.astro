@@ -103,13 +103,13 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
 
         <p>
           papyrus is a documents engine. You write a document as HTML or React pages. On screen each
-          page is a sheet of A4 or US Letter paper, and the same pages print to a PDF. A report, a
-          resume or an investor dossier stays one source for the web and for print.
+          page is a sheet of A4 or US Letter paper, and the same pages print to a PDF. A report or a
+          resume stays one source for the web and for print.
         </p>
         <p>
           It checks every PDF before writing it: the number of pages in the HTML, the PDF's own page
-          count and the count you expect must agree. A page that overflowed or a layout that broke
-          stops the export instead of slipping into the file.
+          count and the count you expect must agree. If they don't, for example because a page
+          overflowed onto an extra sheet, the export stops instead of writing the file.
         </p>
         <p>
           papyrus is young. Versions are dates (YY.M.R), not semantic versions, so any release may
@@ -157,7 +157,8 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
         <h2>Export to PDF</h2>
         <p>
           The <code>papyrus</code> command prints every document in a config file through headless
-          Chromium (Playwright):
+          Chromium (Playwright). The server that renders the documents must already be running
+          (<code>--wait</code> gives it time to answer):
         </p>
         <pre><code>papyrus pdf --config papyrus.config.json</code></pre>
         <p>
