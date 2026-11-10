@@ -61,6 +61,19 @@ const breadcrumbs: Record<string, unknown> = {
       <article>
         <h1>Move a Claude Code workspace to a new Mac</h1>
 
+        <p class="repo-row">
+          <a class="repo" href={repoUrl}>
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+              ></path>
+            </svg>
+            <span>Source on GitHub</span>
+            <span class="repo-path">n-uf/claude-machine-transfer</span>
+          </a>
+        </p>
+
         <p>
           machine-transfer is a Claude Code skill that helps you move a Claude Code workspace to a
           new Mac without losing work in flight. A busy workspace is more than files. It has lead
@@ -272,6 +285,48 @@ const breadcrumbs: Record<string, unknown> = {
     font-weight: 700;
     line-height: 1.12;
     letter-spacing: -0.02em;
+  }
+
+  .repo-row {
+    margin: -8px 0 32px;
+  }
+
+  /* The repo link sits under the H1 as an outlined button, so it's seen first */
+  article a.repo {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    max-width: 100%;
+    padding: 8px 14px;
+    border: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
+    border-radius: 6px;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: border-color 160ms ease, background-color 160ms ease;
+  }
+
+  article a.repo:is(:hover, :focus-visible) {
+    border-color: var(--ink);
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+
+  .repo svg {
+    flex: none;
+  }
+
+  .repo-path {
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    article a.repo {
+      transition: none;
+    }
   }
 
   h2 {
