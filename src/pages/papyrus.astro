@@ -1,0 +1,389 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { siteUrl, studioId } from '../data/projects';
+
+const pageTitle: string = 'papyrus: HTML and React documents to A4 and Letter PDF';
+const pageDescription: string =
+  'papyrus lays out documents in HTML or React on A4 or Letter sheets and prints them to PDF, checking the page count so a broken render is never saved.';
+const pagePath: string = '/papyrus';
+const pageUrl: string = new URL(pagePath, siteUrl).href;
+const repoUrl: string = 'https://github.com/n-uf/papyrus';
+const engineNpm: string = 'https://www.npmjs.com/package/@n-uf/papyrus';
+const reactNpm: string = 'https://www.npmjs.com/package/@n-uf/papyrus-react';
+const engineChangelog: string = `${repoUrl}/blob/main/packages/papyrus/CHANGELOG.md`;
+const reactChangelog: string = `${repoUrl}/blob/main/packages/papyrus-react/CHANGELOG.md`;
+const licenceUrl: string = 'https://polyformproject.org/licenses/perimeter/1.0.1';
+
+// The library's own node: the Organization node comes from the layout
+const software: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  '@id': `${pageUrl}#software`,
+  name: 'papyrus',
+  description: pageDescription,
+  url: pageUrl,
+  codeRepository: repoUrl,
+  programmingLanguage: ['JavaScript', 'TypeScript'],
+  runtimePlatform: 'Node.js',
+  license: licenceUrl,
+  author: { '@id': studioId },
+  publisher: { '@id': studioId },
+};
+
+const breadcrumbs: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'n-uf',
+      item: `${siteUrl}/`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'papyrus',
+      item: pageUrl,
+    },
+  ],
+};
+
+const sheetSample: string = `import { SHEETS, sheetCss } from "@n-uf/papyrus";
+
+const css = sheetCss(SHEETS.LETTER);                     // US Letter sheets
+const alt = sheetCss(SHEETS.A4, { pageClass: "page" });  // your own page class`;
+
+const tocSample: string = `import { docRegistry, numberToc } from "@n-uf/papyrus";
+
+docRegistry.register({ id: "report", meta: { title: "Report", pageCount: 4, toc }, component: render });
+numberToc(toc); // Map: entry id -> "1.", "2.", "A." (appendix) or null (skipped)`;
+
+const configSample: string = `{
+  "baseUrl": "file:///Users/me/resume/src/",
+  "docUrl": "{id}.html",
+  "outDir": "../dist",
+  "docs": [{ "id": "resume", "sheet": "letter", "pageSelector": ".page", "pageCount": 3 }]
+}`;
+
+const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ home: ["MADE BY"] }} />
+<DocumentFooter title="Report" copyright="© 2030 Acme" />
+<TOCItem number="1" title="Intro" page="3" section="market" sectionColors={{ market: "rgb(14, 116, 144)" }} />`;
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  path={pagePath}
+  structuredData={[software, breadcrumbs]}
+>
+  <div class="doc">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/">n-uf</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">papyrus</span>
+    </nav>
+
+    <main>
+      <article>
+        <h1>Documents in HTML, printed to PDF</h1>
+
+        <p class="repo-row">
+          <a class="repo" href={repoUrl}>
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+              ></path>
+            </svg>
+            <span>Source on GitHub</span>
+            <span class="repo-path">n-uf/papyrus</span>
+          </a>
+        </p>
+
+        <p>
+          papyrus is a documents engine. You write a document as HTML or React pages. On screen each
+          page is a sheet of A4 or US Letter paper, and the same pages print to a PDF. A report, a
+          resume or an investor dossier stays one source for the web and for print.
+        </p>
+        <p>
+          It checks every PDF before writing it: the number of pages in the HTML, the PDF's own page
+          count and the count you expect must agree. A page that overflowed or a layout that broke
+          stops the export instead of slipping into the file.
+        </p>
+        <p>
+          papyrus is young. Versions are dates (YY.M.R), not semantic versions, so any release may
+          break things. Pin an exact version and read the changelog before you upgrade.
+        </p>
+
+        <h2>Two packages, one version</h2>
+        <ul>
+          <li>
+            <strong><a href={engineNpm}>@n-uf/papyrus</a></strong>, the engine. Plain ESM
+            JavaScript with type declarations and no framework, so it runs in a plain HTML page, in a
+            bundled app and in Node. It holds the page contract, the sheet sizes and print CSS, the
+            document registry and the PDF exporter.
+          </li>
+          <li>
+            <strong><a href={reactNpm}>@n-uf/papyrus-react</a></strong>, React components on top of
+            the engine: page and content blocks, a document registry typed for React, and print
+            styles. It ships TypeScript source.
+          </li>
+        </ul>
+        <p>
+          Both carry no brand, copy or content of their own; your documents supply those. They are
+          released together at one version, on npmjs with provenance and on GitHub Packages.
+        </p>
+
+        <h2>One element, one sheet, one page</h2>
+        <p>
+          Every element with the class <code>pdf-page</code> is one sheet on screen and one page in
+          the PDF. <code>sheetCss()</code> sizes it to A4 or Letter and keeps one per printed page;
+          on screen the sheets sit on a grey canvas.
+        </p>
+        <pre><code>{sheetSample}</code></pre>
+        <p>
+          Pages without a bundler can link the ready-made <code>@n-uf/papyrus/sheet-a4.css</code> or
+          <code>sheet-letter.css</code> instead.
+        </p>
+
+        <h2>Numbered tables of contents</h2>
+        <p>
+          A document is registered with its title, expected page count and table of contents.
+          <code>numberToc()</code> numbers the entries, appendices included.
+        </p>
+        <pre><code>{tocSample}</code></pre>
+
+        <h2>Export to PDF</h2>
+        <p>
+          The <code>papyrus</code> command prints every document in a config file through headless
+          Chromium (Playwright):
+        </p>
+        <pre><code>papyrus pdf --config papyrus.config.json</code></pre>
+        <p>
+          For plain HTML files no server is needed: point <code>baseUrl</code> at the folder.
+        </p>
+        <pre><code>{configSample}</code></pre>
+        <ul>
+          <li>
+            <strong>Sheet:</strong> A4 by default, <code>"letter"</code> for the whole config or one
+            document. It sets the viewport, the print CSS and the PDF paper.
+          </li>
+          <li>
+            <strong>Pages:</strong> <code>pageSelector</code> names your page elements when they are
+            not <code>.pdf-page</code>; <code>pageCount</code> is the number you expect.
+          </li>
+          <li>
+            <strong>Fonts:</strong> web fonts are awaited before printing (up to 10 seconds), so
+            pagination doesn't depend on load timing.
+          </li>
+          <li>
+            <strong>Stale PDFs:</strong> list a document's source folders and
+            <code>papyrus pdf --check</code> reports committed PDFs whose sources changed since they
+            were printed.
+          </li>
+          <li>
+            <strong>Browser:</strong> set <code>PAPYRUS_CHROMIUM_PATH</code> to print with an
+            installed Chrome instead of Playwright's download.
+          </li>
+        </ul>
+        <p>
+          The same export runs from code with <code>renderPdf(browser, url, options)</code> from
+          <code>@n-uf/papyrus/pdf</code>. <code>createPdfHandler</code> from
+          <code>@n-uf/papyrus/server</code> renders a document to a downloadable PDF on request, in
+          a serverless function or any server with a Web <code>Request</code>. In development, the
+          Vite plugin <code>papyrusPdfPlugin</code> from <code>@n-uf/papyrus/vite</code> serves
+          <code>/docs/&lt;id&gt;.pdf</code>.
+        </p>
+
+        <h2>React components</h2>
+        <p>
+          <code>@n-uf/papyrus-react</code> gives you <code>PDFPage</code> and blocks for text,
+          tables, lists, cards and indicators. <code>registerDoc</code> (from <code>/dossier</code>)
+          registers a React document, <code>useDocParam</code> (from <code>/params</code>) keeps a
+          document parameter in the URL, and <code>printStyles</code> (from <code>/styles</code>)
+          holds the sheet CSS and print fixes. Branding is yours: <code>Logo</code> and
+          <code>DocumentFooter</code> render only what you pass.
+        </p>
+        <pre><code>{reactSample}</code></pre>
+        <p>
+          With Tailwind v4, import the package's stylesheet:
+          <code>@import "@n-uf/papyrus-react/tailwind.css"</code>.
+        </p>
+
+        <h2>Install</h2>
+        <pre><code>pnpm add @n-uf/papyrus            # engine only, no bundler needed
+pnpm add @n-uf/papyrus-react      # React components</code></pre>
+        <p>
+          In a Next.js app, add <code>@n-uf/papyrus-react</code> to <code>transpilePackages</code>.
+          <code>playwright</code> and <code>vite</code> are optional peer dependencies, needed only
+          for the PDF export and the Vite plugin.
+        </p>
+        <p>
+          Source on GitHub: <a href={repoUrl}>n-uf/papyrus</a>. On npm:
+          <a href={engineNpm}>@n-uf/papyrus</a> and <a href={reactNpm}>@n-uf/papyrus-react</a>.
+          Changelogs: <a href={engineChangelog}>engine</a>,
+          <a href={reactChangelog}>React components</a>. Licence:
+          <a href={licenceUrl}>PolyForm Perimeter 1.0.1</a>.
+        </p>
+      </article>
+    </main>
+  </div>
+</Layout>
+
+<style>
+  .doc {
+    box-sizing: border-box;
+    width: min(100%, 760px);
+    margin-inline: auto;
+    padding: 32px 24px 96px;
+  }
+
+  .crumbs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 56px;
+    color: var(--faint);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .crumbs a {
+    text-decoration: none;
+    color: var(--muted);
+  }
+
+  .crumbs a:is(:hover, :focus-visible) {
+    color: var(--ink);
+  }
+
+  h1 {
+    margin: 0 0 28px;
+    font-family: var(--sans);
+    font-size: clamp(30px, 6vw, 44px);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+
+  .repo-row {
+    margin: -8px 0 32px;
+  }
+
+  /* The repo link sits under the H1 as an outlined button, so it's seen first */
+  article a.repo {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    max-width: 100%;
+    padding: 8px 14px;
+    border: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
+    border-radius: 6px;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: border-color 160ms ease, background-color 160ms ease;
+  }
+
+  article a.repo:is(:hover, :focus-visible) {
+    border-color: var(--ink);
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+
+  .repo svg {
+    flex: none;
+  }
+
+  .repo-path {
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    article a.repo {
+      transition: none;
+    }
+  }
+
+  h2 {
+    margin: 56px 0 16px;
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    font-family: var(--sans);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  p,
+  li {
+    color: var(--copy);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  p {
+    margin: 0 0 16px;
+  }
+
+  ol,
+  ul {
+    margin: 0 0 16px;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+
+  li::marker {
+    color: var(--muted);
+  }
+
+  strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  code {
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--ink) 9%, transparent);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 0.92em;
+    overflow-wrap: anywhere;
+  }
+
+  pre {
+    margin: 0 0 16px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  pre code {
+    padding: 0;
+    background: none;
+    overflow-wrap: normal;
+  }
+
+  article a {
+    color: var(--ink);
+    text-underline-offset: 3px;
+  }
+
+  .note {
+    margin-top: 48px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+</style>

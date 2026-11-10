@@ -61,6 +61,18 @@ export const projects: readonly Project[] = [
     status: "live",
   },
   {
+    id: "papyrus",
+    name: "papyrus",
+    tagline:
+      "Documents engine: write documents in HTML or React on A4 or Letter sheets and print them to PDF.",
+    description:
+      "Packages: @n-uf/papyrus, @n-uf/papyrus-react. Every PDF is checked against the expected page count. Licence: PolyForm Perimeter 1.0.1.",
+    url: "https://n-uf.com/papyrus",
+    repo: "https://github.com/n-uf/papyrus",
+    npm: "@n-uf/papyrus",
+    status: "live",
+  },
+  {
     id: "cl_audit",
     name: "cl_audit",
     tagline:
