@@ -5,8 +5,8 @@ h1: "wkhtmltopdf alternatives, and what changes when you switch"
 mainKeyword: "wkhtmltopdf alternative"
 kind: comparison
 draft: true
-published: 2027-01-19
-updated: 2027-01-19
+published: 2027-01-12
+updated: 2027-01-12
 author: n-uf
 takeaways:
   - "wkhtmltopdf's GitHub repository was archived on 2 January 2023, and its downloads page names 0.12.6, released on 11 June 2020, as the current stable series."
