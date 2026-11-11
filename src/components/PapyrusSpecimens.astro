@@ -13,15 +13,26 @@ import pdfSizes from './papyrus-samples/pdf-sizes.json';
 
 const samplesBase: string = `/${SAMPLES_DIR}/`;
 
+const formats: Record<string, string> = { a4: 'A4', letter: 'Letter', slide: '16:9' };
+
 const docs = sampleDocs.map((doc) => {
   const bytes: number = (pdfSizes as Record<string, number>)[doc.pdf];
   const count: number = doc.pages.length;
   return {
     ...doc,
     count,
-    pdfLabel: `PDF · ${count} ${doc.unit}${count === 1 ? '' : 's'} · ${Math.max(1, Math.round(bytes / 1024))} KB`,
+    // The set header: "Fact sheet" over "A4 · 2 pages  ↓ PDF 169 KB"
+    shortName: doc.name.replace(/^papyrus /, '').replace(/^./, (c: string) => c.toUpperCase()),
+    meta: `${formats[doc.sheetKey]} · ${count} ${doc.unit}${count === 1 ? '' : 's'}`,
+    pdfKb: `${Math.max(1, Math.round(bytes / 1024))} KB`,
   };
 });
+
+// Two labelled groups: the documents on paper sheets, the slides
+const groups = [
+  { id: 'documents', label: 'Documents', docs: docs.filter((doc) => doc.sheetKey !== 'slide') },
+  { id: 'slides', label: 'Slides', docs: docs.filter((doc) => doc.sheetKey === 'slide') },
+];
 
 // sheetCss() sizes the page; only its page rule is used here, scoped to the sheet's own class
 const sheetCssScoped: string = [
@@ -35,43 +46,64 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
 <style is:inline set:html={sheetStyles}></style>
 
 <div class="specimens">
-  <div class="specimen-grid">
-    {
-      docs.map((doc) => (
-        <figure class="specimen" data-pages={doc.count} aria-label={doc.accessibleName}>
-          <div class="sheets">
-            {doc.pages.map((html, index) => (
-              <div class="sheet">
-                <div
-                  class={`sheet-box sample sample-${doc.sheetKey}`}
-                  style={`--sw:${doc.sheet.viewport.width}px;--sh:${doc.sheet.viewport.height}px`}
-                >
-                  {/* The sheet is a picture of the document: the figure and link names describe it */}
-                  <div aria-hidden="true">
-                    <Fragment set:html={html} />
+  {
+    groups.map((group) => (
+      <div
+        class="group"
+        role="group"
+        aria-labelledby={`specimens-${group.id}`}
+      >
+        <p class="group-label" id={`specimens-${group.id}`}>
+          {group.label}
+        </p>
+        <div class="sets">
+          {group.docs.map((doc) => (
+            <figure class="set" style={`--n:${doc.count}`} data-sheets={doc.count} aria-label={doc.accessibleName}>
+              <figcaption class="setline">
+                <span class="docname">{doc.shortName}</span>
+                <span class="setmeta">
+                  <span class="docmeta">{doc.meta}</span>
+                  <a class="pdf" href={`${samplesBase}${doc.pdf}`} aria-label={`Download the ${doc.name} PDF, ${doc.pdfKb}`}>
+                    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+                      <path
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="square"
+                        d="M8 1.75v8.5M4.25 6.5 8 10.25l3.75-3.75M2.25 13.75h11.5"
+                      />
+                    </svg>
+                    <span>PDF</span>
+                    <span class="pdf-size">{doc.pdfKb}</span>
+                  </a>
+                </span>
+              </figcaption>
+              <div class="sheets">
+                {doc.pages.map((html, index) => (
+                  <div class="sheet" title={`${doc.sizeLabel} · ${doc.unit} ${index + 1} of ${doc.count}`}>
+                    <div
+                      class={`sheet-box sample sample-${doc.sheetKey}`}
+                      style={`--sw:${doc.sheet.viewport.width}px;--sh:${doc.sheet.viewport.height}px`}
+                    >
+                      {/* The sheet is a picture of the document: the figure and link names describe it */}
+                      <div aria-hidden="true">
+                        <Fragment set:html={html} />
+                      </div>
+                      <a
+                        class="open"
+                        href={`${samplesBase}${doc.html}${index > 0 ? `#${doc.id}-page-${index + 1}` : ''}`}
+                        aria-label={`Open the ${doc.name}, ${doc.unit} ${index + 1} of ${doc.count}, at full size`}
+                      />
+                    </div>
                   </div>
-                  <a
-                    class="open"
-                    href={`${samplesBase}${doc.html}${index > 0 ? `#${doc.id}-page-${index + 1}` : ''}`}
-                    aria-label={`Open the ${doc.name}, ${doc.unit} ${index + 1} of ${doc.count}, at full size`}
-                  />
-                </div>
-                <p class="cap" title={`${doc.sizeLabel} · ${doc.unit} ${index + 1} of ${doc.count}`}>
-                  {doc.cap(index + 1, doc.count)}
-                </p>
+                ))}
               </div>
-            ))}
-          </div>
-          <figcaption class="docline">
-            <span class="docname">{doc.name}</span>
-            <a class="pdf" href={`${samplesBase}${doc.pdf}`}>
-              {doc.pdfLabel}
-            </a>
-          </figcaption>
-        </figure>
-      ))
-    }
-  </div>
+            </figure>
+          ))}
+        </div>
+      </div>
+    ))
+  }
 </div>
 
 <style>
@@ -82,7 +114,7 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     width: min(1040px, calc(100vw - 48px));
     margin: 0 0 56px;
     translate: -50% 0;
-    container-type: inline-size;
+    container: specimens / inline-size;
   }
 
   /* On a sheet of the paged view the specimens fill the sheet's text column */
@@ -93,26 +125,46 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     translate: none;
   }
 
-  .specimen-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 28px;
-    align-items: stretch;
+  /* Two labelled groups, Documents and Slides. In a group each document is a set: its name line,
+     then its sheets under it, on a common top edge. */
+  .group + .group {
+    margin-top: 48px;
   }
 
-  /* Every figure is as tall as the row and sits at its bottom: the sheets end on one line, and so do
-     their captions and the doc lines (the Letter sheet is shorter than the A4 ones) */
-  .specimen {
+  .group-label {
+    margin: 0 0 16px;
+    padding-top: 12px;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    color: var(--faint);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .sets {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 44px 28px;
+    align-items: start;
+  }
+
+  .set {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    gap: 14px;
+    gap: 12px;
     min-width: 0;
     margin: 0;
   }
 
-  .specimen[data-pages='2'] {
+  /* A set spans as many columns as it has sheets (up to the three of the grid) */
+  .set[data-sheets='2'] {
     grid-column: span 2;
+  }
+
+  .set[data-sheets='3'] {
+    grid-column: 1 / -1;
   }
 
   .sheets {
@@ -122,21 +174,16 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     align-items: start;
   }
 
-  .specimen[data-pages='2'] .sheets {
-    --n: 2;
-  }
-
-  /* The slide decks: three landscape slides in a row of their own */
-  .specimen[data-pages='3'] {
-    grid-column: 1 / -1;
-  }
-
-  .specimen[data-pages='3'] .sheets {
-    --n: 3;
-  }
-
   .sheet {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
     min-width: 0;
+  }
+
+  .sheet-box {
+    flex: none;
   }
 
   /* A fixed box for each sheet, so scaling the page inside it moves nothing */
@@ -204,37 +251,63 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     }
   }
 
-  .cap,
-  .docline {
-    margin: 0;
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 13px;
-    line-height: 1.45;
+  /* The header of a set is the same two fixed lines everywhere, left over its first sheet, so every
+     row's sheets start on one line: the name in ink, then what it is in muted and the PDF link.
+     Nothing wraps (the PDF's size is dropped before the page count when the column is narrow). */
+  .set {
+    container: set / inline-size;
   }
 
-  /* The same under every document: the name, then its PDF, left under the first sheet */
-  .docline {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    padding-top: 10px;
-    border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  .setline {
+    display: grid;
+    grid-template-rows: 20px 20px;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 20px;
+    white-space: nowrap;
   }
 
   .docname {
+    overflow: hidden;
     color: var(--ink);
+    text-overflow: ellipsis;
   }
 
-  .sheet .cap {
-    margin-top: 12px;
+  .setmeta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  .docmeta {
+    color: var(--muted);
   }
 
   a.pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     color: var(--ink);
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+
+  a.pdf svg {
+    flex: none;
+  }
+
+  @container set (max-width: 209px) {
+    .pdf-size {
+      display: none;
+    }
+  }
+
+  /* On a sheet of the paged view the first label sits right under the running head, which has the rule */
+  :global(.doc[data-view='pages']) .group:first-child .group-label {
+    padding-top: 0;
+    border-top: 0;
   }
 
   @media (max-width: 639px) {
@@ -247,102 +320,33 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
 
   /* The breakpoints follow the width the specimens have (a container), not the window's:
      the paged view puts them on a sheet whose text column is about 700px */
-  @container (max-width: 851px) {
-    .specimen-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .specimen[data-pages='1'] {
-      grid-column: 1 / -1;
-      width: calc(50% - 14px);
-      justify-self: center;
-    }
-  }
-
-  @container (max-width: 591px) {
-    .specimen-grid {
+  @container specimens (max-width: 639px) {
+    .sets {
       grid-template-columns: minmax(0, 1fr);
-      gap: 44px;
     }
 
-    .specimen[data-pages='3'],
-    .specimen[data-pages='2'],
-    .specimen[data-pages='1'] {
+    .set[data-sheets] {
       grid-column: auto;
-      width: 100%;
     }
 
-    .specimen[data-pages='3'] .sheets,
-    .specimen[data-pages='2'] .sheets {
+    /* One sheet across, readable; the name line wraps */
+    .sheets {
       --n: 1;
-      gap: 28px;
+    }
+
+    .group + .group {
+      margin-top: 48px;
     }
   }
 
-  /* Paged view: three columns from 640px of sheet, one below */
-  @container (min-width: 640px) {
-    :global(.doc[data-view='pages']) .specimen-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px;
+  /* Four documents on one sheet of paper: a little tighter to fit A4 and Letter */
+  @container specimens (min-width: 640px) {
+    :global(.doc[data-view='pages']) .sets {
+      row-gap: 40px;
     }
 
-    /* Four documents on one sheet: tighter, to fit A4 and Letter */
-    :global(.doc[data-view='pages']) .specimen {
-      gap: 8px;
-    }
-
-    :global(.doc[data-view='pages']) .sheet .cap {
-      margin-top: 8px;
-    }
-
-    :global(.doc[data-view='pages']) .docline {
-      padding-top: 8px;
-    }
-
-    :global(.doc[data-view='pages']) .specimen[data-pages='2'] {
-      grid-column: span 2;
-      width: auto;
-    }
-
-    :global(.doc[data-view='pages']) .specimen[data-pages='1'] {
-      grid-column: auto;
-      width: auto;
-      justify-self: stretch;
-    }
-
-    :global(.doc[data-view='pages']) .specimen[data-pages='3'] {
-      grid-column: 1 / -1;
-      width: auto;
-    }
-
-    :global(.doc[data-view='pages']) .specimen[data-pages='2'] .sheets {
-      --n: 2;
-      gap: 20px;
-    }
-
-    :global(.doc[data-view='pages']) .specimen[data-pages='3'] .sheets {
-      --n: 3;
-      gap: 20px;
-    }
-  }
-
-  @container (min-width: 592px) and (max-width: 639px) {
-    :global(.doc[data-view='pages']) .specimen-grid {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 44px;
-    }
-
-    :global(.doc[data-view='pages']) .specimen[data-pages='3'],
-    :global(.doc[data-view='pages']) .specimen[data-pages='2'],
-    :global(.doc[data-view='pages']) .specimen[data-pages='1'] {
-      grid-column: auto;
-      width: 100%;
-    }
-
-    :global(.doc[data-view='pages']) .specimen[data-pages='3'] .sheets,
-    :global(.doc[data-view='pages']) .specimen[data-pages='2'] .sheets {
-      --n: 1;
-      gap: 28px;
+    :global(.doc[data-view='pages']) .sheets {
+      gap: 20px 28px;
     }
   }
 </style>
