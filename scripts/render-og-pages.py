@@ -11,7 +11,7 @@ Cards are drawn for drafts too (a draft's card ships before its date, which the 
 Run it again after changing an article's h1, then commit the PNG with the article.
 
 To give another project its own articles, add it to PROJECTS (its collection folder under src/content)."""
-import argparse, glob, os, re
+import argparse, glob, os, re, sys
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -23,8 +23,9 @@ DOTS = [(244, 114, 182), (251, 146, 60), (251, 191, 36), (52, 211, 153), (34, 21
 # the project's name as written (lower case), and its address on the card
 PROJECTS = {"papyrus": {"name": "papyrus", "address": "n-uf.com/papyrus"}}
 NBSP = " "
-# names a line break would split ("Claude" / "Code"); a no-break space holds them together
-KEEP_TOGETHER = ["Claude Code", "US Letter", "React PDF"]
+# names a line break must not split; a no-break space holds a name that has a space in it. The wrap splits only at plain
+# spaces, so "papyrus" and "n-uf.com" are already whole; add a name with a space here when an h1 needs one.
+KEEP_TOGETHER = ["papyrus", "n-uf.com"]
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--font", required=True)
@@ -38,19 +39,35 @@ def font(size, wght):
     return f
 
 
-def front_matter_value(src, key):
-    m = re.match(r"---\r?\n(.*?)\r?\n---", src, re.S)
+def front_matter_h1(src):
+    """The h1 of an article: a single-line plain or quoted value. Raises ValueError (with the reason) for anything
+    else: no front matter, no h1, a folded or literal block (`>-`, `|`), a value that continues on the next line."""
+    m = re.match(r"﻿?---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|$)", src, re.S)
     if not m:
-        return None
-    line = re.search(rf"^{key}:[ \t]*(.*?)[ \t]*$", m.group(1), re.M)
-    if not line:
-        return None
-    v = line.group(1)
-    if v.startswith('"') and v.endswith('"') and len(v) >= 2:
-        return v[1:-1].replace('\\"', '"').replace("\\\\", "\\")
-    if v.startswith("'") and v.endswith("'") and len(v) >= 2:
-        return v[1:-1].replace("''", "'")
-    return v
+        raise ValueError("no front matter")
+    lines = m.group(1).split("\n")
+    for i, raw in enumerate(lines):
+        line = raw.rstrip("\r")
+        found = re.match(r"""^(["']?)h1\1[ \t]*:(?:[ \t]+(.*?))?[ \t]*$""", line)
+        if not found:
+            continue
+        v = found.group(2) or ""
+        if v == "" or v[0] in ">|&*![{":
+            raise ValueError(f"h1 must be one line of plain or quoted text, got `{line.strip()}`")
+        if i + 1 < len(lines) and lines[i + 1][:1] in (" ", "\t") and lines[i + 1].strip():
+            raise ValueError("h1 continues on the next line; write it on one line")
+        if v[0] == '"':
+            q = re.match(r'^"((?:[^"\\]|\\.)*)"[ \t]*(?:#.*)?$', v)
+            if not q:
+                raise ValueError(f"can't read the quoted h1 `{v}`")
+            return re.sub(r'\\(["\\])', r"\1", q.group(1))   # one pass, so \\" is a backslash and then the end
+        if v[0] == "'":
+            q = re.match(r"^'((?:[^']|'')*)'[ \t]*(?:#.*)?$", v)
+            if not q:
+                raise ValueError(f"can't read the quoted h1 `{v}`")
+            return q.group(1).replace("''", "'")
+        return re.sub(r"[ \t]+#.*$", "", v).strip()
+    raise ValueError("no h1")
 
 
 def wrap(text, f, width):
@@ -99,14 +116,16 @@ def card(project, h1):
 
 
 made = 0
+skipped = []
 for key, project in PROJECTS.items():
     for md in sorted(glob.glob(os.path.join(ROOT, "src/content", key, "*.md"))):
         slug = os.path.splitext(os.path.basename(md))[0]
         if args.only and slug not in args.only:
             continue
-        h1 = front_matter_value(open(md, encoding="utf-8").read(), "h1")
-        if not h1:
-            print("skipped (no h1):", md)
+        try:
+            h1 = front_matter_h1(open(md, encoding="utf-8").read())
+        except ValueError as why:
+            skipped.append(f"{os.path.relpath(md, ROOT)}: {why}")
             continue
         out, size, n = card(project, h1)
         folder = os.path.join(ROOT, "public/og", key)
@@ -115,5 +134,10 @@ for key, project in PROJECTS.items():
         out.save(path, optimize=True)
         made += 1
         print(f"wrote public/og/{key}/{slug}.png  {os.path.getsize(path) // 1024} KB  {size}px x{n}")
+if skipped:
+    print("skipped, no card drawn:")
+    for line in skipped:
+        print("  " + line)
+    sys.exit(1)
 if made == 0:
     print("no articles, nothing to render")
