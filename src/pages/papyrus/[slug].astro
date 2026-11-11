@@ -16,6 +16,7 @@ import {
   showDrafts,
   type Entry,
 } from '../../data/articles';
+import { pdfLink } from '../../data/article-pdfs.mjs';
 import { inlineCodeHtml, plainText } from '../../data/inline-code.mjs';
 import { withLiveBlocks } from '../../data/live';
 import { breadcrumbList, faqPage, techArticle } from '../../data/schema';
@@ -54,6 +55,9 @@ const html: string = await withLiveBlocks(entry.rendered.html, file);
 if (/<h1[\s>]/i.test(html)) {
   throw new Error(`${file}: the body has a "# " heading (an h1); the page's h1 comes from the front matter, start body headings at "##"`);
 }
+// The article's PDF, printed by papyrus (scripts/article-pdfs.mjs); the build publishes it with the page, so the button
+// shows only when the file exists (src/data/article-pdfs.mjs)
+const pdf = pdfLink(entry.id);
 const related = await Promise.all(data.related.map(async (to: string) => ({ path: to, ...(await pageInfo(to)) })));
 // The contents list on the first sheet: the body's "## " sections, numbered as the headings are (article.css counter)
 const toc = [...html.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map((m, i) => ({ id: m[1], html: m[2], n: i + 1 }));
@@ -102,6 +106,7 @@ const structuredData = [
       </nav>
       <div class="reader-tools">
         <button type="button" class="tool" data-print hidden>Print as A4</button>
+        {pdf && <a class="tool" download href={pdf.href}>{pdf.label}</a>}
         <a class="tool" href={section.repoUrl} rel="noopener">
           <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
             <path
@@ -115,8 +120,12 @@ const structuredData = [
     </div>
 
     <script is:inline>
-      // Wide screens show the article on A4 sheets; hide the paper until the sheets are laid out, so nothing jumps
-      if (matchMedia('(min-width: 900px)').matches) document.documentElement.classList.add('paginating');
+      // Wide screens show the article on A4 sheets; hide the paper until the sheets are laid out, so nothing jumps.
+      // `?print` is the page papyrus prints to the PDF: always sheets, no reader bar (see src/scripts/paginate.ts)
+      if (new URLSearchParams(location.search).has('print')) document.documentElement.classList.add('print-mode');
+      if (matchMedia('(min-width: 900px)').matches || document.documentElement.classList.contains('print-mode')) {
+        document.documentElement.classList.add('paginating');
+      }
     </script>
     <main>
       <article class="paper" data-paper>
@@ -132,9 +141,9 @@ const structuredData = [
               <p class="byline">
                 Updated <time datetime={data.updated.toISOString().slice(0, 10)}>{dateText(data.updated)}</time>
                 {scheduled && (
-                  <>
-                    · <span class="scheduled">Scheduled for <time datetime={data.published.toISOString().slice(0, 10)}>{dateText(data.published)}</time></span>
-                  </>
+                  <span class="scheduled">
+                    · Scheduled for <time datetime={data.published.toISOString().slice(0, 10)}>{dateText(data.published)}</time>
+                  </span>
                 )}
               </p>
             </header>
