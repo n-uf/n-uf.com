@@ -8,6 +8,10 @@
     {
       "source": "/papyrus-samples/(.*)",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
+    },
+    {
+      "source": "/papyrus/pdf/(.*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
     }
   ]
 }

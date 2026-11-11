@@ -2,7 +2,7 @@
 // publish flip (scripts/publish-due.mjs). Run: node --test scripts/*.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isDraft, updatedDay } from "../src/data/front-matter.mjs";
+import { isDraft, updatedDay, withoutDraftLine } from "../src/data/front-matter.mjs";
 
 const page = (front, body = "Body.\n") => `---\n${front}\n---\n${body}`;
 
@@ -33,4 +33,14 @@ test("updated: a date, a quoted date, and a timestamp as its UTC day", () => {
   assert.equal(updatedDay(page("updated: 2026-11-10 08:00:00")), "2026-11-10");
   assert.equal(updatedDay(page("title: x")), null);
   assert.equal(updatedDay(page("updated: soon")), null);
+});
+
+test("withoutDraftLine drops only the top-level draft line, so the flip doesn't change the text", () => {
+  const draft = page("title: x\ndraft: true   # scheduled\nfaq:\n  draft: keep\nupdated: 2026-11-10", "draft: true\nBody.\n");
+  const live = draft.replace("draft: true   # scheduled", "draft: false   # scheduled");
+  assert.equal(withoutDraftLine(draft), withoutDraftLine(live));
+  assert.equal(withoutDraftLine(draft), page("title: x\nfaq:\n  draft: keep\nupdated: 2026-11-10", "draft: true\nBody.\n"));
+  assert.equal(withoutDraftLine("no front matter\n"), "no front matter\n");
+  const crlf = "---\r\ntitle: x\r\ndraft: true\r\n---\r\nBody\r\n";
+  assert.equal(withoutDraftLine(crlf), "---\r\ntitle: x\r\n---\r\nBody\r\n");
 });
