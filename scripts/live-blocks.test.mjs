@@ -2,7 +2,7 @@
 // Run: node --test scripts/*.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { applyLiveBlocks } from "../src/data/live-blocks.mjs";
+import { applyLiveBlocks, liveTargets } from "../src/data/live-blocks.mjs";
 
 const PAGES = {
   "/papyrus/live-page": "built",
@@ -104,4 +104,10 @@ test("a loose list item (<li><p>…</p></li>) that was only a removed block goes
     "<ul>\n<li>\n<p>Keep.</p>\n</li>\n</ul>");
   assert.equal(run(`<p>Before.</p>\n<ul>\n<li>{{live:/papyrus/draft-page}}See ${link}.{{/live}}</li>\n</ul>\n<p>After.</p>`),
     "<p>Before.</p>\n<p>After.</p>");
+});
+
+test("liveTargets lists every target once, in canonical form", () => {
+  const html = "<p>{{live:/papyrus/a/}}x{{/live}} {{live: /papyrus/b }}y{{/live}} {{live:/papyrus/a}}z{{/live}}</p>";
+  assert.deepEqual([...liveTargets(html)], ["/papyrus/a", "/papyrus/b"]);
+  assert.deepEqual([...liveTargets("<p>none</p>")], []);
 });
