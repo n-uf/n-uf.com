@@ -1,6 +1,8 @@
 ---
 // /papyrus/<slug>: an article about papyrus, from src/content/papyrus/<slug>.md.
 // Drafts are built only in dev and Vercel previews (src/data/articles.ts); in production they have no page.
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import Layout from '../../layouts/Layout.astro';
 import '../../styles/article.css';
 import {
@@ -35,10 +37,22 @@ const image: string = `/og/${section.key}/${entry.id}.png`;
 // A draft is built only in dev and previews: it gets the "Scheduled for" badge and noindex
 const scheduled: boolean = showDrafts && !isLive(entry);
 
-if (entry.rendered?.html === undefined) {
-  throw new Error(`${entry.filePath ?? entry.id}: the markdown body was not rendered`);
+const file: string = entry.filePath ?? `src/content/${section.key}/${entry.id}.md`;
+// A page whose share card is missing would send a broken og:image: fail the build instead
+if (!existsSync(join(process.cwd(), 'public', image))) {
+  throw new Error(
+    `${file}: the share card public${image} is missing; draw it with ` +
+      '`python3 scripts/render-og-pages.py --font <Inter-Variable.ttf>` and commit it with the article',
+  );
 }
-const html: string = await withLiveBlocks(entry.rendered.html, entry.filePath ?? `src/content/papyrus/${entry.id}.md`);
+if (entry.rendered?.html === undefined) {
+  throw new Error(`${file}: the markdown body was not rendered`);
+}
+const html: string = await withLiveBlocks(entry.rendered.html, file);
+// The page's h1 is the front matter's h1; a "# Heading" in the body would be a second one
+if (/<h1[\s>]/i.test(html)) {
+  throw new Error(`${file}: the body has a "# " heading (an h1); the page's h1 comes from the front matter, start body headings at "##"`);
+}
 const related = await Promise.all(data.related.map(async (to: string) => ({ path: to, ...(await pageInfo(to)) })));
 
 const structuredData = [
