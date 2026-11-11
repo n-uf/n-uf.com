@@ -38,9 +38,11 @@ export function liveTargets(html) {
  * @param {(path: string) => "built" | "unbuilt" | "none"} status "built": a page exists in this build (live, or a
  *   draft shown in dev/preview); "unbuilt": a page whose draft is hidden in this build; "none": no such page at all
  * @param {string} where the file name, for error messages
+ * @param {(path: string) => string | undefined} [liveFrom] the day (YYYY-MM-DD) the target goes live, if it has one:
+ *   a kept block is then wrapped in a marker that `dropLateLiveBlocks` can take out again (the print layout)
  * @returns {string}
  */
-export function applyLiveBlocks(html, status, where) {
+export function applyLiveBlocks(html, status, where, liveFrom = () => undefined) {
   const fail = (reason) => { throw new Error(`${where}: ${reason}`); };
   let out = "", pos = 0, open = null, removed = false;
 
@@ -65,7 +67,8 @@ export function applyLiveBlocks(html, status, where) {
     out += html.slice(pos, open.start);
     pos = m.index + m[0].length;
     if (s === "built") {
-      out += inner;
+      const from = liveFrom(open.path);
+      out += from ? `<span data-live-from="${from}">${inner}</span>${LIVE_FROM_END}` : inner;
     } else {
       removed = true;
       // take the space after the block with it, and the space before it too when a closing tag or the end follows
@@ -77,12 +80,49 @@ export function applyLiveBlocks(html, status, where) {
   if (open) fail(`{{live:${open.path}}} is never closed with {{/live}}`);
   out += html.slice(pos);
   if (/\{\{\s*\/?\s*live/i.test(out)) fail("stray {{live: or {{/live}} (not a complete {{live:/path/}}…{{/live}} pair)");
-  // a paragraph or list item that was only the block is left empty: drop it, and then a list item (a loose list wraps
-  // items in <p>) or a whole list that this leaves empty, until nothing more changes
-  if (!removed) return out;
+  return removed ? dropEmpty(out) : out;
+}
+
+/**
+ * A paragraph or list item that was only a removed block is left empty: drop it, and then a list item (a loose list
+ * wraps items in <p>) or a whole list that this leaves empty, until nothing more changes.
+ * @param {string} html
+ * @returns {string}
+ */
+function dropEmpty(html) {
+  let out = html;
   for (let prev = ""; prev !== out; ) {
     prev = out;
     out = out.replace(/<(p|li|ul|ol)(?:\s[^>]*)?>\s*<\/\1>\n?/g, "");
   }
   return out;
+}
+
+const LIVE_FROM_END = "<!--/live-from-->";
+const LIVE_FROM = /<span data-live-from="(\d{4}-\d{2}-\d{2})">([\s\S]*?)<\/span><!--\/live-from-->/g;
+
+/**
+ * The print layout of an article (a PDF outlives the day it is printed): a block stays only when its target goes live on
+ * or before the day the article does. A preview build, where the PDF is printed, shows every block, so this puts back
+ * what the article's own production page had on its go-live day. Blocks it keeps lose their marker; the ones it drops
+ * go the way a block does in a production build (the space around them, then an empty paragraph or list).
+ * @param {string} html the article's HTML as `applyLiveBlocks` made it (with its liveFrom markers)
+ * @param {string} published the day the article goes live (YYYY-MM-DD)
+ * @returns {string}
+ */
+export function dropLateLiveBlocks(html, published) {
+  let out = "", pos = 0, removed = false;
+  for (const m of html.matchAll(LIVE_FROM)) {
+    out += html.slice(pos, m.index);
+    pos = m.index + m[0].length;
+    if (m[1] <= published) {
+      out += m[2];
+      continue;
+    }
+    removed = true;
+    while (pos < html.length && /\s/.test(html[pos])) pos++;
+    if (pos >= html.length || html.startsWith("</", pos)) out = out.trimEnd();
+  }
+  out += html.slice(pos);
+  return removed ? dropEmpty(out) : out;
 }

@@ -2,7 +2,7 @@
 // Run: node --test scripts/*.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { applyLiveBlocks, liveTargets } from "../src/data/live-blocks.mjs";
+import { applyLiveBlocks, dropLateLiveBlocks, liveTargets } from "../src/data/live-blocks.mjs";
 
 const PAGES = {
   "/papyrus/live-page": "built",
@@ -110,4 +110,42 @@ test("liveTargets lists every target once, in canonical form", () => {
   const html = "<p>{{live:/papyrus/a/}}x{{/live}} {{live: /papyrus/b }}y{{/live}} {{live:/papyrus/a}}z{{/live}}</p>";
   assert.deepEqual([...liveTargets(html)], ["/papyrus/a", "/papyrus/b"]);
   assert.deepEqual([...liveTargets("<p>none</p>")], []);
+});
+
+// The print layout: a PDF keeps a block only when its target goes live on or before the article's own go-live day.
+const FROM = { "/papyrus/draft-page": "2026-12-01", "/papyrus/live-page": "2026-11-10" };
+const marked = (html) => applyLiveBlocks(html, status, "src/content/papyrus/host.md", (p) => FROM[p]);
+const spanOf = (day, inner) => `<span data-live-from="${day}">${inner}</span><!--/live-from-->`;
+
+test("a kept block carries the day its target goes live; a fixed page has none", () => {
+  assert.equal(marked("<p>One. {{live:/papyrus/live-page}}See it.{{/live}} Two. {{live:/papyrus}}Read.{{/live}}</p>"),
+    `<p>One. ${spanOf("2026-11-10", "See it.")} Two. Read.</p>`);
+});
+
+test("a block whose target is hidden in this build is still removed, and gets no marker", () => {
+  assert.equal(marked(`<p>One. {{live:/papyrus/draft-page}}See ${link}.{{/live}} Two.</p>`), "<p>One. Two.</p>");
+});
+
+test("dropLateLiveBlocks keeps a block that is live by the article's day and unwraps it", () => {
+  const html = `<p>One. ${spanOf("2026-11-10", "See it.")} Two.</p>`;
+  assert.equal(dropLateLiveBlocks(html, "2026-11-24"), "<p>One. See it. Two.</p>");
+  assert.equal(dropLateLiveBlocks(html, "2026-11-10"), "<p>One. See it. Two.</p>");   // the same day counts
+});
+
+test("dropLateLiveBlocks removes a block whose target goes live after the article, as a production build would", () => {
+  const html = `<p>One. ${spanOf("2026-12-01", "See later.")} Two.</p>\n<p>${spanOf("2026-12-01", "Only this.")}</p>\n<ul>\n<li>A</li>\n<li>${spanOf("2026-12-08", "Later.")}</li>\n</ul>\n<p>End. ${spanOf("2026-12-01", "Tail.")}</p>`;
+  assert.equal(dropLateLiveBlocks(html, "2026-11-24"), "<p>One. Two.</p>\n<ul>\n<li>A</li>\n</ul>\n<p>End.</p>");
+});
+
+test("dropLateLiveBlocks leaves html with no marker unchanged", () => {
+  const html = "<p>Plain.</p>\n<p></p>\n";
+  assert.equal(dropLateLiveBlocks(html, "2026-11-24"), html);
+});
+
+test("the print layout of a block is what the production build of that day makes of it", () => {
+  // article live on 2026-11-24; its sentence about a page live on 2026-12-01 is in the preview but not in production
+  const body = "<p>Intro. {{live:/papyrus/draft-page}}Later page: see it.{{/live}} Outro.</p>";
+  const production = applyLiveBlocks(body, status, "x.md");
+  const printed = dropLateLiveBlocks(applyLiveBlocks(body, () => "built", "x.md", (p) => FROM[p]), "2026-11-24");
+  assert.equal(printed, production);
 });
