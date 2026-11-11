@@ -84,6 +84,17 @@ export const projects: readonly Project[] = [
     status: "live",
   },
   {
+    id: "cl_quick",
+    name: "cl_quick",
+    tagline:
+      "macOS menu bar app: a floating Claude quick chat on ⌥Space over any app, answered by your own Claude Code.",
+    description:
+      "Quick chats are incognito: nothing is saved on the Mac; messages still go to Anthropic. First release not out yet. Licence: PolyForm Perimeter 1.0.1. Not affiliated with Anthropic.",
+    url: "https://cl-quick.n-uf.com",
+    repo: "https://github.com/n-uf/cl_quick",
+    status: "live",
+  },
+  {
     id: "harbuz",
     name: "harbuz",
     tagline:
