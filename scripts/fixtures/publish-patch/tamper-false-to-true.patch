@@ -1,0 +1,13 @@
+diff --git a/src/content/papyrus/delta.md b/src/content/papyrus/delta.md
+index 75da8ee..cbbe43f 100644
+--- a/src/content/papyrus/delta.md
++++ b/src/content/papyrus/delta.md
+@@ -2,7 +2,7 @@
+ title: "Fixture delta"
+ published: 2026-11-03
+ updated: 2026-11-03
+-draft: false
++draft: true
+ author: n-uf
+ tags:
+   - one

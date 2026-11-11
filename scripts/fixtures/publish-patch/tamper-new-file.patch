@@ -1,0 +1,12 @@
+diff --git a/src/content/papyrus/planted.md b/src/content/papyrus/planted.md
+new file mode 100644
+index 0000000..78fedb7
+--- /dev/null
++++ b/src/content/papyrus/planted.md
+@@ -0,0 +1,6 @@
++---
++title: "New"
++draft: false
++---
++
++planted
