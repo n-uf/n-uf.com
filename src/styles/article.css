@@ -493,8 +493,10 @@
   margin-top: 20px;
 }
 
+/* The markers sit outside the list item, so the list needs room for a two-digit number ("10.") at 13px:
+   with 20px the leaf clipped the first digit of the numbers from 10 on. */
 .article .sources ol {
-  padding-left: 20px;
+  padding-left: 30px;
 }
 
 .article .sources li {
