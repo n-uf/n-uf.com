@@ -212,7 +212,7 @@ const reactSample: string =`<Logo name={<MyWordmark />} variantTextLines={{ home
           <span class="repo-path">{pagePdf.label}</span>
         </a>
         <!-- Two-state controls, one button each; shown by the script below (they do nothing without it) -->
-        <button class="repo view-toggle" type="button" hidden>
+        <button class="repo view-toggle" type="button" aria-label="Switch to web view" hidden>
           <svg class="icon-web" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
             <path
               fill="none"
@@ -233,7 +233,7 @@ const reactSample: string =`<Logo name={<MyWordmark />} variantTextLines={{ home
           </svg>
           <span class="toggle-label"><span class="t-long">Web view</span><span class="t-short">Web</span></span>
         </button>
-        <button class="repo sheet-toggle" type="button" hidden>
+        <button class="repo sheet-toggle" type="button" aria-label="Switch to US Letter" hidden>
           <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
             <path
               fill="none"
@@ -412,6 +412,8 @@ const reactSample: string =`<Logo name={<MyWordmark />} variantTextLines={{ home
           // Labelled for the state a click switches to (no aria-pressed: the label is the action)
           viewBtn.querySelector('.t-long').textContent = view === 'web' ? 'Page view' : 'Web view';
           viewBtn.querySelector('.t-short').textContent = view === 'web' ? 'Page' : 'Web';
+          viewBtn.setAttribute('aria-label', view === 'web' ? 'Switch to page view' : 'Switch to web view');
+          sheetBtn.setAttribute('aria-label', sheet === 'a4' ? 'Switch to US Letter' : 'Switch to A4');
           sheetBtn.querySelector('.t-long').textContent = sheet === 'a4' ? 'US Letter' : 'A4';
           sheetBtn.querySelector('.t-short').textContent = sheet === 'a4' ? 'Letter' : 'A4';
           pdf.setAttribute('href', pdf.getAttribute('data-' + sheet + '-href'));
