@@ -55,8 +55,8 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
                     aria-label={`Open the ${doc.name}, page ${index + 1} of ${doc.count}, at full size`}
                   />
                 </div>
-                <p class="cap">
-                  {doc.sizeLabel} · page {index + 1} of {doc.count}
+                <p class="cap" title={`${doc.sizeLabel} · page ${index + 1} of ${doc.count}`}>
+                  {doc.sheetKey === 'a4' ? 'A4' : 'Letter'} · p. {index + 1}/{doc.count}
                 </p>
               </div>
             ))}
@@ -96,12 +96,15 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 28px;
-    align-items: start;
+    align-items: stretch;
   }
 
+  /* Every figure is as tall as the row and sits at its bottom: the sheets end on one line, and so do
+     their captions and the doc lines (the Letter sheet is shorter than the A4 ones) */
   .specimen {
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
     gap: 14px;
     min-width: 0;
     margin: 0;
@@ -195,10 +198,12 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     line-height: 1.45;
   }
 
+  /* The same under every document: the name, then its PDF, left under the first sheet */
   .docline {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
     padding-top: 10px;
     border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
   }
