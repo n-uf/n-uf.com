@@ -11,7 +11,7 @@ import {
   getArticles,
   isLive,
   kindLabel,
-  pageInfo,
+  relatedCards,
   sections,
   showDrafts,
   type Entry,
@@ -58,7 +58,8 @@ if (/<h1[\s>]/i.test(html)) {
 // The article's PDF, printed by papyrus (scripts/article-pdfs.mjs); the build publishes it with the page, so the button
 // shows only when the file exists (src/data/article-pdfs.mjs)
 const pdf = pdfLink(entry.id);
-const related = await Promise.all(data.related.map(async (to: string) => ({ path: to, ...(await pageInfo(to)) })));
+// A related entry that points at an article still hidden as a draft is left out until it goes live (src/data/related.mjs)
+const related = await relatedCards(data.related);
 // The contents list on the first sheet: the body's "## " sections, numbered as the headings are (article.css counter)
 const toc = [...html.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map((m, i) => ({ id: m[1], html: m[2], n: i + 1 }));
 

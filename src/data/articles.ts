@@ -2,7 +2,9 @@
 // and the addresses. The one rule for drafts lives here, in `isLive` and `showDrafts`, and every page, list, sitemap
 // entry and llms.txt line asks these two.
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { projects, siteUrl, studioSummary, type Project } from './projects';
+import { siteUrl } from './projects';
+import { resolveRelated } from './related.mjs';
+import { fixedPages } from './site-pages';
 
 export type Entry = CollectionEntry<'papyrus'>;
 export type SectionKey = 'papyrus';
@@ -72,19 +74,6 @@ export const articlePath = (key: SectionKey, id: string): string => `${sections[
 export const dateText = (date: Date): string =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(date);
 
-/** The fixed pages of the site, from the projects that live on n-uf.com itself, plus the home page. */
-function fixedPages(): { path: string; title: string; description: string }[] {
-  const own = projects.filter((project: Project): boolean => project.url.startsWith(`${siteUrl}/`));
-  return [
-    { path: '/', title: 'n-uf', description: studioSummary },
-    ...own.map((project: Project) => ({
-      path: new URL(project.url).pathname,
-      title: project.name,
-      description: project.tagline,
-    })),
-  ];
-}
-
 /**
  * Is a site path a page of this build? "built": a fixed page, or an article that is live (or a draft, where drafts
  * are shown); "unbuilt": an article whose draft is hidden in this build; "none": no page at all.
@@ -103,15 +92,18 @@ export async function pageStatus(path: string): Promise<'built' | 'unbuilt' | 'n
 }
 
 /**
- * The title and description of a site path, for the Related cards. Throws on a path that is no page of this build
- * (it doesn't exist, or it is a draft that production hides), so a broken or early link fails the build.
+ * The Related cards of an article. An entry that points at an article still hidden as a draft is left out (it appears
+ * the day that article goes live); an entry that points at no page at all throws, so a typo fails the build
+ * (src/data/related.mjs).
  */
-export async function pageInfo(path: string): Promise<{ title: string; description: string }> {
-  const fixed = fixedPages().find((page) => page.path === path);
-  if (fixed) return fixed;
+export async function relatedCards(paths: string[]): Promise<{ path: string; title: string; description: string }[]> {
+  const fixed = new Map(fixedPages().map((page) => [page.path, page]));
+  const articles = new Map<string, { title: string; description: string; live: boolean }>();
   for (const key of Object.keys(sections) as SectionKey[]) {
-    const found = (await getArticles(key)).find((entry) => articlePath(key, entry.id) === path);
-    if (found) return { title: found.data.h1, description: found.data.description };
+    if (fileCount[key] === 0) continue;
+    for (const entry of (await getCollection(key)) as Entry[]) {
+      articles.set(articlePath(key, entry.id), { title: entry.data.h1, description: entry.data.description, live: isLive(entry) });
+    }
   }
-  throw new Error(`related link "${path}" points to no page of this build (it does not exist, or it is still a draft)`);
+  return resolveRelated(paths, { fixed, articles, showDrafts });
 }

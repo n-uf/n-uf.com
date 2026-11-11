@@ -3,6 +3,8 @@
 // Another project gets its own collection: add a folder here and an entry in src/data/articles.ts.
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { hasAlwaysLiveEntry } from './data/related.mjs';
+import { fixedPagePaths } from './data/site-pages';
 
 // A path on this site in the canonical form (no trailing slash, "/" for the home page). A trailing slash is accepted
 // and removed, so "/papyrus/" and "/papyrus" mean the same page.
@@ -59,6 +61,12 @@ const article = z
       path: ['published'],
     },
   )
+  // `related` may name articles that are not live yet (production leaves those entries out until they are), so at least
+  // one entry must be a page that is always live, such as /papyrus: the list is never empty on the day of the first article.
+  .refine((data) => hasAlwaysLiveEntry(data.related, fixedPagePaths()), {
+    message: 'related needs at least one page that is always live, such as /papyrus (articles that are still drafts are left out in production)',
+    path: ['related'],
+  })
   // {{live:/path}}…{{/live}} works only in the markdown body (src/data/live-blocks.mjs): in front matter it would show
   // as is in titles, meta tags, FAQ and JSON-LD.
   .refine((data) => !/\{\{\s*\/?\s*live/i.test(JSON.stringify(data)), {
