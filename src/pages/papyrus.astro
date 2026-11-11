@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ArticlesList from '../components/ArticlesList.astro';
 import ExtLink from '../components/ExtLink.astro';
 import PapyrusCode from '../components/PapyrusCode.astro';
 import PapyrusLeaf from '../components/PapyrusLeaf.astro';
@@ -444,6 +445,7 @@ const reactSample: string =`<Logo name={<MyWordmark />} variantTextLines={{ home
         </p>
         </PapyrusLeaf>
       </article>
+      <ArticlesList />
     </main>
 
     <!-- Copy buttons of the code boxes: shown only when scripts run -->

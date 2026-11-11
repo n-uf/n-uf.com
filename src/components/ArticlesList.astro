@@ -1,0 +1,81 @@
+---
+/**
+ * The articles about papyrus (src/content/papyrus), listed under the sheets of the /papyrus page: outside the leaves,
+ * so it is not part of the page's PDF (hidden in print). Each article is linked from here the day it goes live, with
+ * no manual edit; production lists the live ones only, previews also the drafts with their date. Nothing is rendered
+ * while no article is live.
+ *
+ * Named without the Papyrus prefix on purpose: the fingerprint of the page PDFs (scripts/papyrus-page.config.json)
+ * lists the Papyrus* components and papyrus.astro, so a new article never makes those PDFs stale.
+ */
+import { articlePath, dateText, getArticles, isLive, type Entry } from '../data/articles';
+
+const articles: Entry[] = await getArticles('papyrus');
+---
+
+{
+  articles.length > 0 && (
+    <section class="articles-list" aria-labelledby="articles-title">
+      <h2 id="articles-title">Articles</h2>
+      <ul>
+        {articles.map((entry: Entry) => (
+          <li>
+            <a href={articlePath('papyrus', entry.id)}>{entry.data.h1}</a>
+            {!isLive(entry) && <span class="scheduled"> Scheduled for {dateText(entry.data.published)}</span>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .articles-list {
+    margin-top: 40px;
+  }
+
+  h2 {
+    margin: 0 0 16px;
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    font-family: var(--sans);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 10px;
+    padding-left: 4px;
+    color: var(--copy);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  li::marker {
+    color: var(--muted);
+  }
+
+  a {
+    color: var(--ink);
+    text-underline-offset: 3px;
+  }
+
+  /* A draft in a preview or in dev; production has none */
+  .scheduled {
+    color: var(--accent-2);
+    font-size: 13px;
+  }
+
+  @media print {
+    .articles-list {
+      display: none;
+    }
+  }
+</style>
