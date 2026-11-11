@@ -65,7 +65,13 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
         </p>
         <div class="sets">
           {group.docs.map((doc) => (
-            <figure class="set" style={`--n:${doc.count}`} data-sheets={doc.count} aria-label={doc.accessibleName}>
+            <figure
+              class="set"
+              style={`--n:${doc.count}`}
+              data-sheets={doc.count}
+              data-format={doc.sheetKey}
+              aria-label={doc.accessibleName}
+            >
               <figcaption class="setline">
                 <span class="docname">{doc.shortName}</span>
                 <span class="setmeta">
