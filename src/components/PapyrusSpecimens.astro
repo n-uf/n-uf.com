@@ -394,13 +394,126 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
       grid-column: auto;
     }
 
-    /* One sheet across, readable; the name line wraps */
+    /* One sheet across (print; on screen the phone rows below show only the first) */
     .sheets {
       --n: 1;
     }
 
     .group + .group {
       margin-top: 48px;
+    }
+  }
+
+  /* Phones: each document is one row, a small thumbnail of its first page beside its caption, so the section
+     reads as examples and not as the page's own content. Screen only: print keeps the sheets as they are. */
+  @media screen {
+    @container specimens (max-width: 639px) {
+      .sets {
+        row-gap: 0;
+      }
+
+      .set {
+        --thumb: 104px;
+        display: grid;
+        grid-template-columns: var(--thumb) minmax(0, 1fr);
+        gap: 0 16px;
+        align-items: start;
+        padding-block: 16px;
+      }
+
+      .set[data-format='slide'] {
+        --thumb: 160px;
+      }
+
+      .set:first-child {
+        padding-top: 0;
+      }
+
+      .set:last-child {
+        padding-bottom: 0;
+      }
+
+      .set + .set {
+        border-top: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+      }
+
+      /* The caption on the right, top-aligned; it may wrap here */
+      .setline {
+        grid-row: 1;
+        grid-column: 2;
+        grid-template-rows: auto auto;
+        white-space: normal;
+      }
+
+      .docname {
+        overflow: visible;
+        text-overflow: clip;
+      }
+
+      .setmeta {
+        flex-wrap: wrap;
+        gap: 0 10px;
+        overflow: visible;
+      }
+
+      .docmeta {
+        white-space: nowrap;
+      }
+
+      /* A 44px tap target without a taller row */
+      a.pdf {
+        padding-block: 12px;
+        margin-block: -12px;
+        white-space: nowrap;
+      }
+
+      /* Only the first page, as the thumbnail */
+      .sheets {
+        grid-row: 1;
+        grid-column: 1;
+        display: block;
+      }
+
+      .sheet:not(:first-child) {
+        display: none;
+      }
+
+      .sheet-box {
+        box-shadow:
+          0 1px 2px rgb(0 0 0 / 0.35),
+          0 6px 16px -6px rgb(0 0 0 / 0.55);
+      }
+
+      /* A document of several pages: two paper edges behind the thumbnail */
+      .set:not([data-sheets='1']) .sheets {
+        margin-bottom: 8px;
+      }
+
+      .set:not([data-sheets='1']) .sheet {
+        position: relative;
+        isolation: isolate;
+      }
+
+      .set:not([data-sheets='1']) .sheet::before,
+      .set:not([data-sheets='1']) .sheet::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: 2px;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+      }
+
+      .set:not([data-sheets='1']) .sheet::before {
+        translate: 4px 4px;
+        background: #e9e6dc;
+      }
+
+      .set:not([data-sheets='1']) .sheet::after {
+        z-index: -2;
+        translate: 8px 8px;
+        background: #d4d1c5;
+      }
     }
   }
 
