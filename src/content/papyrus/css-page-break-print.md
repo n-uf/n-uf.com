@@ -170,7 +170,7 @@ For rows, the spec says `break-before` and `break-after` apply to table rows and
 
 MDN's compatibility data has no rows specific to tables, so check the result in the browsers you print from.
 
-For headers, use `thead`. CSS 2.1 maps `thead` to `display: table-header-group` and says print user agents may repeat header rows on each page a table spans; the same goes for `tfoot` and footer rows. "May" means a browser is allowed to, not required to. Treat a repeated header as something to verify.
+For headers, use `thead`. CSS 2.1 maps `thead` to `display: table-header-group` and says print user agents may repeat header rows on each page a table spans; the same goes for `tfoot` and footer rows. "May" means a browser is allowed to, not required to. Treat a repeated header as something to verify.{{live:/papyrus/css-print-header-footer}} Repeating a header and footer for the whole page, not only for a table, is covered in [css print header and footer](/papyrus/css-print-header-footer).{{/live}}
 
 ## Page numbers
 
@@ -183,7 +183,7 @@ CSS has an answer here, and most browsers support only part of it. The CSS Paged
 }
 ```
 
-MDN lists the page-margin boxes, marked experimental, in Chrome 131, Edge 131 and Opera 116, and as unsupported in Firefox and Safari. If readers print from those, write the number into the HTML yourself, one footer per page.
+MDN lists the page-margin boxes, marked experimental, in Chrome 131, Edge 131 and Opera 116, and as unsupported in Firefox and Safari. If readers print from those, write the number into the HTML yourself, one footer per page.{{live:/papyrus/css-print-page-numbers}} How `counter(page)` and `counter(pages)` work, and where they fail, is covered in [css print page numbers](/papyrus/css-print-page-numbers).{{/live}}
 
 When a script makes the PDF, the tool may number pages for you. Playwright's `page.pdf()` has a `displayHeaderFooter` option, and its `headerTemplate` and `footerTemplate` fill in elements with the classes `pageNumber` and `totalPages`.{{live:/papyrus/playwright-pdf-from-html}} [The Playwright article](/papyrus/playwright-pdf-from-html) shows an example.{{/live}}
 
