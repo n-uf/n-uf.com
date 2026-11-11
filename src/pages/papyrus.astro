@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PapyrusCode from '../components/PapyrusCode.astro';
 import PapyrusLeaf from '../components/PapyrusLeaf.astro';
 import PapyrusSpecimens from '../components/PapyrusSpecimens.astro';
 import { SHEETS } from '@n-uf/papyrus';
@@ -122,7 +123,10 @@ const configSample: string = `{
   "docs": [{ "id": "resume", "sheet": "letter", "pageSelector": ".page", "pageCount": 3 }]
 }`;
 
-const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ home: ["MADE BY"] }} />
+const installSample: string = `pnpm add @n-uf/papyrus            # engine only, no bundler needed
+pnpm add @n-uf/papyrus-react      # React components`;
+
+const reactSample: string =`<Logo name={<MyWordmark />} variantTextLines={{ home: ["MADE BY"] }} />
 <DocumentFooter title="Report" copyright="© 2030 Acme" />
 <TOCItem number="1" title="Intro" page="3" section="market" sectionColors={{ market: "rgb(14, 116, 144)" }} />`;
 ---
@@ -290,7 +294,7 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
           the PDF. <code>sheetCss()</code> sizes it to A4 or Letter and keeps one per printed page;
           on screen the sheets sit on a grey canvas.
         </p>
-        <pre><code>{sheetSample}</code></pre>
+        <PapyrusCode code={sheetSample} lang="js" label="js" />
         <p>
           Pages without a bundler can link the ready-made <code>@n-uf/papyrus/sheet-a4.css</code> or
           <code>sheet-letter.css</code> instead.
@@ -301,7 +305,7 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
           A document is registered with its title, expected page count and table of contents.
           <code>numberToc()</code> numbers the entries, appendices included.
         </p>
-        <pre><code>{tocSample}</code></pre>
+        <PapyrusCode code={tocSample} lang="js" label="js" />
         </PapyrusLeaf>
 
         <PapyrusLeaf n={4} total={leafTotal} section="Export to PDF">
@@ -311,11 +315,11 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
           Chromium (Playwright). The server that renders the documents must already be running
           (<code>--wait</code> gives it time to answer):
         </p>
-        <pre><code>papyrus pdf --config papyrus.config.json</code></pre>
+        <PapyrusCode code="papyrus pdf --config papyrus.config.json" lang="sh" label="shell" />
         <p>
           For plain HTML files no server is needed: point <code>baseUrl</code> at the folder.
         </p>
-        <pre><code>{configSample}</code></pre>
+        <PapyrusCode code={configSample} lang="json" label="papyrus.config.json" />
         <ul>
           <li>
             <strong>Sheet:</strong> A4 by default, <code>"letter"</code> for the whole config or one
@@ -360,15 +364,14 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
           holds the sheet CSS and print fixes. Branding is yours: <code>Logo</code> and
           <code>DocumentFooter</code> render only what you pass.
         </p>
-        <pre><code>{reactSample}</code></pre>
+        <PapyrusCode code={reactSample} lang="tsx" label="tsx" />
         <p>
           With Tailwind v4, import the package's stylesheet:
           <code>@import "@n-uf/papyrus-react/tailwind.css"</code>.
         </p>
 
         <h2>Install</h2>
-        <pre><code>pnpm add @n-uf/papyrus            # engine only, no bundler needed
-pnpm add @n-uf/papyrus-react      # React components</code></pre>
+        <PapyrusCode code={installSample} lang="sh" label="shell" />
         <p>
           In a Next.js app, add <code>@n-uf/papyrus-react</code> to <code>transpilePackages</code>.
           <code>playwright</code> and <code>vite</code> are optional peer dependencies, needed only
@@ -425,6 +428,66 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
         sync();
         viewBtn.hidden = false;
         sheetBtn.hidden = false;
+      })();
+    </script>
+
+    <!-- Copy buttons of the code boxes: shown only when scripts run -->
+    <script is:inline>
+      (function () {
+        function copy(text) {
+          try {
+            return navigator.clipboard.writeText(text);
+          } catch (e) {
+            return Promise.reject(e);
+          }
+        }
+        function fallback(text) {
+          // Without the async clipboard API (insecure origin, old browser): a hidden textarea
+          try {
+            var area = document.createElement('textarea');
+            area.value = text;
+            area.setAttribute('readonly', '');
+            area.style.position = 'fixed';
+            area.style.opacity = '0';
+            document.body.appendChild(area);
+            area.select();
+            var ok = document.execCommand('copy');
+            document.body.removeChild(area);
+            return ok;
+          } catch (e) {
+            return false;
+          }
+        }
+        var boxes = document.querySelectorAll('.code-box');
+        for (var i = 0; i < boxes.length; i++) {
+          (function (box) {
+            var button = box.querySelector('.code-copy');
+            var text = box.querySelector('.code-copy-text');
+            var status = box.querySelector('.code-status');
+            var timer = 0;
+            function done(ok) {
+              text.textContent = ok ? 'Copied' : 'Copy failed';
+              status.textContent = ok ? 'Code copied' : 'Could not copy the code';
+              clearTimeout(timer);
+              timer = setTimeout(function () {
+                text.textContent = 'Copy';
+                status.textContent = '';
+              }, 1500);
+            }
+            button.addEventListener('click', function () {
+              var code = box.querySelector('pre code').textContent;
+              copy(code).then(
+                function () {
+                  done(true);
+                },
+                function () {
+                  done(fallback(code));
+                },
+              );
+            });
+            button.hidden = false;
+          })(boxes[i]);
+        }
       })();
     </script>
   </div>
@@ -555,6 +618,28 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
     display: none;
   }
 
+  /* The main action: Download PDF leads by a stronger tint and border alone, with the same light
+     text as its neighbours (ink on the 20% tint is about 10:1, the muted part 6:1, 5:1 on hover). */
+  .repo.pdf-link {
+    border-color: color-mix(in srgb, var(--ink) 45%, transparent);
+    background: color-mix(in srgb, var(--ink) 20%, transparent);
+  }
+
+  /* a little lighter than on the quiet buttons, to keep 4.5:1 on the stronger tint (5:1 on hover) */
+  .repo.pdf-link .repo-path {
+    color: var(--copy);
+  }
+
+  .repo.pdf-link:is(:hover, :focus-visible) {
+    border-color: color-mix(in srgb, var(--ink) 55%, transparent);
+    background: color-mix(in srgb, var(--ink) 26%, transparent);
+  }
+
+  .repo.pdf-link:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+
   /* The format means nothing in the web view */
   .doc[data-view='web'] .sheet-toggle {
     display: none;
@@ -637,22 +722,6 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
     overflow-wrap: anywhere;
   }
 
-  pre {
-    margin: 0 0 16px;
-    padding: 16px 18px;
-    overflow-x: auto;
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--ink) 7%, transparent);
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  pre code {
-    padding: 0;
-    background: none;
-    overflow-wrap: normal;
-  }
-
   article a {
     color: var(--ink);
     text-underline-offset: 3px;
@@ -708,21 +777,6 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
 
   .doc[data-view='pages'] li {
     margin-bottom: 8px;
-  }
-
-  /* No scrolling inside a sheet: long code lines wrap */
-  .doc[data-view='pages'] pre {
-    margin-bottom: 14px;
-    padding: 14px 16px;
-    overflow: visible;
-    font-size: 13px;
-    line-height: 1.55;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-
-  .doc[data-view='pages'] pre code {
-    overflow-wrap: anywhere;
   }
 
   /* Print: only the sheets, dark as on screen (the PDF of this page is printed from here) */
