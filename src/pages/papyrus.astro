@@ -17,12 +17,14 @@ const pagePdfs = (['a4', 'letter'] as const).map((key) => {
   const file: string = `papyrus-${key}.pdf`;
   const bytes: number | undefined = (pdfSizes as Record<string, number>)[file];
   const format: string = key === 'a4' ? 'A4' : 'US Letter';
-  const size: string = bytes ? ` · ${Math.max(1, Math.round(bytes / 1024))} KB` : '';
+  const kb: number | null = bytes ? Math.max(1, Math.round(bytes / 1024)) : null;
   return {
     key,
     file,
     href: `/${SAMPLES_DIR}/${file}`,
-    label: `${format} · ${leafTotal} pages${size}`,
+    // the short label shown next to "PDF", and the full name for assistive tech
+    label: `${format} · ${leafTotal} p${kb ? ` · ${kb} KB` : ''}`,
+    aria: `Download PDF, ${format}, ${leafTotal} pages${kb ? `, ${kb} KB` : ''}`,
   };
 });
 const pagePdf = pagePdfs[0];
@@ -60,7 +62,8 @@ const pageDescription: string =
   'papyrus lays out documents in HTML or React on A4 or Letter sheets and prints them to PDF, checking the page count so a broken render is never saved.';
 const pagePath: string = '/papyrus';
 const pageUrl: string = new URL(pagePath, siteUrl).href;
-const repoUrl: string = 'https://github.com/n-uf/papyrus';
+const repoSlug: string = 'n-uf/papyrus';
+const repoUrl: string = `https://github.com/${repoSlug}`;
 const engineNpm: string = 'https://www.npmjs.com/package/@n-uf/papyrus';
 const reactNpm: string = 'https://www.npmjs.com/package/@n-uf/papyrus-react';
 const engineChangelog: string = `${repoUrl}/blob/main/packages/papyrus/CHANGELOG.md`;
@@ -159,8 +162,45 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
         <span aria-hidden="true">/</span>
         <span aria-current="page">papyrus</span>
       </nav>
-      <!-- Two-state controls, one button each; shown by the script below (they do nothing without it) -->
       <div class="view-tools">
+        <a class="repo" href={repoUrl} aria-label={`Source on GitHub: ${repoSlug}`}>
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+            ></path>
+          </svg>
+          <span>GitHub</span>
+          <span class="repo-path">{repoSlug}</span>
+        </a>
+        <a
+          class="repo pdf-link"
+          href={pagePdf.href}
+          download={pagePdf.file}
+          type="application/pdf"
+          aria-label={pagePdf.aria}
+          data-a4-href={pagePdfs[0].href}
+          data-a4-file={pagePdfs[0].file}
+          data-a4-label={pagePdfs[0].label}
+          data-a4-aria={pagePdfs[0].aria}
+          data-letter-href={pagePdfs[1].href}
+          data-letter-file={pagePdfs[1].file}
+          data-letter-label={pagePdfs[1].label}
+          data-letter-aria={pagePdfs[1].aria}
+        >
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="square"
+              d="M8 1.75v8.5M4.25 6.5 8 10.25l3.75-3.75M2.25 13.75h11.5"
+            ></path>
+          </svg>
+          <span>PDF</span>
+          <span class="repo-path">{pagePdf.label}</span>
+        </a>
+        <!-- Two-state controls, one button each; shown by the script below (they do nothing without it) -->
         <button class="repo view-toggle" type="button" aria-pressed="false" hidden>
           <svg class="icon-web" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
             <path
@@ -180,7 +220,7 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
               d="M3.75 1.75h8.5v12.5h-8.5zM6 5.25h4M6 8h4"
             ></path>
           </svg>
-          <span class="toggle-label">Web view</span>
+          <span class="toggle-label"><span class="t-long">Web view</span><span class="t-short">Web</span></span>
         </button>
         <button class="repo sheet-toggle" type="button" hidden>
           <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
@@ -192,7 +232,7 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
               d="M4.25 1.75h7.5v12.5h-7.5zM1.75 4.25v7.5M14.25 4.25v7.5"
             ></path>
           </svg>
-          <span class="toggle-label">US Letter</span>
+          <span class="toggle-label"><span class="t-long">US Letter</span><span class="t-short">Letter</span></span>
         </button>
       </div>
     </div>
@@ -203,43 +243,6 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
 
         <PapyrusLeaf n={1} total={leafTotal} section="Introduction · Two packages">
         <h1>Documents in HTML, printed to PDF</h1>
-
-        <p class="repo-row">
-          <a class="repo" href={repoUrl}>
-            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
-              <path
-                fill="currentColor"
-                d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
-              ></path>
-            </svg>
-            <span>Source on GitHub</span>
-            <span class="repo-path">n-uf/papyrus</span>
-          </a>
-          <a
-            class="repo pdf-link"
-            href={pagePdf.href}
-            download={pagePdf.file}
-            type="application/pdf"
-            data-a4-href={pagePdfs[0].href}
-            data-a4-file={pagePdfs[0].file}
-            data-a4-label={pagePdfs[0].label}
-            data-letter-href={pagePdfs[1].href}
-            data-letter-file={pagePdfs[1].file}
-            data-letter-label={pagePdfs[1].label}
-          >
-            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
-              <path
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="square"
-                d="M8 1.75v8.5M4.25 6.5 8 10.25l3.75-3.75M2.25 13.75h11.5"
-              ></path>
-            </svg>
-            <span>Download PDF</span>
-            <span class="repo-path">{pagePdf.label}</span>
-          </a>
-        </p>
 
         <p>
           papyrus is a documents engine. You write a document as HTML or React pages. On screen each
@@ -398,10 +401,13 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
           var sheet = doc.getAttribute('data-sheet');
           // Labelled for the state a click switches to; aria-pressed is true in the web view
           viewBtn.setAttribute('aria-pressed', view === 'web' ? 'true' : 'false');
-          viewBtn.querySelector('.toggle-label').textContent = view === 'web' ? 'Page view' : 'Web view';
-          sheetBtn.querySelector('.toggle-label').textContent = sheet === 'a4' ? 'US Letter' : 'A4';
+          viewBtn.querySelector('.t-long').textContent = view === 'web' ? 'Page view' : 'Web view';
+          viewBtn.querySelector('.t-short').textContent = view === 'web' ? 'Page' : 'Web';
+          sheetBtn.querySelector('.t-long').textContent = sheet === 'a4' ? 'US Letter' : 'A4';
+          sheetBtn.querySelector('.t-short').textContent = sheet === 'a4' ? 'Letter' : 'A4';
           pdf.setAttribute('href', pdf.getAttribute('data-' + sheet + '-href'));
           pdf.setAttribute('download', pdf.getAttribute('data-' + sheet + '-file'));
+          pdf.setAttribute('aria-label', pdf.getAttribute('data-' + sheet + '-aria'));
           pdf.querySelector('.repo-path').textContent = pdf.getAttribute('data-' + sheet + '-label');
         }
         viewBtn.addEventListener('click', function () {
@@ -445,11 +451,45 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
   .view-tools {
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 8px;
   }
 
   .view-tools .repo {
-    padding: 6px 12px;
+    padding: 6px 10px;
+  }
+
+  /* Wide: the long labels and the muted details; narrow: icons with short labels */
+  .t-short {
+    display: none;
+  }
+
+  /* Narrow: the breadcrumb on its own line, then the four buttons in one row */
+  @media (max-width: 859px) {
+    .crumbs {
+      flex: 1 0 100%;
+    }
+
+    .view-tools {
+      flex: 1 0 100%;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      gap: 6px;
+    }
+
+    .view-tools .repo {
+      gap: 6px;
+      padding: 6px 8px;
+    }
+
+    .view-tools .repo-path,
+    .t-long {
+      display: none;
+    }
+
+    .t-short {
+      display: inline;
+    }
   }
 
   .crumbs {
@@ -478,17 +518,11 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
     letter-spacing: -0.02em;
   }
 
-  .repo-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin: -8px 0 32px;
-  }
-
-  /* The links and toggles under the H1: one family of small tinted buttons */
+  /* The links and toggles in the top bar: one family of small tinted buttons */
   .repo {
     display: inline-flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    white-space: nowrap;
     align-items: center;
     gap: 6px 10px;
     max-width: 100%;
@@ -654,10 +688,6 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
     font-size: clamp(28px, 7vw, 38px);
   }
 
-  .doc[data-view='pages'] .repo-row {
-    margin: 0 0 28px;
-  }
-
   .doc[data-view='pages'] h2 {
     margin: 36px 0 14px;
     font-size: 21px;
@@ -714,8 +744,7 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
       padding: 0;
     }
 
-    .topbar,
-    .repo-row {
+    .topbar {
       display: none;
     }
 
@@ -731,7 +760,7 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
     order: 1;
   }
 
-  .doc[data-view='web'] .leaf-body > :is(h1, .repo-row, .specimens) {
+  .doc[data-view='web'] .leaf-body > :is(h1, .specimens) {
     order: 0;
   }
 </style>
