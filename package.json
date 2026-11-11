@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/papyrus-samples.mjs --check && astro build",
+    "build": "node scripts/papyrus-samples.mjs --check && astro build && node scripts/check-links.mjs",
     "samples": "node scripts/papyrus-samples.mjs --pdf",
     "samples:page": "node scripts/papyrus-samples.mjs --page",
     "preview": "astro preview",
