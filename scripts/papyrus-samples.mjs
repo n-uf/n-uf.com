@@ -140,7 +140,13 @@ if (args.has('--check')) {
 /** Build the site, serve it with `astro preview` and print the paged /papyrus page per format. */
 async function printPage() {
   const astro = path.join(root, 'node_modules', 'astro', 'astro.js');
-  const built = spawnSync(process.execPath, [astro, 'build'], { stdio: 'inherit', cwd: root }).status ?? 1;
+  // PAPYRUS_PRINT: the sheets link to the sample files on n-uf.com, not to this preview's address
+  const built =
+    spawnSync(process.execPath, [astro, 'build'], {
+      stdio: 'inherit',
+      cwd: root,
+      env: { ...process.env, PAPYRUS_PRINT: '1' },
+    }).status ?? 1;
   if (built !== 0) return built;
   const preview = spawn(process.execPath, [astro, 'preview', '--port', String(previewPort), '--host', '127.0.0.1'], {
     stdio: 'ignore',
