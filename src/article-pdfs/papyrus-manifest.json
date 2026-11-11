@@ -1,26 +1,50 @@
 {
   "docs": {
     "css-page-break-print": {
-      "fingerprint": "9f957139b8cc045e70f799332bd3930354646c714d2da240b087beb535ac4ce3",
+      "fingerprint": "daef6dc0ef796a5a8c6dee30185466a6357e0640ddcf3999066729fc3ff6c869",
       "file": "css-page-break-print.pdf",
       "pages": 8,
       "layout": "A4 .leaf"
     },
     "css-page-size-a4": {
-      "fingerprint": "6934214a2f64ea6e892e6cbfff0b4f48391f468df970f6fb78c59b473254cc2d",
+      "fingerprint": "7ac9474f9ac8c489cb761391f474b1d3bfd98ab69e845b1fbb9f3a2f2c44b83e",
       "file": "css-page-size-a4.pdf",
       "pages": 8,
       "layout": "A4 .leaf"
     },
+    "css-print-header-footer": {
+      "fingerprint": "b4bb6fdb8c127086df655599a546557fda8636e793e94f8ef2f7f30fbae6b577",
+      "file": "css-print-header-footer.pdf",
+      "pages": 9,
+      "layout": "A4 .leaf"
+    },
+    "css-print-page-numbers": {
+      "fingerprint": "6121a7febf204d3339f25d45097d4267a98f66a09084deb49efd1b40175f4800",
+      "file": "css-print-page-numbers.pdf",
+      "pages": 9,
+      "layout": "A4 .leaf"
+    },
+    "html-to-pdf-nodejs": {
+      "fingerprint": "f45de7bf87e1f85a8b181311b3568fee5fef8a7db11cebb5939106f37c6d87ff",
+      "file": "html-to-pdf-nodejs.pdf",
+      "pages": 10,
+      "layout": "A4 .leaf"
+    },
     "playwright-pdf-from-html": {
-      "fingerprint": "bbc3d1e20cf11a1f8eb0c7e2b1b40b70a0d1d9552e4efc214fbc801524ed849d",
+      "fingerprint": "b8c2176c3f179555a1af9c869dabfcc06e1afd4aa5c8df917dde417c67a8c642",
       "file": "playwright-pdf-from-html.pdf",
       "pages": 9,
       "layout": "A4 .leaf"
     },
     "react-to-pdf": {
-      "fingerprint": "99464a32ed9aa3bccd5ff9c446124db864223fc41df58c1f0799f9e376346515",
+      "fingerprint": "199813590efb393a50e279590dd05d1e82ddd90c5e0f634ae4432bd208d2dc02",
       "file": "react-to-pdf.pdf",
+      "pages": 10,
+      "layout": "A4 .leaf"
+    },
+    "wkhtmltopdf-alternative": {
+      "fingerprint": "dd68a604fd095418556b317671c3e313cdf53789cbc5969e2a55d49878a95ec2",
+      "file": "wkhtmltopdf-alternative.pdf",
       "pages": 10,
       "layout": "A4 .leaf"
     }
