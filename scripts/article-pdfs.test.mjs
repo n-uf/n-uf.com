@@ -61,8 +61,11 @@ test("the rule for drafts is the pages': VERCEL_ENV=preview shows them, producti
 
 test("the button shows only when the article's PDF exists, with its pages and size", () => {
   const root = site();
-  assert.deepEqual(pdfLink("live", root), { href: "/papyrus/pdf/live.pdf", label: "Download PDF · 5 pages · 166 KB" });
-  assert.equal(pdfLink("scheduled", root)?.label, "Download PDF · 1 page · 2 KB");
+  assert.deepEqual(pdfLink("live", root), {
+    href: "/papyrus/pdf/live.pdf", file: "live.pdf", label: "A4 · 5 p · 166 KB", aria: "Download PDF, A4, 5 pages, 166 KB",
+  });
+  assert.equal(pdfLink("scheduled", root)?.label, "A4 · 1 p · 2 KB");
+  assert.equal(pdfLink("scheduled", root)?.aria, "Download PDF, A4, 1 page, 2 KB");
   assert.equal(pdfLink("nopdf", root), null);      // sizes.json knows it, the file doesn't exist
   assert.equal(pdfLink("unknown", root), null);    // no entry at all
   assert.equal(pdfLink("live", mkdtempSync(join(tmpdir(), "article-pdfs-empty-"))), null);   // no src/article-pdfs

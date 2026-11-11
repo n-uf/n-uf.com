@@ -35,12 +35,20 @@ export function readSizes(root = process.cwd()) {
   return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : {};
 }
 
-/** The Download PDF button's address and label for an article, or null when its PDF doesn't exist. */
+/**
+ * The Download PDF button of an article, or null when its PDF doesn't exist: the address, the file name, the short
+ * label shown next to "PDF" ("A4 · 8 p · 350 KB", as on the /papyrus page) and the full name for assistive tech.
+ */
 export function pdfLink(slug, root = process.cwd()) {
   const size = readSizes(root)[slug];
   if (!size || !fs.existsSync(path.join(root, PDF_DIR, `${slug}.pdf`))) return null;
-  const pages = `${size.pages} ${size.pages === 1 ? "page" : "pages"}`;
-  return { href: `${PDF_URL}/${slug}.pdf`, label: `Download PDF · ${pages} · ${Math.max(1, Math.round(size.bytes / 1024))} KB` };
+  const kb = Math.max(1, Math.round(size.bytes / 1024));
+  return {
+    href: `${PDF_URL}/${slug}.pdf`,
+    file: `${slug}.pdf`,
+    label: `A4 · ${size.pages} p · ${kb} KB`,
+    aria: `Download PDF, A4, ${size.pages} ${size.pages === 1 ? "page" : "pages"}, ${kb} KB`,
+  };
 }
 
 /**
