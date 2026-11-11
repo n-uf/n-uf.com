@@ -6,6 +6,9 @@ import { siteUrl } from './src/data/projects.ts';
 export default defineConfig({
   site: siteUrl,
   output: 'static',
+  // Article code blocks are plain <pre><code>, styled by src/styles/article.css like the pre on the project pages
+  // (Shiki would add its own colours and a background).
+  markdown: { syntaxHighlight: false },
   integrations: [
     sitemap({
       // Canonical URLs have no trailing slash (Layout.astro); list pages the same way.
