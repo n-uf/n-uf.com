@@ -517,11 +517,20 @@ export const sampleDocs = buildDocs(0);
  * grey canvas. `papyrus pdf` prints these files; they are also served at
  * /papyrus-samples/ as the full-size view of each sheet.
  *
+ * A screen-only bar above the sheets leads back to /papyrus and offers the
+ * document's PDF; it is hidden in print, so the PDF and its page count are
+ * those of the sheets alone. The PDF's size comes from the caller (the sizes
+ * are only known after printing; see scripts/papyrus-samples.mjs).
+ *
  * @param {string} id
+ * @param {number | null | undefined} [pdfBytes] size of the committed PDF, for the bar's label
  */
-export function standaloneHtml(id) {
+export function standaloneHtml(id, pdfBytes) {
   const doc = buildDocs(1).find((d) => d.id === id);
   if (!doc) throw new Error(`Unknown sample document "${id}"`);
+  const count = doc.pages.length;
+  const kb = pdfBytes ? ` · ${Math.max(1, Math.round(pdfBytes / 1024))} KB` : '';
+  const pdfLabel = `Download PDF · ${count} ${count === 1 ? 'page' : 'pages'}${kb}`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -529,9 +538,13 @@ export function standaloneHtml(id) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>${doc.title}</title>
-<style>${standaloneCss}${sheetCss(doc.sheet)}${paperCss}${fitCss(doc.sheet)}</style>
+<style>${standaloneCss}${sheetCss(doc.sheet)}${paperCss}${fitCss(doc.sheet)}${barCss}</style>
 </head>
 <body>
+<nav class="sample-bar" aria-label="Sample document">
+<a href="/papyrus">← papyrus</a>
+<a href="${doc.pdf}" download>${pdfLabel}</a>
+</nav>
 <div class="${CONTAINER_CLASS} sample">
 ${doc.pages.join('\n')}
 </div>
@@ -539,6 +552,46 @@ ${doc.pages.join('\n')}
 </html>
 `;
 }
+
+/**
+ * The bar of a standalone file: on the site's dark canvas, with the small tinted
+ * buttons of the /papyrus page. Screen only; hidden in print.
+ */
+const barCss = `
+.sample-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 12px 16px;
+  background: #0a0a0c;
+  font-family: "Geist Mono Variable", "Geist Mono", ui-monospace, monospace;
+}
+.sample-bar a {
+  box-sizing: border-box;
+  padding: 8px 14px;
+  border: 1px solid rgb(242 242 240 / 0.16);
+  border-radius: 4px;
+  background: rgb(242 242 240 / 0.06);
+  color: #f2f2f0;
+  font-size: 13px;
+  line-height: 1.4;
+  text-decoration: none;
+}
+.sample-bar a:hover,
+.sample-bar a:focus-visible {
+  border-color: rgb(242 242 240 / 0.4);
+  background: rgb(242 242 240 / 0.1);
+}
+.sample-bar a:focus-visible {
+  outline: 1px solid rgb(242 242 240 / 0.7);
+  outline-offset: 3px;
+}
+@media print {
+  .sample-bar { display: none; }
+}
+`;
 
 /** On a screen narrower than the sheet, shrink the sheets to fit instead of scrolling sideways. */
 function fitCss(/** @type {typeof SHEETS.A4} */ sheet) {
