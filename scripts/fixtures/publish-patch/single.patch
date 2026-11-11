@@ -1,0 +1,13 @@
+diff --git a/src/content/papyrus/alpha.md b/src/content/papyrus/alpha.md
+index 64dcc87..3f9f4b2 100644
+--- a/src/content/papyrus/alpha.md
++++ b/src/content/papyrus/alpha.md
+@@ -2,7 +2,7 @@
+ title: "Fixture alpha"
+ published: 2026-11-01
+ updated: 2026-11-01
+-draft: true
++draft: false
+ author: n-uf
+ tags:
+   - one
