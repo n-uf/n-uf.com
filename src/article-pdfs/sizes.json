@@ -1,18 +1,34 @@
 {
   "css-page-break-print": {
-    "bytes": 319654,
+    "bytes": 319897,
     "pages": 8
   },
   "css-page-size-a4": {
-    "bytes": 325218,
+    "bytes": 325251,
     "pages": 8
   },
+  "css-print-header-footer": {
+    "bytes": 314152,
+    "pages": 9
+  },
+  "css-print-page-numbers": {
+    "bytes": 361479,
+    "pages": 9
+  },
+  "html-to-pdf-nodejs": {
+    "bytes": 343366,
+    "pages": 10
+  },
   "playwright-pdf-from-html": {
-    "bytes": 372960,
+    "bytes": 374274,
     "pages": 9
   },
   "react-to-pdf": {
-    "bytes": 363298,
+    "bytes": 363333,
+    "pages": 10
+  },
+  "wkhtmltopdf-alternative": {
+    "bytes": 516621,
     "pages": 10
   }
 }
