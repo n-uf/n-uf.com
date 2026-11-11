@@ -10,6 +10,7 @@
     "dev": "astro dev",
     "build": "node scripts/papyrus-samples.mjs --check && astro build",
     "samples": "node scripts/papyrus-samples.mjs --pdf",
+    "samples:page": "node scripts/papyrus-samples.mjs --page",
     "preview": "astro preview",
     "check": "astro check"
   },

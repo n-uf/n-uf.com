@@ -25,9 +25,15 @@
  *   PAPYRUS_PLAYWRIGHT_DIR=~/papyrus-print node scripts/papyrus-samples.mjs --pdf
  *
  * The PDFs are committed build outputs; Vercel only serves them.
+ *
+ * The paged /papyrus page itself is printed too, once per sheet format
+ * (papyrus-a4.pdf, papyrus-letter.pdf; config: papyrus-page.config.json). --pdf builds the
+ * site, serves it with `astro preview` and prints /papyrus?view=pages&sheet=a4|letter, one
+ * .leaf element per page, the page count checked. Its fingerprint covers the page, its
+ * components, the layout and the samples source; --check needs no browser for it either.
  */
 
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -37,6 +43,9 @@ import { SAMPLES_DIR, sampleDocs, standaloneHtml } from '../src/components/papyr
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = path.join(root, 'public', SAMPLES_DIR);
 const config = path.join(root, 'scripts', 'papyrus-samples.config.json');
+const pageConfig = path.join(root, 'scripts', 'papyrus-page.config.json');
+const pagePdfs = JSON.parse(fs.readFileSync(pageConfig, 'utf8')).docs.map((doc) => doc.filename);
+const previewPort = 4394;
 const sizesFile = path.join(root, 'src', 'components', 'papyrus-samples', 'pdf-sizes.json');
 const args = new Set(process.argv.slice(2));
 
@@ -54,9 +63,9 @@ const files = sampleDocs.map((doc) => ({ doc, file: path.join(outDir, doc.html),
 /** Bytes of each committed PDF, as the page's "PDF · 2 pages · 169 KB" label reads them. */
 function pdfSizes() {
   return Object.fromEntries(
-    sampleDocs.map((doc) => {
-      const pdf = path.join(outDir, doc.pdf);
-      return [doc.pdf, fs.existsSync(pdf) ? fs.statSync(pdf).size : null];
+    [...sampleDocs.map((doc) => doc.pdf), ...pagePdfs].map((name) => {
+      const pdf = path.join(outDir, name);
+      return [name, fs.existsSync(pdf) ? fs.statSync(pdf).size : null];
     }),
   );
 }
@@ -73,6 +82,8 @@ if (args.has('--check')) {
   // PDFs against their sources (fingerprints in the manifest; no browser needed)
   const printed = run(['pdf', '--config', config, '--check'], { cwd: root });
   if (printed !== 0) fail('The committed PDFs are older than their sources.');
+  const pagePrinted = run(['pdf', '--config', pageConfig, '--check'], { cwd: root });
+  if (pagePrinted !== 0) fail('The committed PDFs of the /papyrus page are older than the page.');
 
   // The sizes the page shows against the PDFs it links to
   const recorded = fs.existsSync(sizesFile) ? JSON.parse(fs.readFileSync(sizesFile, 'utf8')) : {};
@@ -90,11 +101,39 @@ if (args.has('--check')) {
     cwd: process.env.PAPYRUS_PLAYWRIGHT_DIR || root,
   });
   if (status !== 0) process.exit(status);
+  const pageStatus = await printPage();
+  if (pageStatus !== 0) process.exit(pageStatus);
+  fs.writeFileSync(sizesFile, `${JSON.stringify(pdfSizes(), null, 2)}\n`);
+  console.log(`wrote ${path.relative(root, sizesFile)}`);
+} else if (args.has('--page')) {
+  // Only the PDFs of the paged /papyrus page (the sample PDFs stay as they are)
+  const pageStatus = await printPage();
+  if (pageStatus !== 0) process.exit(pageStatus);
   fs.writeFileSync(sizesFile, `${JSON.stringify(pdfSizes(), null, 2)}\n`);
   console.log(`wrote ${path.relative(root, sizesFile)}`);
 } else {
-  console.error('Nothing to do: use --pdf (write the HTML and print the PDFs) or --check. See the header of this file.');
+  console.error(
+    'Nothing to do: use --pdf (write the HTML and print all the PDFs), --page (only the PDFs of the /papyrus page) or --check. See the header of this file.',
+  );
   process.exit(1);
+}
+
+/** Build the site, serve it with `astro preview` and print the paged /papyrus page per format. */
+async function printPage() {
+  const astro = path.join(root, 'node_modules', 'astro', 'astro.js');
+  const built = spawnSync(process.execPath, [astro, 'build'], { stdio: 'inherit', cwd: root }).status ?? 1;
+  if (built !== 0) return built;
+  const preview = spawn(process.execPath, [astro, 'preview', '--port', String(previewPort), '--host', '127.0.0.1'], {
+    stdio: 'ignore',
+    cwd: root,
+  });
+  try {
+    return run(['pdf', '--config', pageConfig, '--base-url', `http://127.0.0.1:${previewPort}/`, '--wait', '60'], {
+      cwd: process.env.PAPYRUS_PLAYWRIGHT_DIR || root,
+    });
+  } finally {
+    preview.kill();
+  }
 }
 
 function run(cliArgs, { cwd }) {
