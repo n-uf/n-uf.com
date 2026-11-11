@@ -53,3 +53,27 @@ test("relative-to-root links still work: a built one passes, a missing one fails
   assert.equal(r.status, 1);
   assert.match(r.stderr, /\/links\/ -> \/missing/);
 });
+
+test("a link that climbs out of the build folder is refused, even to a file that exists", () => {
+  const parent = mkdtempSync(join(tmpdir(), "check-links-out-"));
+  writeFileSync(join(parent, "secret.txt"), "x");
+  const d = join(parent, "dist");
+  mkdirSync(join(d, "links"), { recursive: true });
+  writeFileSync(join(d, "index.html"), "<!doctype html><body></body>");
+  for (const href of ["/..%2Fsecret.txt", "/a/..%2F..%2Fsecret.txt", "/%2e%2e/secret.txt", "/../secret.txt"]) {
+    writeFileSync(join(d, "links", "index.html"), `<!doctype html><body>${a(href)}</body>`);
+    const r = check(d);
+    assert.equal(r.status, 1, `${href} passed`);
+  }
+  writeFileSync(join(d, "links", "index.html"), `<!doctype html><body>${a("/..%2Fsecret.txt")}</body>`);
+  assert.match(check(d).stderr, /resolves outside the build folder/);
+});
+
+test("the host comes from siteUrl in src/data/projects.ts, and --host overrides it", () => {
+  const link = a("https://example.org/a");
+  assert.equal(check(dist(a("https://n-uf.com/nope"))).status, 1);
+  const r = spawnSync("node", [script, dist(link), "--host", "example.org"], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  const bad = spawnSync("node", [script, dist(a("https://example.org/nope")), "--host", "example.org"], { encoding: "utf8" });
+  assert.equal(bad.status, 1);
+});
