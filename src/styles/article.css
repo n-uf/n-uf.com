@@ -1,614 +1,595 @@
-/* Article pages (/papyrus/<slug>): the article is a document on paper. On wide screens it sits on A4 sheets
-   (210 x 297 mm) on the site's dark canvas, laid out by src/scripts/paginate.ts, and prints as those same A4 pages.
-   On narrow screens it is one paper column. No hairline rules: sections are set apart by space, numbers and tints. */
+/* Article pages (/papyrus/<slug>): the article is a document on A4 sheets, made like the leaves of the /papyrus page
+   (src/pages/papyrus.astro, src/components/PapyrusLeaf.astro): dark paper on the site's own background, the same ink
+   tokens, running head and folio (those come from PapyrusLeaf itself), shadow, type and top bar. One site, one paper.
+
+   Reused as they are: the PapyrusLeaf and ExtLink components, and the tokens in global.css (--bg, --ink, --copy,
+   --muted, --faint, --sans, --mono, --accent-*). Copied, because the /papyrus page keeps them in its scoped styles:
+   the top bar's .repo buttons, the page-view type sizes, the code box. When the paper changes there, change it here.
+
+   The server HTML is one sheet with every word in it; src/scripts/paginate.ts lays it out on more sheets (class
+   "paged") on wide screens. The sheet's size and shadow rules are built in src/pages/papyrus/[slug].astro. */
 
 .article {
-  --paper: #fbfaf6;
-  --paper-ink: #16161a;
-  --paper-copy: #34343b;
-  --paper-muted: #6e6e76;
-  --paper-faint: #9a9aa2;
-  --paper-tint: #f0eee7;
-  --paper-tint-2: #e7e4db;
-  --paper-link: #0e5c6e;
-  --sheet-w: 210mm;
-  --sheet-h: 297mm;
+  box-sizing: border-box;
+  width: min(100%, 850px);
+  margin-inline: auto;
+  padding: 32px 16px 96px;
   counter-reset: section;
 }
 
-/* The reader's own bar, on the dark canvas above the sheets */
-.reader {
-  box-sizing: border-box;
-  padding: 24px 0 72px;
-}
-
-.reader-bar {
-  box-sizing: border-box;
+/* The top bar: the breadcrumb on the left, the tools on the right */
+.article .topbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px 20px;
-  width: min(100% - 32px, var(--sheet-w));
-  margin: 0 auto 22px;
+  gap: 12px 16px;
+  margin-bottom: 56px;
 }
 
-.reader .crumbs {
+.article .crumbs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px 10px;
+  flex: 1 1 200px;
+  gap: 10px;
   min-width: 0;
   color: var(--faint);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.45;
 }
 
-.reader .crumbs a {
-  color: var(--muted);
-  text-decoration: none;
-}
-
-.reader .crumbs a:is(:hover, :focus-visible) {
-  color: var(--ink);
-}
-
-.reader .crumbs [aria-current] {
+/* The article's name can be long: it gives way, so the tools stay on the bar's line */
+.article .crumbs [aria-current] {
+  min-width: 0;
   overflow: hidden;
-  max-width: 34ch;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.reader-tools {
+.article .crumbs a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.article .crumbs a:is(:hover, :focus-visible) {
+  color: var(--ink);
+}
+
+.article .view-tools {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
 }
 
-.reader .tool {
+/* The links and buttons in the top bar: one family of small tinted buttons (as on /papyrus) */
+.article .repo {
   display: inline-flex;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 7px;
-  padding: 6px 12px;
-  border: 0;
+  gap: 6px 10px;
+  max-width: 100%;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
   border-radius: 4px;
-  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
   color: var(--ink);
-  font: 500 13px/1.4 var(--mono);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-align: left;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 160ms ease;
+  transition: border-color 160ms ease, background-color 160ms ease;
 }
 
-.reader .tool:is(:hover, :focus-visible) {
-  background: color-mix(in srgb, var(--ink) 18%, transparent);
+.article .repo:is(:hover, :focus-visible) {
+  border-color: color-mix(in srgb, var(--ink) 40%, transparent);
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.article .repo:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--ink) 70%, transparent);
+  outline-offset: 3px;
+}
+
+.article .repo[hidden] {
+  display: none;
+}
+
+.article .repo svg {
+  flex: none;
+}
+
+.article .repo-path {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+/* The main action, Download PDF, leads by a stronger tint and border alone */
+.article .repo.pdf-link {
+  border-color: color-mix(in srgb, var(--ink) 45%, transparent);
+  background: color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.article .repo.pdf-link .repo-path {
+  color: var(--copy);
+}
+
+.article .repo.pdf-link:is(:hover, :focus-visible) {
+  border-color: color-mix(in srgb, var(--ink) 55%, transparent);
+  background: color-mix(in srgb, var(--ink) 26%, transparent);
+}
+
+.article .repo.pdf-link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article .repo {
+    transition: none;
+  }
 }
 
 /* The paper */
-.paper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 28px;
+.article .paper {
+  display: block;
 }
 
 .paginating .paper {
   visibility: hidden;
 }
 
-.sheet {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  width: var(--sheet-w);
-  padding: 13mm 20mm 11mm;
-  border-radius: 2px;
-  background: var(--paper);
-  color: var(--paper-copy);
-  box-shadow:
-    0 1px 2px rgb(0 0 0 / 0.35),
-    0 22px 60px -12px rgb(0 0 0 / 0.65);
-  font-family: var(--sans);
-}
-
-.sheet.paged {
-  height: var(--sheet-h);
-}
-
-.sheet.paged .sheet-body {
-  flex: 1 1 auto;
-  min-height: 0;
+/* A sheet the script has laid out has a fixed box (see the sheet rules in the page); what doesn't fit was moved on */
+.article .paper > .leaf.paged .leaf-body {
   overflow: hidden;
 }
 
-.sheet.paged.tall {
+/* A block taller than a sheet gets a sheet that grows (it can't be printed: papyrus's page count would not match) */
+.article .paper > .pdf-page.leaf.paged.tall {
+  display: block;
   height: auto;
-  min-height: var(--sheet-h);
+  min-height: 297mm;
 }
 
-.sheet.paged.tall .sheet-body {
+.article .paper > .leaf.paged.tall .leaf-body {
   overflow: visible;
 }
 
-/* Running head and folio */
-.sheet-head,
-.sheet-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  color: var(--paper-faint);
-  font: 10.5px/1.3 var(--mono);
-  letter-spacing: 0.02em;
+/* On a sheet there is no scrolling: long code lines and wide tables wrap (the /papyrus page does the same) */
+.article .leaf.paged pre {
+  overflow: visible;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
-.sheet-head {
-  margin-bottom: 9mm;
+.article .leaf.paged table {
+  display: table;
+  width: 100%;
+  overflow: visible;
 }
 
-.sheet-foot {
-  margin-top: 7mm;
+/* ---- What is on a sheet: the type of the /papyrus page view ---- */
+
+.article .leaf-body > :first-child,
+.article .leaf-body > .flow:first-child > :first-child {
+  margin-top: 0;
 }
 
-.sheet-mark {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  flex: none;
+.article .title-block {
+  margin-bottom: 28px;
 }
 
-.sheet-mark i {
-  width: 6px;
-  height: 6px;
-  border-radius: 1px;
-}
-
-.sheet-mark i:nth-child(1) { background: var(--accent-0); }
-.sheet-mark i:nth-child(2) { background: var(--accent-1); }
-.sheet-mark i:nth-child(3) { background: var(--accent-2); }
-.sheet-mark i:nth-child(4) { background: var(--accent-3); }
-.sheet-mark i:nth-child(5) { background: var(--accent-4); }
-
-.sheet-mark b {
-  margin-left: 8px;
-  color: var(--paper-muted);
-  font-weight: 600;
-}
-
-.sheet-title {
-  overflow: hidden;
-  min-width: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Title block */
-.title-block {
-  margin-bottom: 8mm;
-}
-
-.kicker {
+.article .kicker,
+.article .box-title {
   margin: 0 0 10px;
-  color: var(--paper-muted);
-  font: 600 11px/1.3 var(--mono);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.sheet h1 {
-  margin: 0 0 12px;
-  color: var(--paper-ink);
+.article .leaf-body h1 {
+  margin: 0 0 14px;
   font-family: var(--sans);
-  font-size: 34px;
+  font-size: clamp(28px, 7vw, 38px);
   font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.02em;
   overflow-wrap: break-word;
 }
 
-.sheet .byline {
+.article .byline {
   margin: 0;
-  color: var(--paper-muted);
+  color: var(--muted);
   font-size: 13px;
   line-height: 1.45;
 }
 
-.sheet .scheduled {
-  color: #b45309;
+/* A draft in a preview or in dev; production builds have no drafts */
+.article .scheduled {
+  color: var(--accent-2);
 }
 
-/* Headings and copy */
-.sheet h2 {
-  margin: 9mm 0 3.5mm;
-  color: var(--paper-ink);
+.article .leaf-body h2 {
+  margin: 36px 0 14px;
+  padding-top: 14px;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  font-family: var(--sans);
   font-size: 21px;
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1.25;
   letter-spacing: -0.01em;
   overflow-wrap: break-word;
 }
 
-.sheet .prose h2 {
+/* A heading that opens a sheet needs no rule over it: the head's rule is right above */
+.article .leaf-body > h2:first-child,
+.article .leaf-body > .flow:first-child > h2:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.article .prose h2 {
   counter-increment: section;
 }
 
-.sheet .prose h2::before {
+.article .prose h2::before {
   content: counter(section) ".";
   margin-right: 0.5em;
-  color: var(--paper-faint);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
-.sheet h3 {
-  margin: 6mm 0 2mm;
-  color: var(--paper-ink);
+.article .leaf-body h3 {
+  margin: 26px 0 8px;
+  font-family: var(--sans);
   font-size: 16.5px;
   font-weight: 600;
   line-height: 1.3;
   overflow-wrap: break-word;
 }
 
-.sheet h4 {
-  margin: 5mm 0 2mm;
-  color: var(--paper-ink);
+.article .leaf-body h4 {
+  margin: 20px 0 8px;
+  font-family: var(--sans);
   font-size: 15px;
   font-weight: 600;
 }
 
-.sheet p,
-.sheet li {
-  color: var(--paper-copy);
-  font-size: 15px;
-  line-height: 1.62;
+.article .leaf-body :is(p, li) {
+  color: var(--copy);
+  font-size: 14px;
+  line-height: 1.65;
 }
 
-.sheet p {
-  margin: 0 0 3.5mm;
+.article .leaf-body p {
+  margin: 0 0 14px;
 }
 
-.sheet :is(ol, ul) {
-  margin: 0 0 3.5mm;
+/* Tailwind's reset removes list markers; steps and takeaways read better with them */
+.article .leaf-body :is(ul, ol) {
+  margin: 0 0 14px;
   padding-left: 22px;
   list-style: disc;
 }
 
-.sheet ol {
+.article .leaf-body ol {
   list-style: decimal;
 }
 
-.sheet li {
-  margin-bottom: 1.5mm;
-  padding-left: 3px;
+.article .leaf-body li {
+  margin-bottom: 8px;
+  padding-left: 4px;
 }
 
-.sheet li::marker {
-  color: var(--paper-faint);
+.article .leaf-body li::marker {
+  color: var(--muted);
 }
 
-.sheet strong {
-  color: var(--paper-ink);
+.article .leaf-body strong {
+  color: var(--ink);
   font-weight: 600;
 }
 
-.sheet a {
-  color: var(--paper-link);
-  text-decoration-color: color-mix(in srgb, var(--paper-link) 40%, transparent);
+.article .leaf-body a {
+  color: var(--ink);
   text-underline-offset: 3px;
 }
 
-.sheet a:is(:hover, :focus-visible) {
-  text-decoration-color: currentColor;
+/* The ↗ after an external link in the markdown (ExtLink gives the same to the hand-written ones) */
+.article .ext-arrow {
+  display: inline-block;
+  margin-left: 0.2em;
+  color: var(--muted);
+  font-size: 0.8em;
+  text-decoration: none;
 }
 
-.sheet code {
+.article .leaf-body code {
   padding: 1px 5px;
   border-radius: 3px;
-  background: var(--paper-tint);
-  color: var(--paper-ink);
+  background: color-mix(in srgb, var(--ink) 9%, transparent);
+  color: var(--ink);
   font-family: var(--mono);
-  font-size: 0.88em;
+  font-size: 0.92em;
   overflow-wrap: anywhere;
 }
 
-/* Code: a tinted panel; long lines scroll inside it */
-.sheet pre {
-  margin: 0 0 4mm;
-  padding: 12px 14px;
+/* Code: the code box of the /papyrus page, quiet on purpose; long lines scroll inside it until the sheet wraps them */
+.article .leaf-body pre {
+  box-sizing: border-box;
+  max-width: 100%;
+  margin: 0 0 14px;
+  padding: 14px 16px;
   overflow-x: auto;
-  border-radius: 3px;
-  background: var(--paper-tint);
-  font-size: 12.5px;
+  border: 1px solid color-mix(in srgb, var(--ink) 6.5%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 2%, transparent);
+  color: color-mix(in srgb, var(--ink) 58%, transparent);
+  font-family: var(--mono);
+  font-size: 13px;
   line-height: 1.55;
+  tab-size: 2;
 }
 
-.sheet pre code {
+.article .leaf-body pre code {
   padding: 0;
   background: none;
+  color: inherit;
   font-size: inherit;
   overflow-wrap: normal;
 }
 
-.sheet blockquote {
-  margin: 0 0 4mm;
+.article .leaf-body blockquote {
+  margin: 0 0 14px;
   padding: 8px 14px;
-  border-radius: 3px;
-  background: var(--paper-tint);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
 }
 
-.sheet blockquote p:last-child {
+.article .leaf-body blockquote p:last-child {
   margin-bottom: 0;
 }
 
-.sheet hr {
-  height: 4mm;
-  margin: 4mm 0;
+.article .leaf-body hr {
+  height: 0;
+  margin: 24px 0;
   border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
 }
 
-.sheet img {
+.article .leaf-body img {
   display: block;
   max-width: 100%;
   height: auto;
-  margin: 0 0 4mm;
+  margin: 0 0 14px;
 }
 
-/* Tables: a tinted head and banded rows instead of rules */
-.sheet table {
+/* Tables: a tinted head and banded rows; a wide one scrolls inside itself until the sheet wraps it */
+.article .leaf-body table {
   display: block;
   width: max-content;
   max-width: 100%;
-  margin: 0 0 4mm;
+  margin: 0 0 14px;
   overflow-x: auto;
   border-collapse: collapse;
   font-size: 13px;
   line-height: 1.45;
 }
 
-.sheet :is(th, td) {
+.article .leaf-body :is(th, td) {
   padding: 6px 12px;
-  color: var(--paper-copy);
+  color: var(--copy);
   text-align: left;
   vertical-align: top;
 }
 
-.sheet th {
-  background: var(--paper-tint-2);
-  color: var(--paper-ink);
+.article .leaf-body th {
+  background: color-mix(in srgb, var(--ink) 9%, transparent);
+  color: var(--ink);
   font-weight: 600;
 }
 
-.sheet tbody tr:nth-child(even) td {
-  background: var(--paper-tint);
+.article .leaf-body tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
 }
 
-.sheet :is(th, td) code {
+.article .leaf-body :is(th, td) code {
   overflow-wrap: normal;
   white-space: nowrap;
 }
 
 /* Key takeaways and contents: tinted panels on the first sheet */
-.takeaways,
-.toc {
-  margin: 0 0 6mm;
-  padding: 12px 16px 6px;
-  border-radius: 3px;
-  background: var(--paper-tint);
+.article .takeaways,
+.article .toc {
+  margin: 0 0 20px;
+  padding: 14px 16px 6px;
+  border: 1px solid color-mix(in srgb, var(--ink) 6.5%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
 }
 
-.box-title {
-  margin: 0 0 8px !important;
-  color: var(--paper-ink) !important;
-  font: 600 11px/1.3 var(--mono) !important;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.article .takeaways li {
+  font-size: 13.5px;
+  line-height: 1.6;
 }
 
-.takeaways li {
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-.toc ol {
-  margin: 0 0 6px;
+.article .toc ol {
+  margin: 0 0 8px;
   padding: 0;
   list-style: none;
 }
 
-.toc li {
+.article .toc li {
   margin: 0;
   padding: 0;
-  font-size: 14px;
+  font-size: 13.5px;
 }
 
-.toc a {
+.article .toc a {
   display: flex;
   align-items: baseline;
   gap: 10px;
   padding: 3px 0;
-  color: var(--paper-copy);
+  color: var(--copy);
   text-decoration: none;
 }
 
-.toc a:is(:hover, :focus-visible) .toc-text {
-  color: var(--paper-link);
+.article .toc a:is(:hover, :focus-visible) .toc-text {
+  color: var(--ink);
 }
 
-.toc-no {
+.article .toc-no {
   flex: none;
   width: 1.4em;
-  color: var(--paper-faint);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
-.toc-leader {
+.article .toc-leader {
   flex: 1 1 auto;
   min-width: 2em;
   height: 0.9em;
-  background: radial-gradient(circle, var(--paper-faint) 0.6px, transparent 0.9px) 0 100% / 6px 3px repeat-x;
+  background: radial-gradient(circle, var(--faint) 0.6px, transparent 0.9px) 0 100% / 6px 3px repeat-x;
   opacity: 0.7;
 }
 
-.toc-page {
+.article .toc-page {
   flex: none;
   min-width: 1.2em;
-  color: var(--paper-muted);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
 
-.toc-page:empty {
-  display: none;
-}
-
-.toc-page:empty + .toc-leader,
-.toc a:has(.toc-page:empty) .toc-leader {
+/* Before the script has laid the sheets out there are no page numbers */
+.article .toc-page:empty,
+.article .toc a:has(.toc-page:empty) .toc-leader {
   display: none;
 }
 
 /* Back matter */
-.faq h3 {
-  margin-top: 5mm;
+.article .faq h3 {
+  margin-top: 20px;
 }
 
-.sources ol {
+.article .sources ol {
   padding-left: 20px;
-  font-size: 13px;
 }
 
-.sources li {
+.article .sources li {
   font-size: 13px;
   line-height: 1.5;
 }
 
-.checked {
-  color: var(--paper-faint);
+.article .checked {
+  color: var(--faint);
   font-size: 12px;
   white-space: nowrap;
 }
 
-.related ul {
+.article .related ul {
   padding-left: 0;
   list-style: none;
 }
 
-.related li {
+.article .related li {
   padding: 8px 12px;
-  border-radius: 3px;
-  background: var(--paper-tint);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
 }
 
-.related a {
+.article .related a {
   display: block;
   font-weight: 600;
 }
 
-.related-note {
+.article .related-note {
   display: block;
-  color: var(--paper-muted);
-  font-size: 13.5px;
+  color: var(--muted);
+  font-size: 13px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .reader .tool {
-    transition: none;
-  }
-}
-
-/* Narrow screens: one paper column, edge to edge with a small gutter */
-@media (max-width: 899.98px) {
-  html:not(.print-mode) .sheet {
-    width: calc(100% - 24px);
-    padding: 22px 18px 16px;
+/* Narrow screens: the bar's breadcrumb on its own line, then the buttons in one row with short labels (as on /papyrus);
+   the sheet is one fluid column (PapyrusLeaf's own narrow rules give its padding) */
+@media screen and (max-width: 859px) {
+  html:not(.print-mode) .article .crumbs {
+    flex: 1 0 100%;
   }
 
-  html:not(.print-mode) .sheet-head {
-    margin-bottom: 18px;
+  html:not(.print-mode) .article .view-tools {
+    flex: 1 0 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 6px;
   }
 
-  html:not(.print-mode) .sheet-title {
+  html:not(.print-mode) .article .repo {
+    gap: 6px;
+    padding: 6px 8px;
+  }
+
+  html:not(.print-mode) .article .repo-path {
     display: none;
   }
 
-  html:not(.print-mode) .sheet h1 {
-    font-size: 28px;
+  html:not(.print-mode) .article .leaf-body h1 {
+    margin-bottom: 12px;
   }
 
-  html:not(.print-mode) .sheet h2 {
+  html:not(.print-mode) .article .leaf-body h2 {
     margin-top: 28px;
     font-size: 20px;
   }
 }
 
 /* `?print`: the page papyrus prints to the article's PDF (scripts/article-pdfs.mjs). A4 sheets at any viewport width,
-   no reader bar, no "Scheduled for" note (a draft's PDF is the one its readers get once it is live), and the sheets
-   are measured with the same wrapping the print CSS gives code and tables, so what is laid out is what is printed. */
-.print-mode .reader {
+   no top bar, no "Scheduled for" note (a draft's PDF is the one its readers get once it is live) */
+.print-mode .article {
+  width: auto;
   padding: 0;
 }
 
-.print-mode .reader-bar,
-.print-mode .scheduled {
+.print-mode .article .topbar,
+.print-mode .article .scheduled {
   display: none;
 }
 
-.print-mode .sheet pre {
-  overflow: visible;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+/* The sheets are laid out on screen before papyrus switches to print, and the print box has the desktop padding:
+   measure with that, not with PapyrusLeaf's narrow-screen rules (a viewport of 794 px is narrow) */
+.print-mode .article .leaf {
+  padding: 36px 60px 28px;
 }
 
-.print-mode .sheet table {
-  width: auto;
-  overflow: visible;
+.print-mode .article .leaf-head {
+  margin-bottom: 32px;
 }
 
-/* Print: the same A4 sheets, one per page, nothing around them */
+.print-mode .article .leaf-body {
+  flex: 1 1 auto;
+}
+
+/* Print: only the sheets, dark as on screen (the PapyrusLeaf print rules take the border and the radius off) */
 @media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
-
   html,
   body {
-    background: #fff !important;
-  }
-
-  .reader {
-    padding: 0;
-  }
-
-  .reader-bar {
-    display: none;
-  }
-
-  .paper {
-    display: block;
-  }
-
-  .sheet {
-    width: var(--sheet-w);
-    margin: 0;
-    border-radius: 0;
-    box-shadow: none;
-    break-after: page;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  .sheet:last-child {
-    break-after: auto;
-  }
-
-  /* Paper can't scroll: long code lines and wide tables wrap instead */
-  .sheet pre {
-    overflow: visible;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-
-  .sheet table {
+  .article {
     width: auto;
-    overflow: visible;
+    margin: 0;
+    padding: 0;
+  }
+
+  .article .topbar {
+    display: none;
   }
 }

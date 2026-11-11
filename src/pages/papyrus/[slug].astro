@@ -1,9 +1,17 @@
 ---
 // /papyrus/<slug>: an article about papyrus, from src/content/papyrus/<slug>.md.
 // Drafts are built only in dev and Vercel previews (src/data/articles.ts); in production they have no page.
+//
+// The article sits on A4 sheets made like the leaves of the /papyrus page: PapyrusLeaf (dark paper, running head, folio),
+// the same desk, shadow and type (src/styles/article.css). The server HTML is one sheet with every word in it;
+// src/scripts/paginate.ts moves the blocks onto more sheets on wide screens.
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { SHEETS } from '@n-uf/papyrus';
 import Layout from '../../layouts/Layout.astro';
+import ExtLink from '../../components/ExtLink.astro';
+import PapyrusLeaf from '../../components/PapyrusLeaf.astro';
+import { scopedSheetCss } from '../../components/papyrus-samples/documents.mjs';
 import '../../styles/article.css';
 import {
   articlePath,
@@ -17,7 +25,7 @@ import {
   type Entry,
 } from '../../data/articles';
 import { pdfLink } from '../../data/article-pdfs.mjs';
-import { externalAttrs, newTabNote } from '../../data/links';
+import { externalAttrs } from '../../data/links';
 import { inlineCodeHtml, plainText } from '../../data/inline-code.mjs';
 import { withLiveBlocks } from '../../data/live';
 import { breadcrumbList, faqPage, techArticle } from '../../data/schema';
@@ -61,12 +69,39 @@ if (/<h1[\s>]/i.test(html)) {
 const pdf = pdfLink(entry.id);
 // A related entry that points at an article still hidden as a draft is left out until it goes live (src/data/related.mjs)
 const related = await relatedCards(data.related);
-// The contents list on the first sheet: the body's "## " sections, numbered as the headings are (article.css counter)
-const toc = [...html.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map((m, i) => ({ id: m[1], html: m[2], n: i + 1 }));
+// The contents list on the first sheet: the body's "## " sections, numbered as the headings are (article.css counter).
+// Plain text: a heading may hold a link or `code`, and a link inside the contents link would nest.
+const toc = [...html.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map((m, i) => ({
+  id: m[1],
+  html: m[2].replace(/<[^>]*>/g, ''),
+  n: i + 1,
+}));
 
 // Front matter may hold `inline code` (takeaways, FAQ, related cards): shown as <code> on the page, and as plain text,
 // backticks removed, in the meta tags and the structured data (src/data/inline-code.mjs)
 const plainFaq = data.faq.map(({ q, a }: { q: string; a: string }) => ({ q: plainText(q), a: plainText(a) }));
+
+// The sheet's size from papyrus' sheetCss(), as on the /papyrus page: its page rule only, scoped to the sheets of this
+// page. The fixed box is for the sheets the script has laid out (class "paged"); the server's one sheet grows with its
+// content. Print is exactly one sheet per page.
+const sheet: string = '.article .paper > .pdf-page.leaf';
+const scoped: string = scopedSheetCss(SHEETS.A4, '.paper');
+if (!scoped.startsWith('.paper .pdf-page')) throw new Error('scopedSheetCss() no longer starts with the scoped page selector');
+const leafCss: string = `
+@media screen and (min-width: 860px) {
+  ${scoped.replace('.paper .pdf-page', `${sheet}.paged`)}
+}
+/* ?print at any width (papyrus prints from an A4 viewport, 794 px): the same fixed box while the sheets are laid out */
+${scoped.replace('.paper .pdf-page', `html.print-mode ${sheet}.paged`)}
+${sheet}, ${sheet}.paged {
+  margin: 0 auto 28px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 22px 60px -12px rgb(0 0 0 / 0.65);
+}
+@media print {
+  ${sheet} { width: ${SHEETS.A4.width}; height: ${SHEETS.A4.height}; min-height: 0; box-sizing: border-box; margin: 0; box-shadow: none; break-after: page; break-inside: avoid; }
+  ${sheet}:last-child { break-after: auto; }
+}
+`;
 
 const structuredData = [
   techArticle({
@@ -97,8 +132,8 @@ const structuredData = [
   ogType="article"
   structuredData={structuredData}
 >
-  <div class="reader article">
-    <div class="reader-bar">
+  <div class="article">
+    <div class="topbar">
       <nav class="crumbs" aria-label="Breadcrumb">
         <a href="/">n-uf</a>
         <span aria-hidden="true">/</span>
@@ -106,129 +141,148 @@ const structuredData = [
         <span aria-hidden="true">/</span>
         <span aria-current="page">{data.h1}</span>
       </nav>
-      <div class="reader-tools">
-        <button type="button" class="tool" data-print hidden>Print as A4</button>
-        {pdf && <a class="tool" download href={pdf.href}>{pdf.label}</a>}
-        <a class="tool" href={section.repoUrl} {...externalAttrs(section.repoUrl)}>
-          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+      <div class="view-tools">
+        <button class="repo" type="button" aria-label="Print as A4" data-print hidden>
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+            <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" d="M4.25 5.75v-4h7.5v4M2.25 5.75h11.5v5.5h-2.5M4.75 9.25h6.5v5h-6.5z"></path>
+          </svg>
+          <span>Print</span>
+          <span class="repo-path">A4</span>
+        </button>
+        {
+          pdf && (
+            <a class="repo pdf-link" href={pdf.href} download={pdf.file} type="application/pdf" aria-label={pdf.aria}>
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="square"
+                  d="M8 1.75v8.5M4.25 6.5 8 10.25l3.75-3.75M2.25 13.75h11.5"
+                ></path>
+              </svg>
+              <span>PDF</span>
+              <span class="repo-path">{pdf.label}</span>
+            </a>
+          )
+        }
+        <a
+          class="repo"
+          href={section.repoUrl}
+          {...externalAttrs(section.repoUrl)}
+          aria-label={`Source on GitHub: ${section.repoName} (opens in a new tab)`}
+        >
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
             <path
               fill="currentColor"
               d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
             ></path>
           </svg>
-          <span>{section.repoName}</span>
-          <span class="sr-only">{newTabNote}</span>
+          <span>GitHub</span>
+          <span class="repo-path">{section.repoName}</span>
         </a>
       </div>
     </div>
 
     <script is:inline>
       // Wide screens show the article on A4 sheets; hide the paper until the sheets are laid out, so nothing jumps.
-      // `?print` is the page papyrus prints to the PDF: always sheets, no reader bar (see src/scripts/paginate.ts)
+      // `?print` is the page papyrus prints to the PDF: always sheets, no top bar (see src/scripts/paginate.ts)
       if (new URLSearchParams(location.search).has('print')) document.documentElement.classList.add('print-mode');
-      if (matchMedia('(min-width: 900px)').matches || document.documentElement.classList.contains('print-mode')) {
+      if (matchMedia('(min-width: 860px)').matches || document.documentElement.classList.contains('print-mode')) {
         document.documentElement.classList.add('paginating');
         // Never leave the article hidden: if the layout script fails or never runs, show the server's article after 3 s
         setTimeout(() => document.documentElement.classList.remove('paginating'), 3000);
       }
     </script>
     <main>
+      <!-- Outside the paper: the script clears the paper when it lays the sheets out -->
+      <style is:inline set:html={leafCss}></style>
       <article class="paper" data-paper data-published={data.published.toISOString().slice(0, 10)}>
-        <div class="sheet">
-          <div class="sheet-head" aria-hidden="true">
-            <span class="sheet-mark"><i></i><i></i><i></i><i></i><i></i><b>{section.label}</b></span>
-            <span class="sheet-title">{plainText(data.h1)}</span>
-          </div>
-          <div class="sheet-body">
-            <header class="title-block">
-              <p class="kicker">{kindLabel[data.kind]} · n-uf</p>
-              <h1>{data.h1}</h1>
-              <p class="byline">
-                Updated <time datetime={data.updated.toISOString().slice(0, 10)}>{dateText(data.updated)}</time>
-                {scheduled && (
-                  <span class="scheduled">
-                    · Scheduled for <time datetime={data.published.toISOString().slice(0, 10)}>{dateText(data.published)}</time>
-                  </span>
-                )}
-              </p>
-            </header>
+        <PapyrusLeaf n={1} total={1} section={`${kindLabel[data.kind]} · ${plainText(data.mainKeyword)}`}>
+          <header class="title-block">
+            <p class="kicker">{kindLabel[data.kind]}</p>
+            <h1>{data.h1}</h1>
+            <p class="byline">
+              Updated <time datetime={data.updated.toISOString().slice(0, 10)}>{dateText(data.updated)}</time>
+              {scheduled && (
+                <span class="scheduled">
+                  · Scheduled for <time datetime={data.published.toISOString().slice(0, 10)}>{dateText(data.published)}</time>
+                </span>
+              )}
+            </p>
+          </header>
 
-            <aside class="takeaways" aria-label="Key takeaways">
-              <p class="box-title">Key takeaways</p>
-              <ul>
-                {data.takeaways.map((takeaway: string) => <li set:html={inlineCodeHtml(takeaway)} />)}
-              </ul>
-            </aside>
+          <aside class="takeaways" aria-label="Key takeaways">
+            <p class="box-title">Key takeaways</p>
+            <ul>
+              {data.takeaways.map((takeaway: string) => <li set:html={inlineCodeHtml(takeaway)} />)}
+            </ul>
+          </aside>
 
-            {
-              toc.length > 0 && (
-                <nav class="toc" aria-labelledby="toc-title">
-                  <p class="box-title" id="toc-title">Contents</p>
-                  <ol>
-                    {toc.map((item) => (
-                      <li>
-                        <a href={`#${item.id}`}>
-                          <span class="toc-no">{item.n}</span>
-                          <span class="toc-text" set:html={item.html} />
-                          <span class="toc-leader" aria-hidden="true" />
-                          <span class="toc-page" data-page-of={item.id} />
-                        </a>
-                      </li>
-                    ))}
-                  </ol>
-                </nav>
-              )
-            }
-
-            <div class="prose flow" set:html={html} />
-
-            <section class="faq flow" aria-labelledby="faq-title">
-          <h2 id="faq-title">Questions people ask</h2>
           {
-            data.faq.map(({ q, a }: { q: string; a: string }) => (
-              <>
-                <h3 set:html={inlineCodeHtml(q)} />
-                <p set:html={inlineCodeHtml(a)} />
-              </>
-            ))
+            toc.length > 0 && (
+              <nav class="toc" aria-labelledby="toc-title">
+                <p class="box-title" id="toc-title">Contents</p>
+                <ol>
+                  {toc.map((item) => (
+                    <li>
+                      <a href={`#${item.id}`}>
+                        <span class="toc-no">{item.n}</span>
+                        <span class="toc-text" set:html={item.html} />
+                        <span class="toc-leader" aria-hidden="true" />
+                        <span class="toc-page" data-page-of={item.id} />
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            )
           }
-        </section>
 
-        {
-          data.sources.length > 0 && (
-            <section class="sources flow" aria-labelledby="sources-title">
-              <h2 id="sources-title">Sources</h2>
-              <ol>
-                {data.sources.map((source) => (
-                  <li>
-                    <a href={source.url} {...externalAttrs(source.url)}>{source.title}<span class="sr-only">{newTabNote}</span></a>{' '}
-                    <span class="checked">checked {dateText(source.checked)}</span>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          )
-        }
+          <div class="prose flow" set:html={html} />
 
-        <section class="related flow" aria-labelledby="related-title">
-          <h2 id="related-title">Related</h2>
-          <ul>
+          <section class="faq flow" aria-labelledby="faq-title">
+            <h2 id="faq-title">Questions people ask</h2>
             {
-              related.map((item) => (
-                <li>
-                  <a href={item.path} set:html={inlineCodeHtml(item.title)} />
-                  <span class="related-note" set:html={inlineCodeHtml(item.description)} />
-                </li>
+              data.faq.map(({ q, a }: { q: string; a: string }) => (
+                <>
+                  <h3 set:html={inlineCodeHtml(q)} />
+                  <p set:html={inlineCodeHtml(a)} />
+                </>
               ))
             }
-          </ul>
-            </section>
-          </div>
-          <div class="sheet-foot" aria-hidden="true">
-            <span>n-uf.com{path}</span>
-            <span class="folio" />
-          </div>
-        </div>
+          </section>
+
+          {
+            data.sources.length > 0 && (
+              <section class="sources flow" aria-labelledby="sources-title">
+                <h2 id="sources-title">Sources</h2>
+                <ol>
+                  {data.sources.map((source) => (
+                    <li>
+                      <ExtLink href={source.url}>{source.title}</ExtLink>{' '}
+                      <span class="checked">checked {dateText(source.checked)}</span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )
+          }
+
+          <section class="related flow" aria-labelledby="related-title">
+            <h2 id="related-title">Related</h2>
+            <ul>
+              {
+                related.map((item) => (
+                  <li>
+                    <a href={item.path} set:html={inlineCodeHtml(item.title)} />
+                    <span class="related-note" set:html={inlineCodeHtml(item.description)} />
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+        </PapyrusLeaf>
       </article>
     </main>
   </div>

@@ -7,7 +7,7 @@
 // @ts-ignore: plain JS module, shared with the build (and its tests)
 import { dropLateLiveBlocks } from '../data/live-blocks.mjs';
 
-const WIDE = '(min-width: 900px)';
+const WIDE = '(min-width: 860px)'; // where the /papyrus page also gets fixed sheets
 // The `print-mode` class on <html> lays the article out on A4 sheets whatever the viewport width, with no reader bar,
 // and measures them with the wrapping the print CSS gives code and tables (article.css). The page sets it from `?print`
 // (any value): that is the page papyrus prints to the article's PDF (scripts/article-pdfs.mjs), whose A4 viewport is
@@ -16,10 +16,11 @@ const PRINT_MODE = 'print-mode';
 const inPrintMode = (): boolean => document.documentElement.classList.contains(PRINT_MODE);
 
 function paginate(paper: HTMLElement): void {
-  const first = paper.querySelector<HTMLElement>('.sheet');
-  const head = first?.querySelector<HTMLElement>('.sheet-head');
-  const foot = first?.querySelector<HTMLElement>('.sheet-foot');
-  const body = first?.querySelector<HTMLElement>('.sheet-body');
+  // A sheet is a PapyrusLeaf (the leaves of the /papyrus page): .leaf with a running head, a body and a folio
+  const first = paper.querySelector<HTMLElement>('.leaf');
+  const head = first?.querySelector<HTMLElement>('.leaf-head');
+  const foot = first?.querySelector<HTMLElement>('.leaf-folio');
+  const body = first?.querySelector<HTMLElement>('.leaf-body');
   if (!first || !head || !foot || !body) return;
 
   // The blocks in reading order; a block inside a .flow wrapper (the body, the FAQ, sources, related) remembers it,
@@ -102,12 +103,14 @@ function paginate(paper: HTMLElement): void {
   }
 
   sheets.forEach((sheet, index) => {
-    const folio = sheet.querySelector('.folio');
-    if (folio) folio.textContent = `Page ${index + 1} of ${sheets.length}`;
+    const label = `Page ${index + 1} of ${sheets.length}`;
+    sheet.setAttribute('aria-label', label);
+    const folio = sheet.querySelector('.leaf-folio');
+    if (folio) folio.textContent = label;
   });
   for (const slot of Array.from(paper.querySelectorAll<HTMLElement>('[data-page-of]'))) {
     const target = document.getElementById(slot.dataset.pageOf ?? '');
-    const sheet = target?.closest<HTMLElement>('.sheet');
+    const sheet = target?.closest<HTMLElement>('.leaf');
     if (sheet) slot.textContent = String(sheets.indexOf(sheet) + 1);
   }
 }
