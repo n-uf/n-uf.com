@@ -102,12 +102,29 @@ function paginate(paper: HTMLElement): void {
   }
 }
 
+/**
+ * The article as a printed document. It is a snapshot that outlives the day it was printed: the PDF of an article that
+ * goes live first must not point at articles that are not live yet (a preview build, where it is printed, shows them all).
+ * So the Related list (navigation, no use on paper) goes, links to other articles become plain text, and every other
+ * link on the site becomes an absolute address, not the local one papyrus printed from.
+ */
+function forPaper(paper: HTMLElement): void {
+  paper.querySelector('.related')?.remove();
+  const origin = new URL(document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href ?? location.href).origin;
+  for (const link of Array.from(paper.querySelectorAll<HTMLAnchorElement>('a[href^="/"]'))) {
+    const href = link.getAttribute('href') ?? '';
+    if (/^\/papyrus\/[^/?#]/.test(href)) link.replaceWith(...Array.from(link.childNodes));
+    else link.href = new URL(href, origin).href;
+  }
+}
+
 const paper = document.querySelector<HTMLElement>('[data-paper]');
 if (paper) {
   const original = paper.innerHTML;
   const wide = matchMedia(WIDE);
   const layout = (): void => {
     paper.innerHTML = original;
+    if (inPrintMode()) forPaper(paper);
     if (wide.matches || inPrintMode()) paginate(paper);
     document.documentElement.classList.remove('paginating');
   };
