@@ -13,7 +13,7 @@ interface Props {
 const { href, arrow = true } = Astro.props;
 ---
 
-<a href={href} target="_blank" rel="noopener noreferrer"><slot />{arrow && <span class="ext-arrow" aria-hidden="true">↗</span>}<span class="sr-only"> (opens in a new tab)</span></a>
+<a href={href} target="_blank" rel="noopener"><slot />{arrow && <span class="ext-arrow" aria-hidden="true">↗</span>}<span class="sr-only"> (opens in a new tab)</span></a>
 
 <style>
   a {

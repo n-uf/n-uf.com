@@ -5,6 +5,8 @@
   "sources": [
     "../src/pages/papyrus.astro",
     "../src/components/PapyrusLeaf.astro",
+    "../src/components/PapyrusCode.astro",
+    "../src/components/ExtLink.astro",
     "../src/components/PapyrusSpecimens.astro",
     "../src/components/papyrus-samples/documents.mjs",
     "../src/layouts/Layout.astro",
