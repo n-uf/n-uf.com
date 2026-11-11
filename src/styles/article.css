@@ -46,6 +46,7 @@
 
 .article .crumbs [aria-current] {
   min-width: 0;
+  color: var(--muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -188,8 +189,9 @@
   margin-bottom: 28px;
 }
 
-.article .kicker,
-.article .box-title {
+/* One class more than `.leaf-body :is(p, li)` below, so these keep the muted colour and size written here */
+.article .leaf-body .kicker,
+.article .leaf-body .box-title {
   margin: 0 0 10px;
   color: var(--muted);
   font-family: var(--mono);
@@ -210,7 +212,7 @@
   overflow-wrap: break-word;
 }
 
-.article .byline {
+.article .leaf-body .byline {
   margin: 0;
   color: var(--muted);
   font-size: 13px;
@@ -495,7 +497,7 @@
 }
 
 .article .checked {
-  color: var(--faint);
+  color: var(--muted);
   font-size: 12px;
   white-space: nowrap;
 }
