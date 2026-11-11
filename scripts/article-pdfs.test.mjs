@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { copyShownPdfs, pdfLink, shownSlugs, showsDrafts } from "../src/data/article-pdfs.mjs";
+import { copyShownPdfs, liveDatesTrailer, pdfLink, shownSlugs, showsDrafts } from "../src/data/article-pdfs.mjs";
 
 /** a site root with a live article, a draft, a draft written `True # note`, and a PDF for each (and one article with none) */
 function site() {
@@ -66,4 +66,22 @@ test("the button shows only when the article's PDF exists, with its pages and si
   assert.equal(pdfLink("nopdf", root), null);      // sizes.json knows it, the file doesn't exist
   assert.equal(pdfLink("unknown", root), null);    // no entry at all
   assert.equal(pdfLink("live", mkdtempSync(join(tmpdir(), "article-pdfs-empty-"))), null);   // no src/article-pdfs
+});
+
+test("the fingerprinted trailer lists the go-live day of each article a {{live:}} block points at", () => {
+  const root = mkdtempSync(join(tmpdir(), "article-pdfs-live-"));
+  const content = join(root, "src/content/papyrus");
+  mkdirSync(content, { recursive: true });
+  const dated = (day) => `---\ntitle: x\npublished: ${day}\n---\nBody\n`;
+  writeFileSync(join(content, "later.md"), dated("2026-12-01"));
+  writeFileSync(join(content, "stamped.md"), dated("2026-12-08T23:30:00-05:00"));
+  const text = "Intro. {{live:/papyrus/later}}A.{{/live}} {{live:/papyrus/stamped/}}B.{{/live}} {{live:/papyrus}}C.{{/live}} {{live:/papyrus/missing}}D.{{/live}}\n";
+  assert.equal(liveDatesTrailer(text, root), [
+    "", "<!-- live-from /papyrus/later 2026-12-01 -->", "<!-- live-from /papyrus/missing none -->",
+    "<!-- live-from /papyrus/stamped 2026-12-09 -->", "",
+  ].join("\n"));
+  // moving a date changes the trailer, so the PDF is reprinted
+  writeFileSync(join(content, "later.md"), dated("2026-12-02"));
+  assert.match(liveDatesTrailer(text, root), /\/papyrus\/later 2026-12-02/);
+  assert.equal(liveDatesTrailer("No blocks here.\n", root), "");
 });
