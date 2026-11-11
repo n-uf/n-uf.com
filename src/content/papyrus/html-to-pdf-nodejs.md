@@ -5,8 +5,8 @@ h1: "Convert HTML to PDF in Node.js: which route fits"
 mainKeyword: "convert html to pdf nodejs"
 kind: comparison
 draft: true
-published: 2027-01-12
-updated: 2027-01-12
+published: 2027-01-05
+updated: 2027-01-05
 author: n-uf
 takeaways:
   - "To turn HTML and CSS into a PDF the way a browser renders them, drive headless Chromium with Playwright or Puppeteer."

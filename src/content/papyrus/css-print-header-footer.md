@@ -5,8 +5,8 @@ h1: "CSS print header and footer on every printed page"
 mainKeyword: "css print header and footer"
 kind: how-to
 draft: true
-published: 2027-01-05
-updated: 2027-01-05
+published: 2026-12-22
+updated: 2026-12-22
 author: n-uf
 takeaways:
   - "Three things can repeat on every printed page: a `position: fixed` box, an `@page` margin box such as `@top-center`, and a table's `thead` and `tfoot` where the browser repeats them."
@@ -175,7 +175,7 @@ MDN's compatibility table for `@page` marks each margin box as experimental. We 
 
 Chrome's post of 30 October 2024 says the same about Chrome 131. So in Firefox or Safari, a margin box can't carry a CSS print header and footer: nothing prints there, and a fixed element or a `thead` has to do the job. If a script prints the page with Chromium, the engine is what counts, not the reader's browser.
 
-Page numbers in these boxes have their own article, [css print page numbers](/papyrus/css-print-page-numbers).
+{{live:/papyrus/css-print-page-numbers}}Page numbers in these boxes have their own article, [css print page numbers](/papyrus/css-print-page-numbers).{{/live}}
 
 ## Repeat a table header on every printed page
 

@@ -5,8 +5,8 @@ h1: "CSS print page numbers with counter(page), footers and fixed sheets"
 mainKeyword: "css print page numbers"
 kind: how-to
 draft: true
-published: 2026-12-22
-updated: 2026-12-22
+published: 2026-12-29
+updated: 2026-12-29
 author: n-uf
 takeaways:
   - "CSS print page numbers go in an `@page` margin box: `content: counter(page)`, and `counter(pages)` for the total."
@@ -82,7 +82,7 @@ related:
 ---
 For CSS print page numbers, put `counter(page)` in the `content` of an `@page` margin box, and `counter(pages)` where you want the total: `@bottom-center { content: "Page " counter(page) " of " counter(pages); }`. MDN's compatibility table lists margin boxes in Chrome 131, Edge 131 and Opera 116, and not in Firefox or Safari. Anywhere else, take the number from the PDF tool's footer, or place the numbers yourself.
 
-Below: the margin-box version, why `counter(page)` fails, the footer templates in Playwright and Puppeteer, and numbering fixed sheets. Where pages break is in [css page break print](/papyrus/css-page-break-print).{{live:/papyrus/css-print-header-footer}} Where the header and footer boxes sit is in [css print header and footer](/papyrus/css-print-header-footer).{{/live}}
+Below: the margin-box version, why `counter(page)` fails, the footer templates in Playwright and Puppeteer, and numbering fixed sheets. Where the header and footer boxes sit is in [css print header and footer](/papyrus/css-print-header-footer), and where pages break in [css page break print](/papyrus/css-page-break-print).
 
 Our tests ran on 11 November 2026 in the installed Google Chrome 157, printed through Playwright with `channel: "chrome"`. Playwright's default headless shell is a different build, and its docs say to expect different behavior in some cases. We didn't test it or other browsers.
 
@@ -122,7 +122,7 @@ Firefox and Safari print nothing from a margin box. A script that prints with Ch
 
 ## Page numbers in Chrome's print dialog
 
-A CSS print page number in Chrome can come from two places at once. Chrome's blog says the browser adds its own header and footer when there is room, even if you added yours, and that the print dialog can turn them off. If you see two numbers, one is the browser's.{{live:/papyrus/css-print-header-footer}} [Hiding the browser's header and footer](/papyrus/css-print-header-footer) is covered in the header and footer article.{{/live}}
+A CSS print page number in Chrome can come from two places at once. Chrome's blog says the browser adds its own header and footer when there is room, even if you added yours, and that the print dialog can turn them off. If you see two numbers, one is the browser's. [Hiding the browser's header and footer](/papyrus/css-print-header-footer) is covered in the header and footer article.
 
 ## Why counter(page) is not working
 
