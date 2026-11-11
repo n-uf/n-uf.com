@@ -15,6 +15,23 @@ const BLOCK_TAG = /<\/?(?:p|ul|ol|li|h[1-6]|blockquote|pre|table|figure|div|hr)\
 // A site path in the canonical form of this site: no trailing slash, "/" for the home page.
 const SITE_PATH = /^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*)?$/;
 
+/** The target of a {{live:…}} marker in canonical form: trimmed, and "/papyrus/x/" means "/papyrus/x". */
+export function normalizeLivePath(raw) {
+  const path = raw.trim();
+  return path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+}
+
+/**
+ * Every target of a {{live:…}} marker in the rendered HTML, in canonical form (not checked to be a site path).
+ * @param {string} html
+ * @returns {Set<string>}
+ */
+export function liveTargets(html) {
+  const targets = new Set();
+  for (const m of html.matchAll(MARK)) if (m[1] !== undefined) targets.add(normalizeLivePath(m[1]));
+  return targets;
+}
+
 /**
  * The HTML with each {{live:/path/}}…{{/live}} block resolved.
  * @param {string} html the rendered markdown body
@@ -30,8 +47,7 @@ export function applyLiveBlocks(html, status, where) {
   for (const m of html.matchAll(MARK)) {
     if (m[0] !== "{{/live}}") {
       if (open) fail(`nested live block: {{live:${m[1]}}} starts inside the one for ${open.path}`);
-      let path = m[1].trim();
-      if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1); // "/papyrus/x/" means "/papyrus/x"
+      const path = normalizeLivePath(m[1]);
       if (!SITE_PATH.test(path)) fail(`{{live:${m[1]}}} is not a site path like /papyrus/some-article`);
       const before = html.slice(0, m.index);
       const lastOpenH = Math.max(...[...before.matchAll(/<h[1-6]\b/gi)].map((x) => x.index), -1);
