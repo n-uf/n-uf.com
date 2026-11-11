@@ -14,6 +14,11 @@ interface Props {
   description: string;
   path?: string;
   robots?: string;
+  /** The page's own share image (1200x630) as a site path; the site's /og.png when absent */
+  image?: string;
+  imageAlt?: string;
+  /** og:type: "website" for the hand-written pages, "article" for an article */
+  ogType?: string;
   /** Extra JSON-LD nodes for this page, published next to the Organization node */
   structuredData?: Record<string, unknown>[];
 }
@@ -23,11 +28,14 @@ const {
   description,
   path = '/',
   robots = 'index, follow',
+  image = '/og.png',
+  imageAlt = 'n-uf',
+  ogType = 'website',
   structuredData = [],
 } = Astro.props;
 
 const canonicalUrl: string = new URL(path, siteUrl).href;
-const imageUrl: string = new URL('/og.png', siteUrl).href;
+const imageUrl: string = new URL(image, siteUrl).href;
 
 const jsonLd: {
   '@context': string;
@@ -61,7 +69,7 @@ const jsonLd: {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     <meta name="robots" content={robots} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={studioName} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
@@ -71,7 +79,7 @@ const jsonLd: {
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="n-uf" />
+    <meta property="og:image:alt" content={imageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
