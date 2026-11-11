@@ -126,9 +126,11 @@ const { code, lang, label } = Astro.props;
     tab-size: 2;
   }
 
+  /* The pre's Geist Mono, not Tailwind's base `code` font (system mono, which prints differently per machine) */
   .code-box :global(pre.astro-code code) {
     padding: 0;
     background: none;
+    font-family: inherit;
     font-size: inherit;
   }
 
