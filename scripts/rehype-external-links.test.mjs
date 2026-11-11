@@ -6,18 +6,21 @@ import rehypeExternalLinks from "../src/data/rehype-external-links.mjs";
 const isExternal = (href) => /^https?:\/\/(?!n-uf\.com(\/|$))/.test(href);
 const NOTE = " (opens in a new tab)";
 const link = (href, text = "text") => ({ type: "element", tagName: "a", properties: { href }, children: [{ type: "text", value: text }] });
-const run = (...links) => {
-  const tree = { type: "root", children: [{ type: "element", tagName: "p", properties: {}, children: links }] };
+const el = (tagName, ...children) => ({ type: "element", tagName, properties: {}, children });
+const process = (...blocks) => {
+  const tree = { type: "root", children: blocks };
   rehypeExternalLinks({ isExternal, note: NOTE })()(tree);
-  return tree.children[0].children;
+  return tree.children;
 };
+const run = (...links) => process(el("p", ...links))[0].children;
 
-test("an external link opens in a new tab with rel noopener and a screen-reader note", () => {
+test("an external link opens in a new tab with rel noopener, the ↗ and a screen-reader note", () => {
   const [a] = run(link("https://developer.mozilla.org/en-US/docs/Web/CSS/@page", "MDN"));
   assert.equal(a.properties.target, "_blank");
   assert.deepEqual(a.properties.rel, ["noopener"]);
-  assert.deepEqual(a.children.at(-1), { type: "element", tagName: "span", properties: { className: ["sr-only"] }, children: [{ type: "text", value: NOTE }] });
-  assert.equal(a.children.length, 2);
+  assert.equal(a.children.length, 3);
+  assert.deepEqual(a.children[1], { type: "element", tagName: "span", properties: { className: ["ext-arrow"], ariaHidden: "true" }, children: [{ type: "text", value: "↗" }] });
+  assert.deepEqual(a.children[2], { type: "element", tagName: "span", properties: { className: ["sr-only"] }, children: [{ type: "text", value: NOTE }] });
 });
 
 test("links to this site, relative links and anchors are left alone", () => {
@@ -30,8 +33,21 @@ test("links to this site, relative links and anchors are left alone", () => {
 });
 
 test("a link nested in other elements is found, and an <a> with no href is skipped", () => {
-  const nested = { type: "element", tagName: "em", properties: {}, children: [link("https://github.com/n-uf/papyrus")] };
-  const [em, bare] = run(nested, { type: "element", tagName: "a", properties: {}, children: [] });
+  const nested = el("em", link("https://github.com/n-uf/papyrus"));
+  const [em, bare] = run(nested, el("a"));
   assert.equal(em.children[0].properties.target, "_blank");
   assert.equal(bare.properties.target, undefined);
+});
+
+test("in a heading the link opens in a new tab but gets no arrow and no note, so they stay out of the id and the contents", () => {
+  for (const tag of ["h1", "h2", "h3", "h6"]) {
+    const [h] = process(el(tag, { type: "text", value: "See " }, el("em", link("https://github.com/n-uf/papyrus", "the repo"))));
+    const a = h.children[1].children[0];
+    assert.equal(a.properties.target, "_blank", tag);
+    assert.deepEqual(a.properties.rel, ["noopener"], tag);
+    assert.equal(a.children.length, 1, tag);
+  }
+  // the next paragraph is not a heading
+  const [, p] = process(el("h2", link("https://github.com/a")), el("p", link("https://github.com/b")));
+  assert.equal(p.children[0].children.length, 3);
 });
