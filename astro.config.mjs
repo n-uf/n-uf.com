@@ -8,7 +8,6 @@ export default defineConfig({
   output: 'static',
   integrations: [
     sitemap({
-      customPages: [`${siteUrl}/llms.txt`],
       // Canonical URLs have no trailing slash (Layout.astro); list pages the same way.
       serialize(item) {
         const url = new URL(item.url);
