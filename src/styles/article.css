@@ -61,6 +61,7 @@
 
 .reader-tools {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -515,27 +516,50 @@
 
 /* Narrow screens: one paper column, edge to edge with a small gutter */
 @media (max-width: 899.98px) {
-  .sheet {
+  html:not(.print-mode) .sheet {
     width: calc(100% - 24px);
     padding: 22px 18px 16px;
   }
 
-  .sheet-head {
+  html:not(.print-mode) .sheet-head {
     margin-bottom: 18px;
   }
 
-  .sheet-title {
+  html:not(.print-mode) .sheet-title {
     display: none;
   }
 
-  .sheet h1 {
+  html:not(.print-mode) .sheet h1 {
     font-size: 28px;
   }
 
-  .sheet h2 {
+  html:not(.print-mode) .sheet h2 {
     margin-top: 28px;
     font-size: 20px;
   }
+}
+
+/* `?print`: the page papyrus prints to the article's PDF (scripts/article-pdfs.mjs). A4 sheets at any viewport width,
+   no reader bar, no "Scheduled for" note (a draft's PDF is the one its readers get once it is live), and the sheets
+   are measured with the same wrapping the print CSS gives code and tables, so what is laid out is what is printed. */
+.print-mode .reader {
+  padding: 0;
+}
+
+.print-mode .reader-bar,
+.print-mode .scheduled {
+  display: none;
+}
+
+.print-mode .sheet pre {
+  overflow: visible;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.print-mode .sheet table {
+  width: auto;
+  overflow: visible;
 }
 
 /* Print: the same A4 sheets, one per page, nothing around them */
