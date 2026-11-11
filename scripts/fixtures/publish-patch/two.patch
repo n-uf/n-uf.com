@@ -1,0 +1,26 @@
+diff --git a/src/content/papyrus/alpha.md b/src/content/papyrus/alpha.md
+index 64dcc87..3f9f4b2 100644
+--- a/src/content/papyrus/alpha.md
++++ b/src/content/papyrus/alpha.md
+@@ -2,7 +2,7 @@
+ title: "Fixture alpha"
+ published: 2026-11-01
+ updated: 2026-11-01
+-draft: true
++draft: false
+ author: n-uf
+ tags:
+   - one
+diff --git a/src/content/papyrus/beta.md b/src/content/papyrus/beta.md
+index 869bec1..18df7ea 100644
+--- a/src/content/papyrus/beta.md
++++ b/src/content/papyrus/beta.md
+@@ -2,7 +2,7 @@
+ title: "Fixture beta"
+ published: 2026-11-02
+ updated: 2026-11-02
+-draft: True   # scheduled by hand
++draft: false   # scheduled by hand
+ author: n-uf
+ tags:
+   - one
