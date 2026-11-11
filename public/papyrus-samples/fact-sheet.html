@@ -367,6 +367,122 @@
   height: 1px;
   background: var(--p-ink);
 }
+/* Slides (16:9): large type, one idea each, a slide number and a small footer */
+.sample .pdf-page.slide {
+  padding: 52px 68px 28px;
+  font-size: 22px;
+  line-height: 1.4;
+}
+.sample .slide .s-eyebrow {
+  color: var(--p-muted);
+  font-family: "Geist Mono Variable", "Geist Mono", ui-monospace, monospace;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.sample .slide .s-title {
+  margin-top: 16px;
+  color: var(--p-ink);
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+}
+.sample .slide .s-cover {
+  margin-top: 56px;
+  font-size: 128px;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+.sample .slide .s-sub {
+  max-width: 700px;
+  margin-top: 22px;
+  color: var(--p-ink);
+  font-size: 34px;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+.sample .slide .s-text {
+  max-width: 760px;
+  margin-top: 20px;
+  color: var(--p-copy);
+  font-size: 24px;
+  line-height: 1.4;
+}
+.sample .slide .s-big {
+  margin-top: 40px;
+  max-width: 800px;
+  color: var(--p-ink);
+  font-size: 60px;
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+}
+.sample .slide .s-big.s-statement {
+  margin-top: 56px;
+}
+.sample .slide pre {
+  margin-top: 28px;
+  padding: 18px 22px;
+  font-size: 19px;
+  line-height: 1.55;
+}
+.sample .slide code {
+  font-size: 0.9em;
+}
+.sample .slide .counts {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  margin-top: 36px;
+}
+.sample .slide .count {
+  flex: 1 1 0;
+  padding: 18px 20px 20px;
+  border-top: 3px solid var(--p-ink);
+  background: var(--p-tint);
+  color: var(--p-ink);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.sample .slide .count .k {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--p-muted);
+  font-family: "Geist Mono Variable", "Geist Mono", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.sample .slide .eq {
+  align-self: center;
+  color: var(--p-ink);
+  font-size: 40px;
+  font-weight: 300;
+}
+.sample .slide .pfoot {
+  font-size: 12px;
+}
+.sample .slide-inv.pdf-page {
+  background: var(--p-ink);
+  color: #c9c9cf;
+}
+.sample .slide-inv .s-eyebrow,
+.sample .slide-inv .pfoot {
+  color: #9a9aa2;
+  border-top-color: rgb(251 250 246 / 0.18);
+}
+.sample .slide-inv .s-title,
+.sample .slide-inv .s-big,
+.sample .slide-inv .s-sub {
+  color: var(--p-paper);
+}
+.sample .slide-inv .s-text {
+  color: #c9c9cf;
+}
 
 @media screen and (max-width: 834px) {
   .pdf-container { padding: 16px 0; }

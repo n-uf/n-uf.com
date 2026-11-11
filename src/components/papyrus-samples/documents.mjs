@@ -26,6 +26,20 @@ import {
 export const SAMPLES_DIR = 'papyrus-samples';
 export const PAPYRUS_VERSION = '26.11.2';
 
+/**
+ * A 16:9 slide as a papyrus sheet: the shape of SHEETS.A4 / SHEETS.LETTER (pageSize, width,
+ * height, viewport), 254 × 142.875 mm, which is 960 × 540 px. papyrus accepts a sheet object
+ * like this one wherever it takes a sheet; scripts/papyrus-samples.config.json repeats it for
+ * `papyrus pdf` (and --check fails when the two differ).
+ */
+export const SLIDE_16_9 = {
+  name: 'SLIDE_16_9',
+  pageSize: '254mm 142.875mm',
+  width: '254mm',
+  height: '142.875mm',
+  viewport: { width: 960, height: 540 },
+};
+
 /** The paper look, shared with the papyrus articles. */
 const PAPER = {
   paper: '#fbfaf6',
@@ -313,6 +327,122 @@ export const paperCss = `
   height: 1px;
   background: var(--p-ink);
 }
+/* Slides (16:9): large type, one idea each, a slide number and a small footer */
+.sample .${PAGE_CLASS}.slide {
+  padding: 52px 68px 28px;
+  font-size: 22px;
+  line-height: 1.4;
+}
+.sample .slide .s-eyebrow {
+  color: var(--p-muted);
+  font-family: ${MONO};
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.sample .slide .s-title {
+  margin-top: 16px;
+  color: var(--p-ink);
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+}
+.sample .slide .s-cover {
+  margin-top: 56px;
+  font-size: 128px;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+.sample .slide .s-sub {
+  max-width: 700px;
+  margin-top: 22px;
+  color: var(--p-ink);
+  font-size: 34px;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+.sample .slide .s-text {
+  max-width: 760px;
+  margin-top: 20px;
+  color: var(--p-copy);
+  font-size: 24px;
+  line-height: 1.4;
+}
+.sample .slide .s-big {
+  margin-top: 40px;
+  max-width: 800px;
+  color: var(--p-ink);
+  font-size: 60px;
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+}
+.sample .slide .s-big.s-statement {
+  margin-top: 56px;
+}
+.sample .slide pre {
+  margin-top: 28px;
+  padding: 18px 22px;
+  font-size: 19px;
+  line-height: 1.55;
+}
+.sample .slide code {
+  font-size: 0.9em;
+}
+.sample .slide .counts {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  margin-top: 36px;
+}
+.sample .slide .count {
+  flex: 1 1 0;
+  padding: 18px 20px 20px;
+  border-top: 3px solid var(--p-ink);
+  background: var(--p-tint);
+  color: var(--p-ink);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.sample .slide .count .k {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--p-muted);
+  font-family: ${MONO};
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.sample .slide .eq {
+  align-self: center;
+  color: var(--p-ink);
+  font-size: 40px;
+  font-weight: 300;
+}
+.sample .slide .pfoot {
+  font-size: 12px;
+}
+.sample .slide-inv.${PAGE_CLASS} {
+  background: var(--p-ink);
+  color: #c9c9cf;
+}
+.sample .slide-inv .s-eyebrow,
+.sample .slide-inv .pfoot {
+  color: #9a9aa2;
+  border-top-color: rgb(251 250 246 / 0.18);
+}
+.sample .slide-inv .s-title,
+.sample .slide-inv .s-big,
+.sample .slide-inv .s-sub {
+  color: var(--p-paper);
+}
+.sample .slide-inv .s-text {
+  color: #c9c9cf;
+}
 `;
 
 /** Standalone files only: fonts, and a viewer that fits the sheet to a narrow screen. */
@@ -366,11 +496,11 @@ export function scopedSheetCss(sheet, scope) {
 /**
  * One page element of the contract.
  *
- * @param {{ docId: string, index: number, count: number, label: string, body: string, foot: [string, string] }} p
+ * @param {{ docId: string, index: number, count: number, label: string, body: string, foot: [string, string], extraClass?: string }} p
  */
-function page({ docId, index, count, label, body, foot }) {
+function page({ docId, index, count, label, body, foot, extraClass = '' }) {
   return (
-    `<section class="${PAGE_CLASS}" id="${docId}-page-${index + 1}" ${PAGE_COUNT_ATTR}="${count}" aria-label="${label}">` +
+    `<section class="${PAGE_CLASS}${extraClass ? ` ${extraClass}` : ''}" id="${docId}-page-${index + 1}" ${PAGE_COUNT_ATTR}="${count}" aria-label="${label}">` +
     `<div class="${MAIN_CONTENT_CLASS}">${body}</div>` +
     `<div class="pfoot"><span>${foot[0]}</span><span>${foot[1]}</span></div>` +
     `</section>`
@@ -481,6 +611,79 @@ function buildDocs(h) {
       `<p class="cover-text" style="margin-top:34px;color:var(--p-muted)">Source: <code>packages/papyrus/CHANGELOG.md</code> in n-uf/papyrus.</p>`,
   });
 
+  // --- C: the deck, 16:9, three slides, presentation style ---------------
+  const deckSlide = (/** @type {number} */ index, /** @type {string} */ body, extraClass = 'slide') =>
+    page({
+      docId: 'deck',
+      index,
+      count: 3,
+      label: `papyrus deck, slide ${index + 1} of 3`,
+      foot: ['papyrus deck · n-uf.com/papyrus', `${index + 1} / 3`],
+      body,
+      extraClass,
+    });
+  const deck = [
+    deckSlide(
+      0,
+      `<p class="s-eyebrow">Deck · @n-uf/papyrus ${PAPYRUS_VERSION}</p>` +
+        `<${hTitle} class="s-title s-cover">papyrus</${hTitle}>` +
+        `<p class="s-sub">Documents in HTML, printed to PDF</p>`,
+    ),
+    deckSlide(
+      1,
+      `<p class="s-eyebrow">The page contract</p>` +
+        `<${hSec} class="s-title">One element, one sheet, one page</${hSec}>` +
+        `<p class="s-text">Every element with the class <code>pdf-page</code> is one sheet on screen and one page in the PDF. ` +
+        `<code>sheetCss()</code> sizes it to A4 or Letter.</p>` +
+        `<pre><code>import { SHEETS, sheetCss } from "@n-uf/papyrus";\n\nconst css = sheetCss(SHEETS.LETTER);  // US Letter sheets</code></pre>`,
+    ),
+    deckSlide(
+      2,
+      `<p class="s-eyebrow">The export</p>` +
+        `<${hSec} class="s-title">Every PDF is checked</${hSec}>` +
+        `<p class="s-text">Three counts must agree. If they don't, the export stops instead of writing the file.</p>` +
+        `<div class="counts">` +
+        `<p class="count"><span class="k">In the HTML</span>The page elements</p>` +
+        `<p class="eq" aria-hidden="true">=</p>` +
+        `<p class="count"><span class="k">In the PDF</span>Its own page count</p>` +
+        `<p class="eq" aria-hidden="true">=</p>` +
+        `<p class="count"><span class="k">From you</span>The count you expect</p>` +
+        `</div>`,
+    ),
+  ];
+
+  // --- D: the pitch, 16:9, three slides, one big idea each ----------------
+  const pitchSlide = (/** @type {number} */ index, /** @type {string} */ body, extraClass = 'slide') =>
+    page({
+      docId: 'pitch',
+      index,
+      count: 3,
+      label: `papyrus pitch, slide ${index + 1} of 3`,
+      foot: ['papyrus pitch · n-uf.com/papyrus', `${index + 1} / 3`],
+      body,
+      extraClass,
+    });
+  const pitch = [
+    pitchSlide(
+      0,
+      `<p class="s-eyebrow">The problem</p>` +
+        `<${hTitle} class="s-big s-statement">A document kept twice, as a web page and as a PDF, drifts apart.</${hTitle}>`,
+    ),
+    pitchSlide(
+      1,
+      `<p class="s-eyebrow">papyrus</p>` +
+        `<${hSec} class="s-big s-statement">One source in HTML or React. Sheets on screen, the same pages in the PDF.</${hSec}>`,
+      'slide slide-inv',
+    ),
+    pitchSlide(
+      2,
+      `<p class="s-eyebrow">Get it</p>` +
+        `<${hSec} class="s-big">n-uf.com/papyrus</${hSec}>` +
+        `<pre><code>pnpm add @n-uf/papyrus</code></pre>` +
+        `<p class="s-text">Source: github.com/n-uf/papyrus · Licence: PolyForm Perimeter 1.0.1</p>`,
+    ),
+  ];
+
   return [
     {
       id: 'fact-sheet',
@@ -489,6 +692,8 @@ function buildDocs(h) {
       sheet: SHEETS.A4,
       sheetKey: 'a4',
       sizeLabel: 'A4 · 210 × 297 mm',
+      unit: 'page',
+      cap: (/** @type {number} */ i, /** @type {number} */ n) => `A4 · p. ${i}/${n}`,
       pages: [factPage1, factPage2],
       accessibleName: 'Sample: papyrus fact sheet, A4, 2 pages',
       html: 'fact-sheet.html',
@@ -501,10 +706,40 @@ function buildDocs(h) {
       sheet: SHEETS.LETTER,
       sheetKey: 'letter',
       sizeLabel: 'US Letter · 8.5 × 11 in',
+      unit: 'page',
+      cap: (/** @type {number} */ i, /** @type {number} */ n) => `Letter · p. ${i}/${n}`,
       pages: [notes],
       accessibleName: 'Sample: papyrus release notes, US Letter, 1 page',
       html: 'release-notes.html',
       pdf: 'release-notes.pdf',
+    },
+    {
+      id: 'deck',
+      name: 'papyrus deck',
+      title: 'papyrus deck',
+      sheet: SLIDE_16_9,
+      sheetKey: 'slide',
+      sizeLabel: 'Slide 16:9 · 254 × 142.875 mm',
+      unit: 'slide',
+      cap: (/** @type {number} */ i, /** @type {number} */ n) => `Slide 16:9 · ${i}/${n}`,
+      pages: deck,
+      accessibleName: 'Sample: papyrus deck, 16:9 slides, 3 slides',
+      html: 'deck.html',
+      pdf: 'deck.pdf',
+    },
+    {
+      id: 'pitch',
+      name: 'papyrus pitch',
+      title: 'papyrus pitch',
+      sheet: SLIDE_16_9,
+      sheetKey: 'slide',
+      sizeLabel: 'Slide 16:9 · 254 × 142.875 mm',
+      unit: 'slide',
+      cap: (/** @type {number} */ i, /** @type {number} */ n) => `Slide 16:9 · ${i}/${n}`,
+      pages: pitch,
+      accessibleName: 'Sample: papyrus pitch, 16:9 slides, 3 slides',
+      html: 'pitch.html',
+      pdf: 'pitch.pdf',
     },
   ];
 }
@@ -530,7 +765,7 @@ export function standaloneHtml(id, pdfBytes) {
   if (!doc) throw new Error(`Unknown sample document "${id}"`);
   const count = doc.pages.length;
   const kb = pdfBytes ? ` · ${Math.max(1, Math.round(pdfBytes / 1024))} KB` : '';
-  const pdfLabel = `Download PDF · ${count} ${count === 1 ? 'page' : 'pages'}${kb}`;
+  const pdfLabel = `Download PDF · ${count} ${doc.unit}${count === 1 ? '' : 's'}${kb}`;
   return `<!doctype html>
 <html lang="en">
 <head>
