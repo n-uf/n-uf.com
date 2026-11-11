@@ -1,7 +1,7 @@
 {
   "docUrl": "{id}.html",
   "outDir": "../public/papyrus-samples",
-  "sources": ["../src/components/papyrus-samples", "../public/papyrus-samples/fonts"],
+  "sources": ["../src/components/papyrus-samples/documents.mjs", "../public/papyrus-samples/fonts"],
   "docs": [
     {
       "id": "fact-sheet",
