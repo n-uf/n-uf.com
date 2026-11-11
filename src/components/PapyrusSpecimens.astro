@@ -19,7 +19,7 @@ const docs = sampleDocs.map((doc) => {
   return {
     ...doc,
     count,
-    pdfLabel: `PDF · ${count} ${count === 1 ? 'page' : 'pages'} · ${Math.max(1, Math.round(bytes / 1024))} KB`,
+    pdfLabel: `PDF · ${count} ${doc.unit}${count === 1 ? '' : 's'} · ${Math.max(1, Math.round(bytes / 1024))} KB`,
   };
 });
 
@@ -27,6 +27,7 @@ const docs = sampleDocs.map((doc) => {
 const sheetCssScoped: string = [
   scopedSheetCss(sampleDocs[0].sheet, '.sample-a4'),
   scopedSheetCss(sampleDocs[1].sheet, '.sample-letter'),
+  scopedSheetCss(sampleDocs[2].sheet, '.sample-slide'),
 ].join('\n');
 const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
 ---
@@ -52,11 +53,11 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
                   <a
                     class="open"
                     href={`${samplesBase}${doc.html}${index > 0 ? `#${doc.id}-page-${index + 1}` : ''}`}
-                    aria-label={`Open the ${doc.name}, page ${index + 1} of ${doc.count}, at full size`}
+                    aria-label={`Open the ${doc.name}, ${doc.unit} ${index + 1} of ${doc.count}, at full size`}
                   />
                 </div>
-                <p class="cap" title={`${doc.sizeLabel} · page ${index + 1} of ${doc.count}`}>
-                  {doc.sheetKey === 'a4' ? 'A4' : 'Letter'} · p. {index + 1}/{doc.count}
+                <p class="cap" title={`${doc.sizeLabel} · ${doc.unit} ${index + 1} of ${doc.count}`}>
+                  {doc.cap(index + 1, doc.count)}
                 </p>
               </div>
             ))}
@@ -125,6 +126,15 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     --n: 2;
   }
 
+  /* The slide decks: three landscape slides in a row of their own */
+  .specimen[data-pages='3'] {
+    grid-column: 1 / -1;
+  }
+
+  .specimen[data-pages='3'] .sheets {
+    --n: 3;
+  }
+
   .sheet {
     min-width: 0;
   }
@@ -151,6 +161,11 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
   .sample-letter {
     --sw-n: 816;
     --sh-n: 1056;
+  }
+
+  .sample-slide {
+    --sw-n: 960;
+    --sh-n: 540;
   }
 
   /* The sheet keeps its real size (sheetCss) and is scaled to the box's width */
@@ -250,12 +265,14 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
       gap: 44px;
     }
 
+    .specimen[data-pages='3'],
     .specimen[data-pages='2'],
     .specimen[data-pages='1'] {
       grid-column: auto;
       width: 100%;
     }
 
+    .specimen[data-pages='3'] .sheets,
     .specimen[data-pages='2'] .sheets {
       --n: 1;
       gap: 28px;
@@ -269,6 +286,19 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
       gap: 20px;
     }
 
+    /* Four documents on one sheet: tighter, to fit A4 and Letter */
+    :global(.doc[data-view='pages']) .specimen {
+      gap: 8px;
+    }
+
+    :global(.doc[data-view='pages']) .sheet .cap {
+      margin-top: 8px;
+    }
+
+    :global(.doc[data-view='pages']) .docline {
+      padding-top: 8px;
+    }
+
     :global(.doc[data-view='pages']) .specimen[data-pages='2'] {
       grid-column: span 2;
       width: auto;
@@ -280,8 +310,18 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
       justify-self: stretch;
     }
 
+    :global(.doc[data-view='pages']) .specimen[data-pages='3'] {
+      grid-column: 1 / -1;
+      width: auto;
+    }
+
     :global(.doc[data-view='pages']) .specimen[data-pages='2'] .sheets {
       --n: 2;
+      gap: 20px;
+    }
+
+    :global(.doc[data-view='pages']) .specimen[data-pages='3'] .sheets {
+      --n: 3;
       gap: 20px;
     }
   }
@@ -292,12 +332,14 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
       gap: 44px;
     }
 
+    :global(.doc[data-view='pages']) .specimen[data-pages='3'],
     :global(.doc[data-view='pages']) .specimen[data-pages='2'],
     :global(.doc[data-view='pages']) .specimen[data-pages='1'] {
       grid-column: auto;
       width: 100%;
     }
 
+    :global(.doc[data-view='pages']) .specimen[data-pages='3'] .sheets,
     :global(.doc[data-view='pages']) .specimen[data-pages='2'] .sheets {
       --n: 1;
       gap: 28px;

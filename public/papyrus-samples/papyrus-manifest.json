@@ -1,24 +1,36 @@
 {
   "docs": {
     "a4": {
-      "fingerprint": "8484f098d367d077d1789e47a3c13acadd9db2e7f15ba0c8d76627460f6928c4",
+      "fingerprint": "06ec08e2bd39779271edc1663288eed9f5755cdd63bfd8bfe61a3f48fc25816a",
       "file": "papyrus-a4.pdf",
       "pages": 5,
       "layout": "A4 .leaf"
     },
+    "deck": {
+      "fingerprint": "c9a30c46b582e2dd8357e3025b307bdb72fd54c84f6e4b7af90df0b9f8ce22c7",
+      "file": "deck.pdf",
+      "pages": 3,
+      "layout": "254mmx142.875mm .pdf-page"
+    },
     "fact-sheet": {
-      "fingerprint": "c7c31b7e29a7122d2c3f5ddc02e201eec41bc1228759e67de18ac2dbe0e5d870",
+      "fingerprint": "c9a30c46b582e2dd8357e3025b307bdb72fd54c84f6e4b7af90df0b9f8ce22c7",
       "file": "fact-sheet.pdf",
       "pages": 2
     },
     "letter": {
-      "fingerprint": "8484f098d367d077d1789e47a3c13acadd9db2e7f15ba0c8d76627460f6928c4",
+      "fingerprint": "06ec08e2bd39779271edc1663288eed9f5755cdd63bfd8bfe61a3f48fc25816a",
       "file": "papyrus-letter.pdf",
       "pages": 5,
       "layout": "LETTER .leaf"
     },
+    "pitch": {
+      "fingerprint": "c9a30c46b582e2dd8357e3025b307bdb72fd54c84f6e4b7af90df0b9f8ce22c7",
+      "file": "pitch.pdf",
+      "pages": 3,
+      "layout": "254mmx142.875mm .pdf-page"
+    },
     "release-notes": {
-      "fingerprint": "5325cf16d637b1d26e18065d43a2bf8cf8b239eec9117ae007d9260fdc8b3d30",
+      "fingerprint": "c9a30c46b582e2dd8357e3025b307bdb72fd54c84f6e4b7af90df0b9f8ce22c7",
       "file": "release-notes.pdf",
       "pages": 1,
       "layout": "LETTER .pdf-page"

@@ -4,6 +4,28 @@
   "sources": ["../src/components/papyrus-samples/documents.mjs", "../public/papyrus-samples/fonts"],
   "docs": [
     { "id": "fact-sheet", "sheet": "A4", "pageCount": 2 },
-    { "id": "release-notes", "sheet": "letter", "pageCount": 1 }
+    { "id": "release-notes", "sheet": "letter", "pageCount": 1 },
+    {
+      "id": "deck",
+      "pageCount": 3,
+      "sheet": {
+        "name": "SLIDE_16_9",
+        "pageSize": "254mm 142.875mm",
+        "width": "254mm",
+        "height": "142.875mm",
+        "viewport": { "width": 960, "height": 540 }
+      }
+    },
+    {
+      "id": "pitch",
+      "pageCount": 3,
+      "sheet": {
+        "name": "SLIDE_16_9",
+        "pageSize": "254mm 142.875mm",
+        "width": "254mm",
+        "height": "142.875mm",
+        "viewport": { "width": 960, "height": 540 }
+      }
+    }
   ]
 }

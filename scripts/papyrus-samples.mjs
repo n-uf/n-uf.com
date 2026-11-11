@@ -38,11 +38,19 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { SAMPLES_DIR, sampleDocs, standaloneHtml } from '../src/components/papyrus-samples/documents.mjs';
+import { SAMPLES_DIR, SLIDE_16_9, sampleDocs, standaloneHtml } from '../src/components/papyrus-samples/documents.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = path.join(root, 'public', SAMPLES_DIR);
 const config = path.join(root, 'scripts', 'papyrus-samples.config.json');
+
+// The slide sheet is written inline in the config (papyrus reads JSON); it must stay the one in documents.mjs
+for (const doc of JSON.parse(fs.readFileSync(config, 'utf8')).docs) {
+  if (typeof doc.sheet === 'object' && JSON.stringify(doc.sheet) !== JSON.stringify(SLIDE_16_9)) {
+    console.error(`${path.relative(root, config)}: the sheet of "${doc.id}" differs from SLIDE_16_9 in documents.mjs.`);
+    process.exit(1);
+  }
+}
 const pageConfig = path.join(root, 'scripts', 'papyrus-page.config.json');
 const pagePdfs = JSON.parse(fs.readFileSync(pageConfig, 'utf8')).docs.map((doc) => doc.filename);
 const previewPort = 4394;
