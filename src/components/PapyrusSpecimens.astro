@@ -254,8 +254,29 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
   /* The header of a set is the same two fixed lines everywhere, left over its first sheet, so every
      row's sheets start on one line: the name in ink, then what it is in muted and the PDF link.
      Nothing wraps (the PDF's size is dropped before the page count when the column is narrow). */
-  .set {
-    container: set / inline-size;
+  /* Screen only: containment makes Chromium print the scaled sheets inside it clipped */
+  @media screen {
+    .set {
+      container: set / inline-size;
+    }
+  }
+
+  @media print {
+    .set[data-sheets='1'] .pdf-size {
+      display: none;
+    }
+
+    .sheet-box {
+      box-shadow: none;
+    }
+
+    /* A transform scales only what is painted: the sheet keeps its full height in the layout, and
+       Chromium cuts what lies below the page's end when it prints (the lower thumbnails lost their
+       text). zoom scales the layout too, so the sheet takes the thumbnail's height. */
+    .sheet-box :global(.pdf-page) {
+      transform: none;
+      zoom: tan(atan2(100cqw, var(--sw)));
+    }
   }
 
   .setline {
