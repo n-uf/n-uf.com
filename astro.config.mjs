@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { siteUrl } from './src/data/projects.ts';
 import { isDraft, updatedDay } from './src/data/front-matter.mjs';
 import { PDF_DIR, copyShownPdfs, showsDrafts } from './src/data/article-pdfs.mjs';
+import { isExternal, newTabNote } from './src/data/links.ts';
+import rehypeExternalLinks from './src/data/rehype-external-links.mjs';
 
 // lastmod only for the pages of a content collection, from the `updated` date in their front matter (a build time
 // isn't a change date). The hand-written pages get none. A draft isn't built in production, so it has no entry; in a
@@ -50,7 +52,11 @@ export default defineConfig({
   output: 'static',
   // Article code blocks are plain <pre><code>, styled by src/styles/article.css like the pre on the project pages
   // (Shiki would add its own colours and a background).
-  markdown: { syntaxHighlight: false },
+  // Links to other hosts in an article open in a new tab (src/data/rehype-external-links.mjs, rule in src/data/links.ts)
+  markdown: {
+    syntaxHighlight: false,
+    rehypePlugins: [rehypeExternalLinks({ isExternal, note: newTabNote })],
+  },
   integrations: [
     articlePdfs,
     sitemap({
