@@ -1,25 +1,25 @@
 {
   "docs": {
     "css-page-break-print": {
-      "fingerprint": "e3bf101543cfa2a0c62d5ce5775ec89677e6a500096b45b71a41700b92688b6e",
+      "fingerprint": "936177a855dfe48b2b258f1a9aa408a4d813cd7c2bb5faf2f68be2096d9a5bf4",
       "file": "css-page-break-print.pdf",
       "pages": 8,
       "layout": "A4 .leaf"
     },
     "css-page-size-a4": {
-      "fingerprint": "bef9a014696f22b5f45368ce0c5aa38e5ec4a6d1bb7abf0929e8736a7617afcc",
+      "fingerprint": "d475d73d23e377ba2b0956e5487eafa618414c32385a8845782a0a15f7d776a4",
       "file": "css-page-size-a4.pdf",
       "pages": 8,
       "layout": "A4 .leaf"
     },
     "playwright-pdf-from-html": {
-      "fingerprint": "a5a96080e559b75dadae5ed1f60e2f1762de071737971e7a5d818907d8c08a66",
+      "fingerprint": "adad90c22dfb9301e168a9088568027b72c18240c0b35e040945021ce74fca3c",
       "file": "playwright-pdf-from-html.pdf",
       "pages": 9,
       "layout": "A4 .leaf"
     },
     "react-to-pdf": {
-      "fingerprint": "3feae47c7cb198ce33725788fe81003a0ed51276ff72681c8969512033dd96f1",
+      "fingerprint": "1938af253465442ecf1f620a62b32bf40ad14c45da39b9924ab68fcda8ff8b0e",
       "file": "react-to-pdf.pdf",
       "pages": 10,
       "layout": "A4 .leaf"
