@@ -80,8 +80,24 @@ function papyrusCli() {
 // What is running or made, so Ctrl+C or a kill leaves nothing behind
 const children = new Set();
 const cleanups = [];
+/**
+ * Stops a child and everything it started: each runs in its own process group (spawned `detached`), and the signal goes
+ * to the whole group, so a pnpm that started astro, or a papyrus that started Chrome, leaves nothing running.
+ */
+function killGroup(child, signal = 'SIGTERM') {
+  try {
+    process.kill(-child.pid, signal);
+  } catch {
+    try {
+      child.kill(signal);
+    } catch {
+      /* already gone */
+    }
+  }
+}
+
 function stopAll(code) {
-  for (const child of children) child.kill('SIGTERM');
+  for (const child of children) killGroup(child);
   for (const cleanup of cleanups.splice(0).reverse()) {
     try {
       cleanup();
@@ -100,11 +116,12 @@ process.on('SIGTERM', () => stopAll(143));
  */
 function runChild(command, cliArgs, { cwd, env, timeoutMs }) {
   return new Promise((resolve) => {
-    const child = spawn(command, cliArgs, { stdio: 'inherit', cwd, env });
+    // detached: its own process group, so a timeout or Ctrl+C can stop it with everything it started
+    const child = spawn(command, cliArgs, { stdio: 'inherit', cwd, env, detached: true });
     children.add(child);
     const timer = setTimeout(() => {
       console.error(`article-pdfs: ${path.basename(command)} ran for more than ${Math.round(timeoutMs / 1000)} s; stopping it.`);
-      child.kill('SIGTERM');
+      killGroup(child);
     }, timeoutMs);
     const done = (code) => {
       clearTimeout(timer);
