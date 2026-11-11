@@ -1,0 +1,248 @@
+---
+/**
+ * Real sheets made with papyrus: the two sample documents, scaled down like
+ * thumbnails in a PDF viewer. The pages are the same HTML the standalone files
+ * under /papyrus-samples/ (and their PDFs) are built from, see
+ * src/components/papyrus-samples/documents.mjs. Each page is an element with
+ * the papyrus page class, sized by sheetCss() at build time.
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import { SAMPLES_DIR, paperCss, sampleDocs, scopedSheetCss } from './papyrus-samples/documents.mjs';
+
+const samplesBase: string = `/${SAMPLES_DIR}/`;
+
+const docs = sampleDocs.map((doc) => {
+  const bytes: number = fs.statSync(path.join(process.cwd(), 'public', SAMPLES_DIR, doc.pdf)).size;
+  const count: number = doc.pages.length;
+  return {
+    ...doc,
+    count,
+    pdfLabel: `PDF · ${count} ${count === 1 ? 'page' : 'pages'} · ${Math.max(1, Math.round(bytes / 1024))} KB`,
+  };
+});
+
+// sheetCss() sizes the page; only its page rule is used here, scoped to the sheet's own class
+const sheetCssScoped: string = [
+  scopedSheetCss(sampleDocs[0].sheet, '.sample-a4'),
+  scopedSheetCss(sampleDocs[1].sheet, '.sample-letter'),
+].join('\n');
+const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
+---
+
+<style is:inline set:html={sheetStyles}></style>
+
+<section class="specimens" aria-labelledby="specimens-title">
+  <h2 id="specimens-title" class="sr-only">Sample documents made with papyrus</h2>
+  <div class="specimen-grid">
+    {
+      docs.map((doc) => (
+        <figure class="specimen" data-pages={doc.count} aria-label={doc.accessibleName}>
+          <div class="sheets">
+            {doc.pages.map((html, index) => (
+              <div class="sheet">
+                <div
+                  class={`sheet-box sample sample-${doc.sheetKey}`}
+                  style={`--sw:${doc.sheet.viewport.width}px;--sh:${doc.sheet.viewport.height}px`}
+                >
+                  <Fragment set:html={html} />
+                  <a
+                    class="open"
+                    href={`${samplesBase}${doc.html}${index > 0 ? `#${doc.id}-page-${index + 1}` : ''}`}
+                    aria-label={`Open the ${doc.name}, page ${index + 1} of ${doc.count}, at full size`}
+                  />
+                </div>
+                <p class="cap">
+                  {doc.sizeLabel} · page {index + 1} of {doc.count}
+                </p>
+              </div>
+            ))}
+          </div>
+          <figcaption class="docline">
+            <span class="docname">{doc.name}</span>
+            <a class="pdf" href={`${samplesBase}${doc.pdf}`}>
+              {doc.pdfLabel}
+            </a>
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .specimens {
+    /* Wider than the text column, so the sheets are big enough to read */
+    position: relative;
+    left: 50%;
+    width: min(1040px, calc(100vw - 48px));
+    margin: 0 0 56px;
+    translate: -50% 0;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .specimen-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px;
+    align-items: start;
+  }
+
+  .specimen {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    margin: 0;
+  }
+
+  .specimen[data-pages='2'] {
+    grid-column: span 2;
+  }
+
+  .sheets {
+    display: grid;
+    grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr));
+    gap: 28px;
+    align-items: start;
+  }
+
+  .specimen[data-pages='2'] .sheets {
+    --n: 2;
+  }
+
+  .sheet {
+    min-width: 0;
+  }
+
+  /* A fixed box for each sheet, so scaling the page inside it moves nothing */
+  .sheet-box {
+    position: relative;
+    container-type: inline-size;
+    width: 100%;
+    aspect-ratio: var(--sw-n) / var(--sh-n);
+    overflow: hidden;
+    border-radius: 2px;
+    background: #fbfaf6;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.35),
+      0 22px 60px -12px rgb(0 0 0 / 0.65);
+  }
+
+  .sample-a4 {
+    --sw-n: 794;
+    --sh-n: 1123;
+  }
+
+  .sample-letter {
+    --sw-n: 816;
+    --sh-n: 1056;
+  }
+
+  /* The sheet keeps its real size (sheetCss) and is scaled to the box's width */
+  .sheet-box :global(.pdf-page) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    box-shadow: none;
+    transform-origin: 0 0;
+    transform: scale(0.4);
+    transform: scale(tan(atan2(100cqw, var(--sw))));
+  }
+
+  .open {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .open:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .cap,
+  .docline {
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .docline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  }
+
+  .docname {
+    color: var(--ink);
+  }
+
+  .sheet .cap {
+    margin-top: 12px;
+  }
+
+  a.pdf {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  @media (max-width: 899px) {
+    .specimen-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .specimen[data-pages='1'] {
+      grid-column: 1 / -1;
+      width: calc(50% - 14px);
+      justify-self: center;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .specimens {
+      left: 0;
+      width: 100%;
+      translate: none;
+    }
+
+    .specimen-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 44px;
+    }
+
+    .specimen[data-pages='2'],
+    .specimen[data-pages='1'] {
+      grid-column: auto;
+      width: 100%;
+    }
+
+    .specimen[data-pages='2'] .sheets {
+      --n: 1;
+      gap: 28px;
+    }
+  }
+
+  @media print {
+    .specimens {
+      display: none;
+    }
+  }
+</style>

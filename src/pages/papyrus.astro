@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PapyrusSpecimens from '../components/PapyrusSpecimens.astro';
 import { siteUrl, studioId } from '../data/projects';
 
 const pageTitle: string = 'papyrus: HTML and React documents to A4 and Letter PDF';
@@ -100,6 +101,8 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
             <span class="repo-path">n-uf/papyrus</span>
           </a>
         </p>
+
+        <PapyrusSpecimens />
 
         <p>
           papyrus is a documents engine. You write a document as HTML or React pages. On screen each
