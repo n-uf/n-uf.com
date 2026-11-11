@@ -17,6 +17,7 @@ import {
   type Entry,
 } from '../../data/articles';
 import { pdfLink } from '../../data/article-pdfs.mjs';
+import { externalAttrs, newTabNote } from '../../data/links';
 import { inlineCodeHtml, plainText } from '../../data/inline-code.mjs';
 import { withLiveBlocks } from '../../data/live';
 import { breadcrumbList, faqPage, techArticle } from '../../data/schema';
@@ -108,7 +109,7 @@ const structuredData = [
       <div class="reader-tools">
         <button type="button" class="tool" data-print hidden>Print as A4</button>
         {pdf && <a class="tool" download href={pdf.href}>{pdf.label}</a>}
-        <a class="tool" href={section.repoUrl} rel="noopener">
+        <a class="tool" href={section.repoUrl} {...externalAttrs(section.repoUrl)}>
           <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
             <path
               fill="currentColor"
@@ -116,6 +117,7 @@ const structuredData = [
             ></path>
           </svg>
           <span>{section.repoName}</span>
+          <span class="sr-only">{newTabNote}</span>
         </a>
       </div>
     </div>
@@ -199,7 +201,7 @@ const structuredData = [
               <ol>
                 {data.sources.map((source) => (
                   <li>
-                    <a href={source.url} rel="noopener">{source.title}</a>{' '}
+                    <a href={source.url} {...externalAttrs(source.url)}>{source.title}<span class="sr-only">{newTabNote}</span></a>{' '}
                     <span class="checked">checked {dateText(source.checked)}</span>
                   </li>
                 ))}

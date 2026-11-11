@@ -116,10 +116,13 @@ function paginate(paper: HTMLElement): void {
  * The article as a printed document. It is a snapshot that outlives the day it was printed: the PDF of an article that
  * goes live first must not point at articles that are not live yet (a preview build, where it is printed, shows them all).
  * So the Related list (navigation, no use on paper) goes, links to other articles become plain text, and every other
- * link on the site becomes an absolute address, not the local one papyrus printed from.
+ * link on the site becomes an absolute address, not the local one papyrus printed from. Off-site links keep their
+ * address; their screen-reader notes go.
  */
 function forPaper(paper: HTMLElement): void {
   paper.querySelector('.related')?.remove();
+  // The "(opens in a new tab)" notes are for screen readers on a page; on paper they would just print
+  for (const note of Array.from(paper.querySelectorAll('.sr-only'))) note.remove();
   const origin = new URL(document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href ?? location.href).origin;
   for (const link of Array.from(paper.querySelectorAll<HTMLAnchorElement>('a[href^="/"]'))) {
     const href = link.getAttribute('href') ?? '';
