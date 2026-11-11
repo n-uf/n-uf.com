@@ -153,6 +153,45 @@ test("a hunk that is not where its header says (main moved, or a forged header) 
 test("a patch of 64 KB or more is refused, one just under it is read", () => {
   refused(checkText(single() + " ".repeat(65536), "papyrus/alpha\n"), /too large to be a flip/);
   refused(checkText(single() + "\n".repeat(60000), "papyrus/alpha\n"), /more than one hunk, or text after the hunk|not a hunk line/); // under the cap: refused by the grammar instead
+  refused(checkText(single(), "papyrus/alpha\n" + "x".repeat(65536)), /the page list is \d+ bytes, too large/);
+});
+
+// ---- the security review's low findings (2026-11-11): odd input is a clean refusal, never a traceback
+test("CRLF in the patch's headers or in the page list is refused", () => {
+  refused(checkText(single().replace(/\n/g, "\r\n"), "papyrus/alpha\n"), /not a plain `diff --git/);
+  refused(checkText(single().replace("diff --git a/src/content/papyrus/alpha.md b/src/content/papyrus/alpha.md\n", "diff --git a/src/content/papyrus/alpha.md b/src/content/papyrus/alpha.md\r\n"), "papyrus/alpha\n"), /not a plain `diff --git/);
+  refused(checkText(single().replace("+++ b/src/content/papyrus/alpha.md\n", "+++ b/src/content/papyrus/alpha.md\r\n"), "papyrus/alpha\n"), /expected `\+\+\+ b\//);
+  refused(checkText(single(), "papyrus/alpha\r\n"), /page list line 1 is not <collection>\/<slug>/);
+});
+
+test("lookalike and dot-dot paths are refused", () => {
+  // checkText writes latin1, one byte per char: pass the path's UTF-8 bytes, as git would write them
+  const moved = (path) => single().replaceAll("src/content/papyrus/alpha.md", Buffer.from(path, "utf8").toString("latin1"));
+  for (const path of ["src/cоntent/papyrus/alpha.md" /* Cyrillic о */, "src/content/papyrus/alphа.md" /* Cyrillic а */, "./src/content/papyrus/alpha.md",
+    "src/content/papyrus/../papyrus/alpha.md", "src/content/../content/papyrus/alpha.md", "src//content/papyrus/alpha.md", "src/content/papyrus/alpha.md.md", "/src/content/papyrus/alpha.md"]) {
+    refused(checkText(moved(path), "papyrus/alpha\n"), /is not src\/content\/<collection>\/<slug>\.md|not a plain `diff --git/, path);
+  }
+  refused(checkText(single(), "papyrus/../alpha\n"), /page list line 1/);
+  refused(checkText(single(), "papyrus/alphа\n"), /page list line 1/);
+});
+
+test("a hunk starting at line 0, an absurd line number and an absurd count are refused cleanly", () => {
+  refused(checkText(single().replace("@@ -2,7 +2,7 @@", "@@ -0,7 +0,7 @@"), "papyrus/alpha\n"), /starts at line 0/);
+  refused(checkText(single().replace("@@ -2,7 +2,7 @@", "@@ -2,9999999 +2,7 @@"), "papyrus/alpha\n"), /absurd line number or count/);
+  refused(checkText(single().replace("@@ -2,7 +2,7 @@", `@@ -${"9".repeat(5000)},7 +2,7 @@`), "papyrus/alpha\n"), /absurd line number or count/);
+  refused(checkText(single().replace("@@ -2,7 +2,7 @@", `@@ -2,7 +2,${"1".repeat(5000)} @@`), "papyrus/alpha\n"), /absurd line number or count/);
+  // a count larger than the hunk, within the digit limit: the hunk is shorter than its header says
+  refused(checkText(single().replace("@@ -2,7 +2,7 @@", "@@ -2,999999 +2,999999 @@"), "papyrus/alpha\n"), /shorter than its header says/);
+});
+
+test("no input makes the checker crash: every refusal is exit 1 with one `refused:` line", () => {
+  const junk = ["@@ -1 +1 @@\n", "diff --git a/src/content/papyrus/alpha.md b/src/content/papyrus/alpha.md\n", single().slice(0, 200), single().replace("100644", "1006440"),
+    single().replace("@@ -2,7 +2,7 @@", "@@ -2, +2,7 @@"), single().replace("@@ -2,7 +2,7 @@", "@@ -2,0 +2,0 @@"), "﻿" + single()];
+  for (const j of junk) {
+    const r = checkText(j, "papyrus/alpha\n");
+    assert.equal(r.status, 1, `${JSON.stringify(j.slice(0, 60))}: ${r.stderr}`);
+    assert.doesNotMatch(r.stderr, /Traceback/);
+  }
 });
 
 test("a page that is not due yet is refused, one due today is accepted", () => {
