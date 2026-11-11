@@ -9,7 +9,7 @@
  * One source: the article's own page. `--pdf` makes a preview build (VERCEL_ENV=preview, so drafts are in it), serves
  * it on a free local port and runs `papyrus pdf` with a generated config: every article at
  * /papyrus/<slug>?print=1 (src/scripts/paginate.ts lays it out on A4 sheets at any width, with no reader bar), sheet
- * A4, page elements `.sheet`. papyrus checks that each PDF has as many pages as the page has sheets.
+ * A4, page elements `.leaf` (the sheets are PapyrusLeaf, like the /papyrus page's). papyrus checks that each PDF has as many pages as the page has sheets.
  *
  * Output, in src/article-pdfs/ (NOT public/: a committed PDF of a draft would be readable on production before its
  * date; the build publishes only the PDFs of the articles it shows, see src/data/article-pdfs.mjs):
@@ -53,6 +53,10 @@ const option = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : u
 // What draws every article; a change to any of these makes every PDF stale
 const SHARED_SOURCES = [
   'src/pages/papyrus/[slug].astro',
+  // the paper of the /papyrus page, which the sheets reuse: a change there reprints the articles too
+  'src/components/PapyrusLeaf.astro',
+  'src/components/ExtLink.astro',
+  'src/components/papyrus-samples/documents.mjs',
   'src/styles/article.css',
   'src/styles/global.css',
   'src/scripts/paginate.ts',
@@ -160,7 +164,7 @@ function prepare() {
     docUrl: '/papyrus/{id}?print=1',
     outDir: rel(outDir),
     sheet: 'A4',
-    pageSelector: '.sheet',
+    pageSelector: '.leaf',
     sources: SHARED_SOURCES.map((source) => rel(path.join(root, source))),
     docs: slugs.map((slug) => ({ id: slug, sources: [rel(path.join(sourcesDir, `${slug}.md`))] })),
   };
