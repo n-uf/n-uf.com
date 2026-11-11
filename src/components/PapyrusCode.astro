@@ -1,0 +1,161 @@
+---
+/**
+ * A code box of the /papyrus page: Shiki highlighting at build time (Astro's Code), colored by the
+ * site's own tokens through Shiki's css-variables theme (the --astro-code-* variables below), a
+ * header strip with the language or file label, and a Copy button (hidden without JS, see the
+ * script in src/pages/papyrus.astro). The strip and the button are hidden in print.
+ */
+import { Code } from 'astro:components';
+
+interface Props {
+  /** The code, exactly as it is copied */
+  code: string;
+  /** A Shiki language: js, json, tsx, sh ... */
+  lang: string;
+  /** The label in the header strip: a language or a file name */
+  label: string;
+}
+
+const { code, lang, label } = Astro.props;
+---
+
+<div class="code-box">
+  <div class="code-head">
+    <span class="code-label">{label}</span>
+    <button class="code-copy" type="button" aria-label="Copy code" hidden>
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+        <path
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="square"
+          d="M5.25 5.25h8.5v8.5h-8.5zM10.75 5.25v-3.5h-8.5v8.5h3"
+        ></path>
+      </svg>
+      <span class="code-copy-text" aria-hidden="true">Copy</span>
+    </button>
+  </div>
+  <Code code={code} lang={lang} theme="css-variables" wrap={null} />
+  <span class="code-status" role="status" aria-live="polite"></span>
+</div>
+
+<style>
+  .code-box {
+    /* Shiki's css-variables theme, in the site's colors: ink for keywords and names, a faint comment,
+       one quiet green for strings and one for constants */
+    --astro-code-foreground: var(--copy);
+    --astro-code-background: transparent;
+    --astro-code-token-constant: color-mix(in srgb, var(--accent-2) 30%, var(--copy));
+    --astro-code-token-string: color-mix(in srgb, var(--accent-3) 34%, var(--copy));
+    --astro-code-token-string-expression: color-mix(in srgb, var(--accent-3) 34%, var(--copy));
+    --astro-code-token-comment: var(--faint);
+    --astro-code-token-keyword: var(--lead);
+    --astro-code-token-parameter: var(--copy);
+    --astro-code-token-function: var(--copy);
+    --astro-code-token-punctuation: var(--muted);
+    --astro-code-token-link: var(--copy);
+
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0 0 16px;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--ink) 9%, transparent);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--ink) 2.5%, transparent);
+  }
+
+  .code-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 28px;
+    padding: 0 8px 0 14px;
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 9%, transparent);
+    color: var(--faint);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+  }
+
+  .code-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 3px 6px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .code-copy[hidden] {
+    display: none;
+  }
+
+  .code-copy:is(:hover, :focus-visible) {
+    border-color: color-mix(in srgb, var(--ink) 16%, transparent);
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+    color: var(--ink);
+  }
+
+  .code-copy:focus-visible {
+    outline: 1px solid color-mix(in srgb, var(--ink) 70%, transparent);
+    outline-offset: 2px;
+  }
+
+  .code-copy svg {
+    flex: none;
+  }
+
+  .code-box :global(pre.astro-code) {
+    margin: 0;
+    padding: 14px 16px;
+    overflow-x: auto;
+    background: none;
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.6;
+    tab-size: 2;
+  }
+
+  .code-box :global(pre.astro-code code) {
+    padding: 0;
+    background: none;
+    font-size: inherit;
+  }
+
+  /* Keywords in ink, a little heavier */
+  .code-box :global(span[style*='--astro-code-token-keyword']) {
+    font-weight: 500;
+  }
+
+  .code-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Page view: a sheet has no scrolling, long lines wrap */
+  :global(.doc[data-view='pages']) .code-box :global(pre.astro-code) {
+    overflow: visible;
+    font-size: 13px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  @media print {
+    .code-head {
+      display: none;
+    }
+  }
+</style>
