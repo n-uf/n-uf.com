@@ -159,14 +159,22 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     z-index: 1;
   }
 
-  /* The link fills the box and the box clips, so the ring is drawn on the box itself */
-  .sheet-box:has(.open:focus-visible) {
+  /* The link fills the box and the box clips, so the ring is drawn on the box itself.
+     Without :has() (Firefox before 121) the link keeps its own ring, drawn inside. */
+  .open:focus-visible {
     outline: 2px solid var(--ink);
-    outline-offset: 3px;
+    outline-offset: -3px;
   }
 
-  .open:focus-visible {
-    outline: none;
+  @supports selector(:has(a)) {
+    .sheet-box:has(.open:focus-visible) {
+      outline: 2px solid var(--ink);
+      outline-offset: 3px;
+    }
+
+    .open:focus-visible {
+      outline: none;
+    }
   }
 
   .cap,
