@@ -56,6 +56,7 @@ const SHARED_SOURCES = [
   // the paper of the /papyrus page, which the sheets reuse: a change there reprints the articles too
   'src/components/PapyrusLeaf.astro',
   'src/components/ExtLink.astro',
+  'src/data/ext-arrow.mjs',
   'src/components/papyrus-samples/documents.mjs',
   'src/styles/article.css',
   'src/styles/global.css',

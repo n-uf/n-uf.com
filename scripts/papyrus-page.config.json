@@ -7,6 +7,7 @@
     "../src/components/PapyrusLeaf.astro",
     "../src/components/PapyrusCode.astro",
     "../src/components/ExtLink.astro",
+    "../src/data/ext-arrow.mjs",
     "../src/components/PapyrusSpecimens.astro",
     "../src/components/papyrus-samples/documents.mjs",
     "../public/papyrus-samples/fonts"

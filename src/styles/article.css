@@ -310,13 +310,19 @@
   text-underline-offset: 3px;
 }
 
-/* The ↗ after an external link in the markdown (ExtLink gives the same to the hand-written ones) */
+/* The drawn arrow after an external link in the markdown (src/data/ext-arrow.mjs; ExtLink gives the same to the
+   hand-written ones) */
 .article .ext-arrow {
   display: inline-block;
-  margin-left: 0.2em;
+  margin-left: 0.25em;
   color: var(--muted);
-  font-size: 0.8em;
   text-decoration: none;
+}
+
+.article .ext-arrow svg {
+  display: block;
+  width: 0.55em;
+  height: 0.55em;
 }
 
 .article .leaf-body code {
