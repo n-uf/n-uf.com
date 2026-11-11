@@ -7,7 +7,8 @@
 // Plain JS with no Astro imports, so the config, the script and the tests can load it.
 import fs from "node:fs";
 import path from "node:path";
-import { isDraft } from "./front-matter.mjs";
+import { frontMatterValue, isDraft, utcDay } from "./front-matter.mjs";
+import { liveTargets } from "./live-blocks.mjs";
 
 export const PDF_DIR = "src/article-pdfs";
 export const PDF_URL = "/papyrus/pdf";
@@ -57,4 +58,24 @@ export function copyShownPdfs({ root = process.cwd(), outDir, showDrafts }) {
     copied.push(slug);
   }
   return copied;
+}
+
+/**
+ * What a PDF's print layout takes from other articles: for each {{live:/papyrus/<slug>}} block in the text, the day that
+ * article goes live (its `published`). The layout keeps a block only if its target is live by the article's own day
+ * (src/scripts/paginate.ts), so moving a date can change the PDF: the script fingerprints this trailer with the article.
+ * @param {string} text an article's markdown
+ * @param {string} [root]
+ * @returns {string} "" when the article has no blocks
+ */
+export function liveDatesTrailer(text, root = process.cwd()) {
+  const lines = [];
+  for (const target of [...liveTargets(text)].sort()) {
+    const slug = target.match(/^\/papyrus\/([a-z0-9-]+)$/)?.[1];
+    if (!slug) continue;
+    const file = path.join(root, SECTION_DIR, `${slug}.md`);
+    const raw = fs.existsSync(file) ? frontMatterValue(fs.readFileSync(file, "utf8"), "published") : null;
+    lines.push(`<!-- live-from ${target} ${(raw !== null && utcDay(raw)) || "none"} -->`);
+  }
+  return lines.length ? `\n${lines.join("\n")}\n` : "";
 }

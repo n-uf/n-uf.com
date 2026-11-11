@@ -30,14 +30,14 @@
  * PAPYRUS_CHROMIUM_PATH picks the browser; on a Mac the installed Google Chrome is the default.
  */
 
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
 import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PDF_DIR, articleSlugs, readSizes } from '../src/data/article-pdfs.mjs';
+import { PDF_DIR, articleSlugs, liveDatesTrailer, readSizes } from '../src/data/article-pdfs.mjs';
 import { withoutDraftLine } from '../src/data/front-matter.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -57,6 +57,13 @@ const SHARED_SOURCES = [
   'src/styles/global.css',
   'src/scripts/paginate.ts',
   'src/layouts/Layout.astro',
+  // code that turns the markdown and the front matter into the page the PDF is printed from
+  'src/data/live-blocks.mjs',
+  'src/data/live.ts',
+  'src/data/inline-code.mjs',
+  'src/data/articles.ts',
+  'src/content.config.ts',
+  'astro.config.mjs',
 ];
 
 /** The `papyrus` bin of the installed @n-uf/papyrus (its exports map hides package.json) */
@@ -68,12 +75,54 @@ function papyrusCli() {
   return path.join(dir, typeof pkg.bin === 'string' ? pkg.bin : pkg.bin.papyrus);
 }
 
-/** Runs `papyrus` and resolves to its exit code. Async, not spawnSync: this process also serves the pages it prints. */
-function runPapyrus(cliArgs, { cwd, env }) {
+// What is running or made, so Ctrl+C or a kill leaves nothing behind
+const children = new Set();
+const cleanups = [];
+function stopAll(code) {
+  for (const child of children) child.kill('SIGTERM');
+  for (const cleanup of cleanups.splice(0).reverse()) {
+    try {
+      cleanup();
+    } catch {
+      /* the folder or server is already gone */
+    }
+  }
+  process.exit(code);
+}
+process.on('SIGINT', () => stopAll(130));
+process.on('SIGTERM', () => stopAll(143));
+
+/**
+ * Runs a command and resolves to its exit code; one that runs longer than `timeoutMs` is stopped (exit code 1).
+ * Async, not spawnSync: this process also serves the pages papyrus prints, and must hear Ctrl+C.
+ */
+function runChild(command, cliArgs, { cwd, env, timeoutMs }) {
   return new Promise((resolve) => {
-    spawn(process.execPath, [papyrusCli(), ...cliArgs], { stdio: 'inherit', cwd, env }).on('close', (code) => resolve(code ?? 1));
+    const child = spawn(command, cliArgs, { stdio: 'inherit', cwd, env });
+    children.add(child);
+    const timer = setTimeout(() => {
+      console.error(`article-pdfs: ${path.basename(command)} ran for more than ${Math.round(timeoutMs / 1000)} s; stopping it.`);
+      child.kill('SIGTERM');
+    }, timeoutMs);
+    const done = (code) => {
+      clearTimeout(timer);
+      children.delete(child);
+      resolve(code ?? 1);
+    };
+    child.on('error', (error) => {
+      console.error(`article-pdfs: could not run ${command}: ${error.message}`);
+      done(1);
+    });
+    child.on('close', done);
   });
 }
+
+/** Runs `papyrus` and resolves to its exit code. */
+const runPapyrus = (cliArgs, { cwd, env, timeoutMs }) => runChild(process.execPath, [papyrusCli(), ...cliArgs], { cwd, env, timeoutMs });
+
+const CHECK_TIMEOUT_MS = 2 * 60 * 1000;
+const BUILD_TIMEOUT_MS = 5 * 60 * 1000;
+const PRINT_TIMEOUT_MS = 15 * 60 * 1000;
 
 /** Writes the papyrus config and each article's fingerprinted source; returns the slugs. */
 function prepare() {
@@ -84,7 +133,9 @@ function prepare() {
   const rel = (file) => path.relative(workDir, file).split(path.sep).join('/');
   for (const slug of slugs) {
     const text = fs.readFileSync(path.join(root, 'src', 'content', 'papyrus', `${slug}.md`), 'utf8');
-    fs.writeFileSync(path.join(sourcesDir, `${slug}.md`), withoutDraftLine(text));
+    // The article without its draft line, and the go-live days of the articles its {{live:}} blocks point at: the print
+    // layout keeps a block only if its target is live by this article's day, so a moved date reprints the PDF
+    fs.writeFileSync(path.join(sourcesDir, `${slug}.md`), withoutDraftLine(text) + liveDatesTrailer(text, root));
   }
   const config = {
     docUrl: '/papyrus/{id}?print=1',
@@ -126,7 +177,8 @@ function serve(dir) {
     }
     const base = path.join(dir, path.normalize(pathname));
     const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.woff2': 'font/woff2', '.png': 'image/png', '.svg': 'image/svg+xml' };
-    const found = [base, `${base}.html`, path.join(base, 'index.html')].find((f) => f.startsWith(dir) && fs.existsSync(f) && fs.statSync(f).isFile());
+    const inside = (f) => f === dir || f.startsWith(dir + path.sep);
+    const found = [base, `${base}.html`, path.join(base, 'index.html')].find((f) => inside(f) && fs.existsSync(f) && fs.statSync(f).isFile());
     if (!found) {
       res.writeHead(404).end('not found');
       return;
@@ -140,7 +192,7 @@ function serve(dir) {
 if (flag('--check')) {
   const slugs = prepare();
   if (slugs.length > 0) {
-    if ((await runPapyrus(['pdf', '--config', configFile, '--check'], { cwd: root, env: process.env })) !== 0) {
+    if ((await runPapyrus(['pdf', '--config', configFile, '--check'], { cwd: root, env: process.env, timeoutMs: CHECK_TIMEOUT_MS })) !== 0) {
       fail('Some article PDFs are missing or older than their sources.');
     }
   }
@@ -156,24 +208,26 @@ if (flag('--check')) {
   }
   fs.mkdirSync(outDir, { recursive: true });
   const built = fs.mkdtempSync(path.join(os.tmpdir(), 'article-pdfs-build-'));
+  cleanups.push(() => fs.rmSync(built, { recursive: true, force: true }));
   let status = 1;
   try {
     // A preview build, so drafts are in it; its own copy step publishes the PDFs that exist, which is harmless here
-    const build = spawnSync('pnpm', ['exec', 'astro', 'build', '--outDir', built], {
+    const buildStatus = await runChild('pnpm', ['exec', 'astro', 'build', '--outDir', built], {
       cwd: root,
-      stdio: 'inherit',
       env: { ...process.env, VERCEL_ENV: 'preview' },
+      timeoutMs: BUILD_TIMEOUT_MS,
     });
-    if (build.status !== 0) throw new Error('the preview build failed');
+    if (buildStatus !== 0) throw new Error('the preview build failed');
     prepare(); // astro clears its .astro folder, with the config in it
     const { server, port } = await serve(built);
+    cleanups.push(() => server.close());
     try {
       const env = { ...process.env };
       if (!env.PAPYRUS_CHROMIUM_PATH && fs.existsSync(MAC_CHROME)) env.PAPYRUS_CHROMIUM_PATH = MAC_CHROME;
       const only = option('--only');
       status = await runPapyrus(
         ['pdf', '--config', configFile, '--base-url', `http://127.0.0.1:${port}`, ...(only ? ['--only', only] : [])],
-        { cwd: process.env.PAPYRUS_PLAYWRIGHT_DIR || root, env },
+        { cwd: process.env.PAPYRUS_PLAYWRIGHT_DIR || root, env, timeoutMs: PRINT_TIMEOUT_MS },
       );
     } finally {
       server.close();
