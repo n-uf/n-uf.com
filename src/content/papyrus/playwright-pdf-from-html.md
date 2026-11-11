@@ -211,7 +211,7 @@ If your page elements aren't one per printed page, hard-code the number you expe
 
 ## Puppeteer, in short
 
-Puppeteer does the same job with a different API. Its home page says it controls Chrome or Firefox over the DevTools Protocol or WebDriver BiDi, headless by default, and its `Page.pdf()` also prints with the `print` CSS media type. Neither project's PDF pages say anything about page-break rules, so a Puppeteer PDF page break is a CSS question either way; [the page-break article](/papyrus/css-page-break-print) covers it.
+Puppeteer does the same job with a different API. Its home page says it controls Chrome or Firefox over the DevTools Protocol or WebDriver BiDi, headless by default, and its `Page.pdf()` also prints with the `print` CSS media type. Neither project's PDF pages say anything about page-break rules, so a Puppeteer PDF page break is a CSS question either way; [the page-break article](/papyrus/css-page-break-print) covers it.{{live:/papyrus/html-to-pdf-nodejs}} How Playwright and Puppeteer compare with the other Node routes is in [convert html to pdf nodejs](/papyrus/html-to-pdf-nodejs).{{/live}}
 
 | | Playwright | Puppeteer |
 | --- | --- | --- |
