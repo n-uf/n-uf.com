@@ -55,6 +55,8 @@ if (/<h1[\s>]/i.test(html)) {
   throw new Error(`${file}: the body has a "# " heading (an h1); the page's h1 comes from the front matter, start body headings at "##"`);
 }
 const related = await Promise.all(data.related.map(async (to: string) => ({ path: to, ...(await pageInfo(to)) })));
+// The contents list on the first sheet: the body's "## " sections, numbered as the headings are (article.css counter)
+const toc = [...html.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map((m, i) => ({ id: m[1], html: m[2], n: i + 1 }));
 
 // Front matter may hold `inline code` (takeaways, FAQ, related cards): shown as <code> on the page, and as plain text,
 // backticks removed, in the meta tags and the structured data (src/data/inline-code.mjs)
@@ -89,38 +91,84 @@ const structuredData = [
   ogType="article"
   structuredData={structuredData}
 >
-  <div class="doc article">
-    <nav class="crumbs" aria-label="Breadcrumb">
-      <a href="/">n-uf</a>
-      <span aria-hidden="true">/</span>
-      <a href={section.path}>{section.label}</a>
-      <span aria-hidden="true">/</span>
-      <span aria-current="page">{data.h1}</span>
-    </nav>
+  <div class="reader article">
+    <div class="reader-bar">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">n-uf</a>
+        <span aria-hidden="true">/</span>
+        <a href={section.path}>{section.label}</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{data.h1}</span>
+      </nav>
+      <div class="reader-tools">
+        <button type="button" class="tool" data-print hidden>Print as A4</button>
+        <a class="tool" href={section.repoUrl} rel="noopener">
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+            ></path>
+          </svg>
+          <span>{section.repoName}</span>
+        </a>
+      </div>
+    </div>
 
+    <script is:inline>
+      // Wide screens show the article on A4 sheets; hide the paper until the sheets are laid out, so nothing jumps
+      if (matchMedia('(min-width: 900px)').matches) document.documentElement.classList.add('paginating');
+    </script>
     <main>
-      <article>
-        <h1>{data.h1}</h1>
+      <article class="paper" data-paper>
+        <div class="sheet">
+          <div class="sheet-head" aria-hidden="true">
+            <span class="sheet-mark"><i></i><i></i><i></i><i></i><i></i><b>{section.label}</b></span>
+            <span class="sheet-title">{plainText(data.h1)}</span>
+          </div>
+          <div class="sheet-body">
+            <header class="title-block">
+              <p class="kicker">{kindLabel[data.kind]} · n-uf</p>
+              <h1>{data.h1}</h1>
+              <p class="byline">
+                Updated <time datetime={data.updated.toISOString().slice(0, 10)}>{dateText(data.updated)}</time>
+                {scheduled && (
+                  <>
+                    · <span class="scheduled">Scheduled for <time datetime={data.published.toISOString().slice(0, 10)}>{dateText(data.published)}</time></span>
+                  </>
+                )}
+              </p>
+            </header>
 
-        <p class="byline">
-          {kindLabel[data.kind]} · Updated <time datetime={data.updated.toISOString().slice(0, 10)}>{dateText(data.updated)}</time>
-          {scheduled && (
-            <>
-              · <span class="scheduled">Scheduled for <time datetime={data.published.toISOString().slice(0, 10)}>{dateText(data.published)}</time></span>
-            </>
-          )}
-        </p>
+            <aside class="takeaways" aria-label="Key takeaways">
+              <p class="box-title">Key takeaways</p>
+              <ul>
+                {data.takeaways.map((takeaway: string) => <li set:html={inlineCodeHtml(takeaway)} />)}
+              </ul>
+            </aside>
 
-        <aside class="takeaways" aria-label="Key takeaways">
-          <p class="box-title">Key takeaways</p>
-          <ul>
-            {data.takeaways.map((takeaway: string) => <li set:html={inlineCodeHtml(takeaway)} />)}
-          </ul>
-        </aside>
+            {
+              toc.length > 0 && (
+                <nav class="toc" aria-labelledby="toc-title">
+                  <p class="box-title" id="toc-title">Contents</p>
+                  <ol>
+                    {toc.map((item) => (
+                      <li>
+                        <a href={`#${item.id}`}>
+                          <span class="toc-no">{item.n}</span>
+                          <span class="toc-text" set:html={item.html} />
+                          <span class="toc-leader" aria-hidden="true" />
+                          <span class="toc-page" data-page-of={item.id} />
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+              )
+            }
 
-        <div class="prose" set:html={html} />
+            <div class="prose flow" set:html={html} />
 
-        <section class="faq" aria-labelledby="faq-title">
+            <section class="faq flow" aria-labelledby="faq-title">
           <h2 id="faq-title">Questions people ask</h2>
           {
             data.faq.map(({ q, a }: { q: string; a: string }) => (
@@ -134,21 +182,21 @@ const structuredData = [
 
         {
           data.sources.length > 0 && (
-            <section class="sources" aria-labelledby="sources-title">
+            <section class="sources flow" aria-labelledby="sources-title">
               <h2 id="sources-title">Sources</h2>
-              <ul>
+              <ol>
                 {data.sources.map((source) => (
                   <li>
                     <a href={source.url} rel="noopener">{source.title}</a>{' '}
                     <span class="checked">checked {dateText(source.checked)}</span>
                   </li>
                 ))}
-              </ul>
+              </ol>
             </section>
           )
         }
 
-        <section class="related" aria-labelledby="related-title">
+        <section class="related flow" aria-labelledby="related-title">
           <h2 id="related-title">Related</h2>
           <ul>
             {
@@ -160,21 +208,15 @@ const structuredData = [
               ))
             }
           </ul>
-        </section>
-
-        <p class="repo-row">
-          <a class="repo" href={section.repoUrl}>
-            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
-              <path
-                fill="currentColor"
-                d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
-              ></path>
-            </svg>
-            <span>Source on GitHub</span>
-            <span class="repo-path">{section.repoName}</span>
-          </a>
-        </p>
+            </section>
+          </div>
+          <div class="sheet-foot" aria-hidden="true">
+            <span>n-uf.com{path}</span>
+            <span class="folio" />
+          </div>
+        </div>
       </article>
     </main>
   </div>
+  <script src="../../scripts/paginate.ts"></script>
 </Layout>

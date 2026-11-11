@@ -1,0 +1,118 @@
+// Lays an article out on A4 sheets on wide screens, the way papyrus lays out documents: fixed sheets, one page each,
+// with a running head, a folio ("Page 2 of 5") and page numbers in the contents list.
+// The server HTML is one long sheet with every word in it (what crawlers, narrow screens and no-JS readers get); this
+// only moves the same blocks into more sheets. Blocks are never split: a block that doesn't fit starts the next sheet,
+// taking with it a heading or a "…:" sentence left at the bottom; a block taller than a sheet gets a sheet that grows.
+
+const WIDE = '(min-width: 900px)';
+
+function paginate(paper: HTMLElement): void {
+  const first = paper.querySelector<HTMLElement>('.sheet');
+  const head = first?.querySelector<HTMLElement>('.sheet-head');
+  const foot = first?.querySelector<HTMLElement>('.sheet-foot');
+  const body = first?.querySelector<HTMLElement>('.sheet-body');
+  if (!first || !head || !foot || !body) return;
+
+  // The blocks in reading order; a block inside a .flow wrapper (the body, the FAQ, sources, related) remembers it,
+  // so each sheet gets its own shallow copy of the wrapper and the wrapper's styles still apply
+  const items: { el: Element; wrap: Element | null }[] = [];
+  for (const child of Array.from(body.children)) {
+    if (child.classList.contains('flow')) {
+      for (const inner of Array.from(child.children)) items.push({ el: inner, wrap: child });
+    } else {
+      items.push({ el: child, wrap: null });
+    }
+  }
+
+  const sheets: HTMLElement[] = [];
+  paper.textContent = '';
+  const newSheet = (): HTMLElement => {
+    const sheet = first.cloneNode(false) as HTMLElement;
+    sheet.classList.add('paged');
+    const sheetBody = body.cloneNode(false) as HTMLElement;
+    sheet.append(head.cloneNode(true), sheetBody, foot.cloneNode(true));
+    paper.append(sheet);
+    sheets.push(sheet);
+    return sheetBody;
+  };
+
+  let current = newSheet();
+  let wrapOf: Element | null = null;
+  let wrapCopy: Element | null = null;
+  const place = (el: Element, wrap: Element | null): Element => {
+    if (!wrap) {
+      wrapOf = null;
+      wrapCopy = null;
+      current.append(el);
+      return current;
+    }
+    if (wrapOf !== wrap || !wrapCopy || wrapCopy.parentElement !== current) {
+      wrapCopy = wrap.cloneNode(false) as Element;
+      current.append(wrapCopy);
+      wrapOf = wrap;
+    }
+    wrapCopy.append(el);
+    return wrapCopy;
+  };
+  const overflows = (): boolean => current.scrollHeight > current.clientHeight + 1;
+  const blocksOnSheet = (): number => current.querySelectorAll(':scope > :not(.flow), :scope > .flow > *').length;
+
+  for (const { el, wrap } of items) {
+    const container = place(el, wrap);
+    if (!overflows()) continue;
+    if (blocksOnSheet() === 1) {
+      // Taller than a sheet on its own: this sheet grows to fit it
+      current.parentElement?.classList.add('tall');
+      continue;
+    }
+    // Start the next sheet with this block, and with any heading it would leave alone at the bottom
+    const carry: Element[] = [el];
+    el.remove();
+    let last = container.lastElementChild;
+    // Keep with the block: a heading, or a sentence that ends in a colon and introduces it
+    const keepsWithNext = (block: Element): boolean =>
+      /^H[2-4]$/.test(block.tagName) || (block.tagName === 'P' && /:\s*$/.test(block.textContent ?? ''));
+    while (last && keepsWithNext(last) && blocksOnSheet() > 1) {
+      carry.unshift(last);
+      last.remove();
+      last = container.lastElementChild;
+    }
+    if (container !== current && container.children.length === 0) container.remove();
+    current = newSheet();
+    wrapOf = null;
+    wrapCopy = null;
+    for (const block of carry) place(block, wrap);
+    if (overflows()) current.parentElement?.classList.add('tall');
+  }
+
+  sheets.forEach((sheet, index) => {
+    const folio = sheet.querySelector('.folio');
+    if (folio) folio.textContent = `Page ${index + 1} of ${sheets.length}`;
+  });
+  for (const slot of Array.from(paper.querySelectorAll<HTMLElement>('[data-page-of]'))) {
+    const target = document.getElementById(slot.dataset.pageOf ?? '');
+    const sheet = target?.closest<HTMLElement>('.sheet');
+    if (sheet) slot.textContent = String(sheets.indexOf(sheet) + 1);
+  }
+}
+
+const paper = document.querySelector<HTMLElement>('[data-paper]');
+if (paper) {
+  const original = paper.innerHTML;
+  const wide = matchMedia(WIDE);
+  const layout = (): void => {
+    paper.innerHTML = original;
+    if (wide.matches) paginate(paper);
+    document.documentElement.classList.remove('paginating');
+  };
+  // Lay out once the web fonts are in, so the sheets break where they'll stay; never wait longer than 1.5 s
+  const fontsReady = document.fonts?.ready ?? Promise.resolve();
+  Promise.race([fontsReady, new Promise((resolve) => setTimeout(resolve, 1500))]).then(layout);
+  wide.addEventListener('change', layout);
+
+  const print = document.querySelector<HTMLButtonElement>('[data-print]');
+  if (print) {
+    print.hidden = false;
+    print.addEventListener('click', () => window.print());
+  }
+}
