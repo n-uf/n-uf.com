@@ -16,6 +16,7 @@ import {
   showDrafts,
   type Entry,
 } from '../../data/articles';
+import { inlineCodeHtml, plainText } from '../../data/inline-code.mjs';
 import { withLiveBlocks } from '../../data/live';
 import { breadcrumbList, faqPage, techArticle } from '../../data/schema';
 
@@ -55,11 +56,15 @@ if (/<h1[\s>]/i.test(html)) {
 }
 const related = await Promise.all(data.related.map(async (to: string) => ({ path: to, ...(await pageInfo(to)) })));
 
+// Front matter may hold `inline code` (takeaways, FAQ, related cards): shown as <code> on the page, and as plain text,
+// backticks removed, in the meta tags and the structured data (src/data/inline-code.mjs)
+const plainFaq = data.faq.map(({ q, a }: { q: string; a: string }) => ({ q: plainText(q), a: plainText(a) }));
+
 const structuredData = [
   techArticle({
     path,
-    headline: data.h1,
-    description: data.description,
+    headline: plainText(data.h1),
+    description: plainText(data.description),
     published: data.published,
     updated: data.updated,
     image,
@@ -68,19 +73,19 @@ const structuredData = [
   breadcrumbList([
     { name: 'n-uf', path: '/' },
     { name: section.label, path: section.path },
-    { name: data.h1, path },
+    { name: plainText(data.h1), path },
   ]),
-  faqPage(data.faq),
+  faqPage(plainFaq),
 ];
 ---
 
 <Layout
-  title={data.title}
-  description={data.description}
+  title={plainText(data.title)}
+  description={plainText(data.description)}
   path={path}
   robots={scheduled ? 'noindex' : 'index, follow'}
   image={image}
-  imageAlt={data.h1}
+  imageAlt={plainText(data.h1)}
   ogType="article"
   structuredData={structuredData}
 >
@@ -109,7 +114,7 @@ const structuredData = [
         <aside class="takeaways" aria-label="Key takeaways">
           <p class="box-title">Key takeaways</p>
           <ul>
-            {data.takeaways.map((takeaway: string) => <li>{takeaway}</li>)}
+            {data.takeaways.map((takeaway: string) => <li set:html={inlineCodeHtml(takeaway)} />)}
           </ul>
         </aside>
 
@@ -120,8 +125,8 @@ const structuredData = [
           {
             data.faq.map(({ q, a }: { q: string; a: string }) => (
               <>
-                <h3>{q}</h3>
-                <p>{a}</p>
+                <h3 set:html={inlineCodeHtml(q)} />
+                <p set:html={inlineCodeHtml(a)} />
               </>
             ))
           }
@@ -149,8 +154,8 @@ const structuredData = [
             {
               related.map((item) => (
                 <li>
-                  <a href={item.path}>{item.title}</a>
-                  <span class="related-note">{item.description}</span>
+                  <a href={item.path} set:html={inlineCodeHtml(item.title)} />
+                  <span class="related-note" set:html={inlineCodeHtml(item.description)} />
                 </li>
               ))
             }

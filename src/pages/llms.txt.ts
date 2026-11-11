@@ -8,6 +8,7 @@ import {
   studioSummary,
   type Project,
 } from "../data/projects";
+import { plainText } from "../data/inline-code.mjs";
 import { articlePath, getArticles, sections, type Entry, type SectionKey } from "../data/articles";
 
 // The live articles of each project that has a collection, listed under that project (drafts only in previews)
@@ -19,7 +20,7 @@ for (const key of Object.keys(sections) as SectionKey[]) {
       "- Articles:",
       ...entries.map(
         (entry: Entry) =>
-          `  - [${entry.data.h1}](${new URL(articlePath(key, entry.id), siteUrl).href}): ${entry.data.description}`,
+          `  - [${plainText(entry.data.h1)}](${new URL(articlePath(key, entry.id), siteUrl).href}): ${plainText(entry.data.description)}`,
       ),
     ];
   }
