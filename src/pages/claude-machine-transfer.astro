@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { siteUrl, studioId } from '../data/projects';
+import { externalAttrs, newTabNote } from '../data/links';
 
 const pageTitle: string = 'machine-transfer: move a Claude Code workspace to a new Mac';
 const pageDescription: string =
@@ -62,7 +63,7 @@ const breadcrumbs: Record<string, unknown> = {
         <h1>Move a Claude Code workspace to a new Mac</h1>
 
         <p class="repo-row">
-          <a class="repo" href={repoUrl}>
+          <a class="repo" href={repoUrl} {...externalAttrs(repoUrl)}>
             <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
               <path
                 fill="currentColor"
@@ -71,6 +72,7 @@ const breadcrumbs: Record<string, unknown> = {
             </svg>
             <span>Source on GitHub</span>
             <span class="repo-path">n-uf/claude-machine-transfer</span>
+            <span class="sr-only">{newTabNote}</span>
           </a>
         </p>
 
@@ -240,7 +242,7 @@ const breadcrumbs: Record<string, unknown> = {
           copied, <code>/machine-transfer:machine-transfer</code> as a plugin).
         </p>
         <p>
-          Source on GitHub: <a href={repoUrl}>n-uf/claude-machine-transfer</a>. Open source under
+          Source on GitHub: <a href={repoUrl} {...externalAttrs(repoUrl)}>n-uf/claude-machine-transfer<span class="sr-only">{newTabNote}</span></a>. Open source under
           the MIT licence: use it, change it and share it.
         </p>
 

@@ -10,6 +10,7 @@ import {
   githubOrgUrl,
   type Project,
 } from '../data/projects';
+import { externalAttrs, isExternal, newTabNote } from '../data/links';
 
 // What a search result shows: name what is here (Google cuts titles near 60 characters,
 // descriptions near 155). The studio summary stays in the footer and the Organization data.
@@ -67,17 +68,24 @@ function repoLine(repo: string): string {
             return (
               <li data-bar={String(index % 5)}>
                 <h2 class="name-heading">
-                  <a class="name" href={project.url}>
+                  <a class="name" href={project.url} {...externalAttrs(project.url)}>
                     {project.name}
+                    {isExternal(project.url) && <span class="sr-only">{newTabNote}</span>}
                   </a>
                 </h2>
                 <p class="desc">{project.tagline}</p>
                 <p class="meta">
-                  <a href={project.url}>{host}</a>
+                  <a href={project.url} {...externalAttrs(project.url)}>
+                    {host}
+                    {isExternal(project.url) && <span class="sr-only">{newTabNote}</span>}
+                  </a>
                 </p>
                 {repoHref !== undefined && repoText !== undefined && (
                   <p class="meta">
-                    <a href={repoHref}>{repoText}</a>
+                    <a href={repoHref} {...externalAttrs(repoHref)}>
+                      {repoText}
+                      <span class="sr-only">{newTabNote}</span>
+                    </a>
                   </p>
                 )}
               </li>
@@ -90,7 +98,9 @@ function repoLine(repo: string): string {
     <div class="foot">
       <p class="foot-summary">{studioSummary}</p>
       <p class="foot-link">
-        <a href={githubOrgUrl}>github.com/n-uf</a>
+        <a href={githubOrgUrl} {...externalAttrs(githubOrgUrl)}>
+          github.com/n-uf<span class="sr-only">{newTabNote}</span>
+        </a>
       </p>
     </div>
   </div>
