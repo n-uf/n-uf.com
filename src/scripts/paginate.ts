@@ -5,6 +5,12 @@
 // taking with it a heading or a "…:" sentence left at the bottom; a block taller than a sheet gets a sheet that grows.
 
 const WIDE = '(min-width: 900px)';
+// The `print-mode` class on <html> lays the article out on A4 sheets whatever the viewport width, with no reader bar,
+// and measures them with the wrapping the print CSS gives code and tables (article.css). The page sets it from `?print`
+// (any value): that is the page papyrus prints to the article's PDF (scripts/article-pdfs.mjs), whose A4 viewport is
+// 794 px, below WIDE. The Print as A4 button sets it while the print dialog is open.
+const PRINT_MODE = 'print-mode';
+const inPrintMode = (): boolean => document.documentElement.classList.contains(PRINT_MODE);
 
 function paginate(paper: HTMLElement): void {
   const first = paper.querySelector<HTMLElement>('.sheet');
@@ -102,7 +108,7 @@ if (paper) {
   const wide = matchMedia(WIDE);
   const layout = (): void => {
     paper.innerHTML = original;
-    if (wide.matches) paginate(paper);
+    if (wide.matches || inPrintMode()) paginate(paper);
     document.documentElement.classList.remove('paginating');
   };
   // Lay out once the web fonts are in, so the sheets break where they'll stay; never wait longer than 1.5 s
@@ -113,6 +119,22 @@ if (paper) {
   const print = document.querySelector<HTMLButtonElement>('[data-print]');
   if (print) {
     print.hidden = false;
-    print.addEventListener('click', () => window.print());
+    print.addEventListener('click', () => {
+      // Lay the sheets out as they print (code and tables wrap on paper, so they are taller than on screen), then
+      // put the screen layout back when the dialog closes
+      if (!inPrintMode()) {
+        document.documentElement.classList.add(PRINT_MODE);
+        layout();
+        addEventListener(
+          'afterprint',
+          () => {
+            document.documentElement.classList.remove(PRINT_MODE);
+            layout();
+          },
+          { once: true },
+        );
+      }
+      window.print();
+    });
   }
 }
