@@ -52,3 +52,20 @@ export function updatedDay(text) {
   const raw = frontMatterValue(text, "updated");
   return raw === null ? null : utcDay(raw);
 }
+
+/**
+ * The file text without its top-level `draft:` line. The publish flip changes only that line, so a PDF's source
+ * fingerprint (scripts/article-pdfs.mjs) is taken over this text: going live must not make the PDF stale.
+ * @param {string} text
+ * @returns {string}
+ */
+export function withoutDraftLine(text) {
+  const bom = BOMS.find((b) => text.startsWith(b))?.length ?? 0;
+  const fm = text.slice(bom).match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/);
+  if (!fm) return text;
+  const start = bom + fm[0].indexOf("\n") + 1; // where the front matter body starts
+  const body = fm[1];
+  const eol = /^---[ \t]*\r\n/.test(text.slice(bom)) ? "\r\n" : "\n";
+  const kept = body.split(/\r?\n/).filter((line) => !/^(["']?)draft\1[ \t]*:(?=[ \t]|$)/.test(line));
+  return text.slice(0, start) + kept.join(eol) + text.slice(start + body.length);
+}
