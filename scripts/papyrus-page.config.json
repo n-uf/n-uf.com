@@ -9,8 +9,6 @@
     "../src/components/ExtLink.astro",
     "../src/components/PapyrusSpecimens.astro",
     "../src/components/papyrus-samples/documents.mjs",
-    "../src/layouts/Layout.astro",
-    "../src/styles/global.css",
     "../public/papyrus-samples/fonts"
   ],
   "docs": [
