@@ -113,6 +113,28 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
   }
 </div>
 
+<script is:inline>
+  // iOS Safari resolves the CSS scale below (tan(atan2(100cqw, var(--sw)))) wrongly or not at all, which leaves a
+  // full-size sheet in a small box: a white corner. Measure each box instead and give its sheet the scale (--k).
+  // Measured once here, right after the markup, so the first paint is right; a ResizeObserver keeps it right when
+  // the box changes (window width, A4/Letter, page and web views). The CSS formula stays for when scripts are off.
+  (() => {
+    const boxes = document.querySelectorAll('.specimens .sheet-box');
+    const fit = (box) => {
+      const sheetWidth = parseFloat(box.style.getPropertyValue('--sw'));
+      const boxWidth = box.clientWidth;
+      if (!sheetWidth || !boxWidth) return;
+      box.style.setProperty('--k', String(boxWidth / sheetWidth));
+      box.setAttribute('data-k', '');
+    };
+    boxes.forEach(fit);
+    if ('ResizeObserver' in window) {
+      const observer = new ResizeObserver((entries) => entries.forEach((entry) => fit(entry.target)));
+      boxes.forEach((box) => observer.observe(box));
+    }
+  })();
+</script>
+
 <style>
   .specimens {
     /* Wider than the text column, so the sheets are big enough to read */
@@ -232,6 +254,14 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     transform-origin: 0 0;
     transform: scale(0.4);
     transform: scale(tan(atan2(100cqw, var(--sw))));
+  }
+
+  /* With scripts on, the measured scale (see the script above) wins over the formula, which iOS Safari gets wrong.
+     Screen only: print keeps its zoom rule below. */
+  @media screen {
+    .sheet-box[data-k] :global(.pdf-page) {
+      transform: scale(var(--k));
+    }
   }
 
   .open {
