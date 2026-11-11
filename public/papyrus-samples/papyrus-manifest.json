@@ -1,7 +1,7 @@
 {
   "docs": {
     "a4": {
-      "fingerprint": "ec9b1b609432ff727f05ab9a5200221fc9750efab2e4f8c9410cd681810f9676",
+      "fingerprint": "17544841b80f2821f25571a51d40ee57cb7909fdeb68c9a7dc876de40da90b0d",
       "file": "papyrus-a4.pdf",
       "pages": 5,
       "layout": "A4 .leaf"
@@ -18,7 +18,7 @@
       "pages": 2
     },
     "letter": {
-      "fingerprint": "ec9b1b609432ff727f05ab9a5200221fc9750efab2e4f8c9410cd681810f9676",
+      "fingerprint": "17544841b80f2821f25571a51d40ee57cb7909fdeb68c9a7dc876de40da90b0d",
       "file": "papyrus-letter.pdf",
       "pages": 5,
       "layout": "LETTER .leaf"
