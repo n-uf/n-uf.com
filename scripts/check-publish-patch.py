@@ -27,7 +27,8 @@ Exit 0: the patch is acceptable; the commit message is the only line on stdout, 
 Exit 2: wrong usage or an unreadable input file.
 
 The rules, all of which must hold:
-  0. The patch is smaller than 64 KB (65536 bytes).
+  0. The patch and the page list are each smaller than 64 KB (65536 bytes), checked by size before they are read.
+     Input the parser can't make sense of (an absurd number, say) is a refusal too, never a traceback.
   1. Every file in the patch is a plain modification (no new, deleted, renamed or copied file, no mode change, no
      binary patch) of an existing regular file src/content/<collection>/<slug>.md.
      Anything the parser does not know is refused.
@@ -76,6 +77,23 @@ def read_bytes(path):
     except OSError as e:
         print("check-publish-patch: cannot read %s: %s" % (path, e.strerror), file=sys.stderr)
         sys.exit(2)
+
+
+def read_input(path, what):
+    """An input file (the patch or the page list), refused unless it is under MAX_PATCH_BYTES. The size is checked
+    before anything is read, and the read itself stops one byte past the cap (the file could grow in between)."""
+    try:
+        size = os.path.getsize(path)
+        if size >= MAX_PATCH_BYTES:
+            refuse("the %s is %d bytes, too large to be a flip (the limit is %d)" % (what, size, MAX_PATCH_BYTES - 1))
+        with open(path, "rb") as f:
+            data = f.read(MAX_PATCH_BYTES)
+    except OSError as e:
+        print("check-publish-patch: cannot read %s: %s" % (path, e.strerror), file=sys.stderr)
+        sys.exit(2)
+    if len(data) >= MAX_PATCH_BYTES:
+        refuse("the %s is %d bytes or more, too large to be a flip (the limit is %d)" % (what, MAX_PATCH_BYTES, MAX_PATCH_BYTES - 1))
+    return data
 
 
 def split_lines(data):
@@ -234,8 +252,13 @@ def parse_patch(data, root, today):
         h = HUNK_RE.match(lines[i])
         if not h:
             refuse("%s: line %d is not a hunk header: %r" % (a, i + 1, lines[i][:80]))
+        # a flip hunk is a few lines near the top of the page: a long number is refused before int() reads it
+        if any(g is not None and len(g) > 6 for g in h.groups()[:4]):
+            refuse("%s: line %d: a hunk header with an absurd line number or count: %r" % (a, i + 1, lines[i][:80]))
         old_count = int(h.group(2)) if h.group(2) is not None else 1
         new_count = int(h.group(4)) if h.group(4) is not None else 1
+        if int(h.group(1)) < 1:
+            refuse("%s: line %d: the hunk starts at line 0 (a flip changes an existing line)" % (a, i + 1))
         i += 1
         seen_old = seen_new = 0
         old_side, removed_at = [], -1  # the context and removed lines, and where the removed one is
@@ -310,10 +333,9 @@ def main(argv):
         print(USAGE, file=sys.stderr)
         return 2
     patch_path, pages_path = args
-    patch, pages_raw = read_bytes(patch_path), read_bytes(pages_path)
     try:
-        if len(patch) >= MAX_PATCH_BYTES:
-            refuse("the patch is %d bytes, too large to be a flip (the limit is %d)" % (len(patch), MAX_PATCH_BYTES - 1))
+        patch = read_input(patch_path, "patch")
+        pages_raw = read_input(pages_path, "page list")
         pages = parse_pages(pages_raw)
         files = parse_patch(patch, root, today)
         from_patch = [re.sub(r"^src/content/", "", p)[:-3] for p in files]  # the patch's order
@@ -321,6 +343,10 @@ def main(argv):
             refuse("the page list (%s) does not match the files in the patch (%s)" % (", ".join(sorted(pages)), ", ".join(sorted(from_patch))))
     except Refused as e:
         print("check-publish-patch: refused: %s" % e, file=sys.stderr)
+        return 1
+    except (ValueError, OverflowError, IndexError) as e:
+        # input the rules above didn't foresee: still a refusal (exit 1), never a traceback
+        print("check-publish-patch: refused: unreadable input (%s: %s)" % (type(e).__name__, str(e)[:120]), file=sys.stderr)
         return 1
     print("publish: " + ", ".join(from_patch))
     return 0
