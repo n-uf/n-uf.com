@@ -1,7 +1,7 @@
 {
   "docs": {
     "css-page-break-print": {
-      "fingerprint": "daef6dc0ef796a5a8c6dee30185466a6357e0640ddcf3999066729fc3ff6c869",
+      "fingerprint": "25d30992df88ecb81a4e4f0ee82f0eaec3c564abbf67770f56ce78215331becf",
       "file": "css-page-break-print.pdf",
       "pages": 8,
       "layout": "A4 .leaf"
@@ -13,25 +13,25 @@
       "layout": "A4 .leaf"
     },
     "css-print-header-footer": {
-      "fingerprint": "b4bb6fdb8c127086df655599a546557fda8636e793e94f8ef2f7f30fbae6b577",
+      "fingerprint": "9c75b282fb8ded63447077e8cd422baacbb4257ef19bbea274d2a5460e9d11d0",
       "file": "css-print-header-footer.pdf",
       "pages": 9,
       "layout": "A4 .leaf"
     },
     "css-print-page-numbers": {
-      "fingerprint": "6121a7febf204d3339f25d45097d4267a98f66a09084deb49efd1b40175f4800",
+      "fingerprint": "ee94c42f5d9caf890b9f96393dce35955b7ace61c5efdb528baf8b573d2db158",
       "file": "css-print-page-numbers.pdf",
       "pages": 9,
       "layout": "A4 .leaf"
     },
     "html-to-pdf-nodejs": {
-      "fingerprint": "f45de7bf87e1f85a8b181311b3568fee5fef8a7db11cebb5939106f37c6d87ff",
+      "fingerprint": "6cd7740418a59ed50f4369529ea0b85399b1ed4684e459152182a3c30329cbb8",
       "file": "html-to-pdf-nodejs.pdf",
       "pages": 10,
       "layout": "A4 .leaf"
     },
     "playwright-pdf-from-html": {
-      "fingerprint": "b8c2176c3f179555a1af9c869dabfcc06e1afd4aa5c8df917dde417c67a8c642",
+      "fingerprint": "3e88104d56137122312c92f19fe9b6e3d2a1b57ba06649b99d6a8b04d2fc5d20",
       "file": "playwright-pdf-from-html.pdf",
       "pages": 9,
       "layout": "A4 .leaf"
@@ -43,7 +43,7 @@
       "layout": "A4 .leaf"
     },
     "wkhtmltopdf-alternative": {
-      "fingerprint": "dd68a604fd095418556b317671c3e313cdf53789cbc5969e2a55d49878a95ec2",
+      "fingerprint": "2537e1ee6c93463913dfc6657e412397222f3351404df6dfe792f182b69ff01c",
       "file": "wkhtmltopdf-alternative.pdf",
       "pages": 10,
       "layout": "A4 .leaf"
