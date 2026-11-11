@@ -128,7 +128,8 @@ test("push and verify-key take the same key check and the same ssh command, with
 
 test("verify-key only lists main over ssh: no checkout, push, apply, commit or artifact", () => {
   const job = code(jobBlocks["verify-key"]);
-  assert.match(job, /permissions:\n {6}contents: read\n/);
+  assert.match(jobBlocks["verify-key"], /\n {4}permissions: \{\} /);
+  assert.doesNotMatch(job, /contents: read/);
   assert.match(job, /with_key g ls-remote "\$remote" refs\/heads\/main/);
   for (const forbidden of [/ push /, /git apply/, /\bg(?:it)? commit\b/, /rebase/, /artifact/, /actions\/checkout/]) {
     assert.doesNotMatch(job, forbidden);

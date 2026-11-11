@@ -302,8 +302,7 @@ jobs:
     environment: publish
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    permissions:
-      contents: read
+    permissions: {}   # no checkout, no API call: the job's token needs nothing
     steps:
       - name: Check the deploy key secret
         env:
