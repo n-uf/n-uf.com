@@ -372,9 +372,47 @@
   .pdf-container { padding: 16px 0; }
   .pdf-container .pdf-page { zoom: tan(atan2(100vw, 794px)); margin-bottom: 16px; }
 }
+
+.sample-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 12px 16px;
+  background: #0a0a0c;
+  font-family: "Geist Mono Variable", "Geist Mono", ui-monospace, monospace;
+}
+.sample-bar a {
+  box-sizing: border-box;
+  padding: 8px 14px;
+  border: 1px solid rgb(242 242 240 / 0.16);
+  border-radius: 4px;
+  background: rgb(242 242 240 / 0.06);
+  color: #f2f2f0;
+  font-size: 13px;
+  line-height: 1.4;
+  text-decoration: none;
+}
+.sample-bar a:hover,
+.sample-bar a:focus-visible {
+  border-color: rgb(242 242 240 / 0.4);
+  background: rgb(242 242 240 / 0.1);
+}
+.sample-bar a:focus-visible {
+  outline: 1px solid rgb(242 242 240 / 0.7);
+  outline-offset: 3px;
+}
+@media print {
+  .sample-bar { display: none; }
+}
 </style>
 </head>
 <body>
+<nav class="sample-bar" aria-label="Sample document">
+<a href="/papyrus">← papyrus</a>
+<a href="fact-sheet.pdf" download>Download PDF · 2 pages · 169 KB</a>
+</nav>
 <div class="pdf-container sample">
 <section class="pdf-page" id="fact-sheet-page-1" data-papyrus-page-count="2" aria-label="papyrus fact sheet, page 1 of 2"><div class="pdf-main-content"><p class="eyebrow">Fact sheet · @n-uf/papyrus 26.11.2</p><h1 class="cover-title">papyrus</h1><p class="cover-sub">A documents engine for HTML and PDF.</p><p class="cover-text">Pages you write once, as HTML or React, are sheets on screen and pages in the PDF.</p><p class="callout"><strong>Not yet stable.</strong> The API, the page contract and the sheet styling are not final, and a release can break any of them. Pin an exact version and read the CHANGELOG first.</p><p class="label">Contents</p><ol class="toc"><li><span class="n">1.</span><span class="t">What it is</span><span class="leader" aria-hidden="true"></span><span class="pg">2</span></li><li><span class="n">2.</span><span class="t">Two packages, one version</span><span class="leader" aria-hidden="true"></span><span class="pg">2</span></li><li><span class="n">3.</span><span class="t">One element, one sheet, one page</span><span class="leader" aria-hidden="true"></span><span class="pg">2</span></li><li><span class="n">4.</span><span class="t">The PDF check</span><span class="leader" aria-hidden="true"></span><span class="pg">2</span></li><li><span class="n">A.</span><span class="t">Versions and licence</span><span class="leader" aria-hidden="true"></span><span class="pg">2</span></li></ol><p class="cover-text" style="margin-top:36px;color:var(--p-muted)">This sheet is itself a papyrus document: each page is an element with the class <code>pdf-page</code>, and its PDF was printed by <code>papyrus pdf</code> after the page count was checked.</p></div><div class="pfoot"><span>papyrus fact sheet</span><span>1 / 2</span></div></section>
 <section class="pdf-page" id="fact-sheet-page-2" data-papyrus-page-count="2" aria-label="papyrus fact sheet, page 2 of 2"><div class="pdf-main-content"><p class="running"><span>papyrus</span><span>n-uf.com/papyrus</span></p><div class="sec" style="margin-top:30px"><h2 class="sh"><span class="no">1.</span>What it is</h2><p>A documents engine for documents rendered as HTML and exported as PDF. It is framework-free, so it also runs without a bundler, and it contains no brand, copy or document content of its own.</p></div><div class="sec"><h2 class="sh"><span class="no">2.</span>Two packages, one version</h2><table><thead><tr><th>Package</th><th>What it is</th><th>Ships</th></tr></thead><tbody><tr><td><strong>@n-uf/papyrus</strong></td><td>The engine: page contract, sheets, document registry and PDF exporter.</td><td>Plain ESM JavaScript with type declarations</td></tr><tr><td><strong>@n-uf/papyrus-react</strong></td><td>React components built on the engine: page and content blocks, a React-typed registry and print styles.</td><td>TypeScript source</td></tr></tbody></table><p>The two packages always share one version number.</p></div><div class="sec"><h2 class="sh"><span class="no">3.</span>One element, one sheet, one page</h2><p>The class <code>pdf-page</code> marks a page: one element, one sheet on screen, one page in the PDF. <code>sheetCss()</code> gives it its size, A4 (210 × 297 mm) or Letter (8.5 × 11 in), and the exporter counts these elements to check the PDF.</p><pre><code>import { SHEETS, sheetCss } from "@n-uf/papyrus";

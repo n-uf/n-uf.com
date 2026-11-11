@@ -372,9 +372,47 @@
   .pdf-container { padding: 16px 0; }
   .pdf-container .pdf-page { zoom: tan(atan2(100vw, 816px)); margin-bottom: 16px; }
 }
+
+.sample-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 12px 16px;
+  background: #0a0a0c;
+  font-family: "Geist Mono Variable", "Geist Mono", ui-monospace, monospace;
+}
+.sample-bar a {
+  box-sizing: border-box;
+  padding: 8px 14px;
+  border: 1px solid rgb(242 242 240 / 0.16);
+  border-radius: 4px;
+  background: rgb(242 242 240 / 0.06);
+  color: #f2f2f0;
+  font-size: 13px;
+  line-height: 1.4;
+  text-decoration: none;
+}
+.sample-bar a:hover,
+.sample-bar a:focus-visible {
+  border-color: rgb(242 242 240 / 0.4);
+  background: rgb(242 242 240 / 0.1);
+}
+.sample-bar a:focus-visible {
+  outline: 1px solid rgb(242 242 240 / 0.7);
+  outline-offset: 3px;
+}
+@media print {
+  .sample-bar { display: none; }
+}
 </style>
 </head>
 <body>
+<nav class="sample-bar" aria-label="Sample document">
+<a href="/papyrus">← papyrus</a>
+<a href="release-notes.pdf" download>Download PDF · 1 page · 84 KB</a>
+</nav>
 <div class="pdf-container sample">
 <section class="pdf-page" id="release-notes-page-1" data-papyrus-page-count="1" aria-label="papyrus release notes, page 1 of 1"><div class="pdf-main-content"><p class="eyebrow">@n-uf/papyrus</p><h1 class="doc-title">Release notes</h1><p class="doc-sub">26.11.0 to 26.11.2</p><p class="callout"><strong>Same code throughout.</strong> All three releases ship the same code as 0.4.1; what changed is the versioning, the licence and where the package is released from.</p><div class="release"><h2 class="sh">26.11.2</h2><ul><li>The package's homepage is now its overview page, n-uf.com/papyrus. Same code as 26.11.1.</li></ul></div><div class="release"><h2 class="sh">26.11.1</h2><ul><li>Now released from its own repo, n-uf/papyrus, to npmjs (with provenance) as well as GitHub Packages. Same code as 26.11.0; the package now ships this CHANGELOG.</li></ul></div><div class="release"><h2 class="sh">26.11.0</h2><ul><li>Calendar versions (<code>YY.M.R</code>) from now on, like hypr-tiling, doodl and debugsy; <code>@n-uf/papyrus-react</code> shares the version. Same code as 0.4.1: <code>^0.4.x</code> ranges do not pick this up, so move them to <code>^26.11.0</code>.</li><li>License: PolyForm Perimeter 1.0.1 (was <code>UNLICENSED</code>); see <code>LICENSE</code>.</li></ul></div><p class="cover-text" style="margin-top:34px;color:var(--p-muted)">Source: <code>packages/papyrus/CHANGELOG.md</code> in n-uf/papyrus.</p></div><div class="pfoot"><span>@n-uf/papyrus release notes</span><span>1 / 1</span></div></section>
 </div>

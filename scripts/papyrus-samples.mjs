@@ -58,7 +58,20 @@ function papyrusCli() {
   return path.join(dir, typeof pkg.bin === 'string' ? pkg.bin : pkg.bin.papyrus);
 }
 
-const files = sampleDocs.map((doc) => ({ doc, file: path.join(outDir, doc.html), html: standaloneHtml(doc.id) }));
+// The HTML carries a bar with its PDF's size, so it is built from the PDFs as they are now
+const files = () =>
+  sampleDocs.map((doc) => ({
+    doc,
+    file: path.join(outDir, doc.html),
+    html: standaloneHtml(doc.id, pdfSizes()[doc.pdf]),
+  }));
+
+function writeHtml() {
+  for (const { file, html } of files()) {
+    fs.writeFileSync(file, html);
+    console.log(`wrote ${path.relative(root, file)}`);
+  }
+}
 
 /** Bytes of each committed PDF, as the page's "PDF · 2 pages · 169 KB" label reads them. */
 function pdfSizes() {
@@ -76,7 +89,7 @@ function fail(message) {
 }
 
 if (args.has('--check')) {
-  const stale = files.filter(({ file, html }) => !fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== html);
+  const stale = files().filter(({ file, html }) => !fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== html);
   if (stale.length) fail(`Out of date: ${stale.map((f) => path.relative(root, f.file)).join(', ')}.`);
 
   // PDFs against their sources (fingerprints in the manifest; no browser needed)
@@ -91,10 +104,7 @@ if (args.has('--check')) {
   console.log('papyrus samples: HTML, PDFs and sizes match their source.');
 } else if (args.has('--pdf')) {
   fs.mkdirSync(outDir, { recursive: true });
-  for (const { file, html } of files) {
-    fs.writeFileSync(file, html);
-    console.log(`wrote ${path.relative(root, file)}`);
-  }
+  writeHtml();
   // The CLI loads Playwright from its own folder, then from the working directory
   const base = pathToFileURL(outDir + path.sep).href;
   const status = run(['pdf', '--config', config, '--base-url', base], {
@@ -103,6 +113,7 @@ if (args.has('--check')) {
   if (status !== 0) process.exit(status);
   const pageStatus = await printPage();
   if (pageStatus !== 0) process.exit(pageStatus);
+  writeHtml(); // again: the bars show the sizes of the PDFs just printed
   fs.writeFileSync(sizesFile, `${JSON.stringify(pdfSizes(), null, 2)}\n`);
   console.log(`wrote ${path.relative(root, sizesFile)}`);
 } else if (args.has('--page')) {

@@ -3,17 +3,7 @@
   "outDir": "../public/papyrus-samples",
   "sources": ["../src/components/papyrus-samples/documents.mjs", "../public/papyrus-samples/fonts"],
   "docs": [
-    {
-      "id": "fact-sheet",
-      "sheet": "A4",
-      "pageCount": 2,
-      "sources": ["../public/papyrus-samples/fact-sheet.html"]
-    },
-    {
-      "id": "release-notes",
-      "sheet": "letter",
-      "pageCount": 1,
-      "sources": ["../public/papyrus-samples/release-notes.html"]
-    }
+    { "id": "fact-sheet", "sheet": "A4", "pageCount": 2 },
+    { "id": "release-notes", "sheet": "letter", "pageCount": 1 }
   ]
 }
