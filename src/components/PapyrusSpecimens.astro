@@ -122,7 +122,8 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     const boxes = document.querySelectorAll('.specimens .sheet-box');
     const fit = (box) => {
       const sheetWidth = parseFloat(box.style.getPropertyValue('--sw'));
-      const boxWidth = box.clientWidth;
+      // the fractional width (clientWidth rounds, which left a 1px line of box at a dark slide's edge)
+      const boxWidth = box.getBoundingClientRect().width;
       if (!sheetWidth || !boxWidth) return;
       box.style.setProperty('--k', String(boxWidth / sheetWidth));
       box.setAttribute('data-k', '');
