@@ -126,10 +126,12 @@ const structuredData = [
       if (new URLSearchParams(location.search).has('print')) document.documentElement.classList.add('print-mode');
       if (matchMedia('(min-width: 900px)').matches || document.documentElement.classList.contains('print-mode')) {
         document.documentElement.classList.add('paginating');
+        // Never leave the article hidden: if the layout script fails or never runs, show the server's article after 3 s
+        setTimeout(() => document.documentElement.classList.remove('paginating'), 3000);
       }
     </script>
     <main>
-      <article class="paper" data-paper>
+      <article class="paper" data-paper data-published={data.published.toISOString().slice(0, 10)}>
         <div class="sheet">
           <div class="sheet-head" aria-hidden="true">
             <span class="sheet-mark"><i></i><i></i><i></i><i></i><i></i><b>{section.label}</b></span>
