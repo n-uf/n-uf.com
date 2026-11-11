@@ -6,14 +6,15 @@
  * src/components/papyrus-samples/documents.mjs. Each page is an element with
  * the papyrus page class, sized by sheetCss() at build time.
  */
-import fs from 'node:fs';
-import path from 'node:path';
 import { SAMPLES_DIR, paperCss, sampleDocs, scopedSheetCss } from './papyrus-samples/documents.mjs';
+// Bytes of each committed PDF, written by scripts/papyrus-samples.mjs --pdf and checked
+// against the PDFs by --check (a bundled JSON import, so it does not depend on the cwd)
+import pdfSizes from './papyrus-samples/pdf-sizes.json';
 
 const samplesBase: string = `/${SAMPLES_DIR}/`;
 
 const docs = sampleDocs.map((doc) => {
-  const bytes: number = fs.statSync(path.join(process.cwd(), 'public', SAMPLES_DIR, doc.pdf)).size;
+  const bytes: number = (pdfSizes as Record<string, number>)[doc.pdf];
   const count: number = doc.pages.length;
   return {
     ...doc,
@@ -32,8 +33,7 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
 
 <style is:inline set:html={sheetStyles}></style>
 
-<section class="specimens" aria-labelledby="specimens-title">
-  <h2 id="specimens-title" class="sr-only">Sample documents made with papyrus</h2>
+<div class="specimens">
   <div class="specimen-grid">
     {
       docs.map((doc) => (
@@ -45,7 +45,10 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
                   class={`sheet-box sample sample-${doc.sheetKey}`}
                   style={`--sw:${doc.sheet.viewport.width}px;--sh:${doc.sheet.viewport.height}px`}
                 >
-                  <Fragment set:html={html} />
+                  {/* The sheet is a picture of the document: the figure and link names describe it */}
+                  <div aria-hidden="true">
+                    <Fragment set:html={html} />
+                  </div>
                   <a
                     class="open"
                     href={`${samplesBase}${doc.html}${index > 0 ? `#${doc.id}-page-${index + 1}` : ''}`}
@@ -68,7 +71,7 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
       ))
     }
   </div>
-</section>
+</div>
 
 <style>
   .specimens {
@@ -78,18 +81,6 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     width: min(1040px, calc(100vw - 48px));
     margin: 0 0 56px;
     translate: -50% 0;
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
   }
 
   .specimen-grid {
@@ -168,9 +159,14 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     z-index: 1;
   }
 
-  .open:focus-visible {
+  /* The link fills the box and the box clips, so the ring is drawn on the box itself */
+  .sheet-box:has(.open:focus-visible) {
     outline: 2px solid var(--ink);
     outline-offset: 3px;
+  }
+
+  .open:focus-visible {
+    outline: none;
   }
 
   .cap,

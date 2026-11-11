@@ -184,9 +184,7 @@ export const paperCss = `
 .sample .sec {
   margin-top: 26px;
 }
-.sample .sec h2,
-.sample .sec h3,
-.sample .sec h4 {
+.sample .sec .sh {
   display: flex;
   align-items: baseline;
   gap: 10px;
@@ -291,9 +289,7 @@ export const paperCss = `
   padding-top: 14px;
   border-top: 1px solid var(--p-ink);
 }
-.sample .release h2,
-.sample .release h3,
-.sample .release h4 {
+.sample .release .sh {
   margin-bottom: 8px;
   color: var(--p-ink);
   font-family: ${MONO};
@@ -382,14 +378,16 @@ function page({ docId, index, count, label, body, foot }) {
 }
 
 /**
- * Build both documents. `h` is the heading level of a document title:
- * 1 in a standalone file, 3 on the /papyrus page (under its own H1 and H2).
+ * Build both documents. `h` is the heading level of a document title: 1 in a
+ * standalone file (sections h2). 0 on the /papyrus page, where the sheets are
+ * pictures of a document and add no headings to the page's own outline: titles
+ * and section heads are plain divs there.
  *
  * @param {number} h
  */
 function buildDocs(h) {
-  const hTitle = `h${h}`;
-  const hSec = `h${h + 1}`;
+  const hTitle = h ? `h${h}` : 'div';
+  const hSec = h ? `h${h + 1}` : 'div';
 
   // --- A: the fact sheet, A4, two pages ----------------------------------
   const factToc = [
@@ -419,11 +417,10 @@ function buildDocs(h) {
     body:
       `<p class="eyebrow">Fact sheet · @n-uf/papyrus ${PAPYRUS_VERSION}</p>` +
       `<${hTitle} class="cover-title">papyrus</${hTitle}>` +
-      `<p class="cover-sub">Documents in HTML, printed to PDF.</p>` +
-      `<p class="cover-text">papyrus is a documents engine. You write a document as HTML or React pages. ` +
-      `On screen each page is a sheet of A4 or US Letter paper, and the same pages print to a PDF.</p>` +
-      `<p class="callout"><strong>Young and still changing.</strong> Versions are dates (YY.M.R), not semantic versions, ` +
-      `so any release may break things. Pin an exact version and read the changelog before you upgrade.</p>` +
+      `<p class="cover-sub">A documents engine for HTML and PDF.</p>` +
+      `<p class="cover-text">Pages you write once, as HTML or React, are sheets on screen and pages in the PDF.</p>` +
+      `<p class="callout"><strong>Not yet stable.</strong> The API, the page contract and the sheet styling are not final, ` +
+      `and a release can break any of them. Pin an exact version and read the CHANGELOG first.</p>` +
       `<p class="label">Contents</p>` +
       `<ol class="toc">${tocRows}</ol>` +
       `<p class="cover-text" style="margin-top:36px;color:var(--p-muted)">This sheet is itself a papyrus document: ` +
@@ -439,25 +436,24 @@ function buildDocs(h) {
     foot: ['papyrus fact sheet', '2 / 2'],
     body:
       `<p class="running"><span>papyrus</span><span>n-uf.com/papyrus</span></p>` +
-      `<div class="sec" style="margin-top:30px"><${hSec}><span class="no">${n('what')}</span>What it is</${hSec}>` +
-      `<p>papyrus is a documents engine. You write a document as HTML or React pages. On screen each page is a sheet ` +
-      `of A4 or US Letter paper, and the same pages print to a PDF. A report or a resume stays one source for the web and for print.</p></div>` +
-      `<div class="sec"><${hSec}><span class="no">${n('packages')}</span>Two packages, one version</${hSec}>` +
+      `<div class="sec" style="margin-top:30px"><${hSec} class="sh"><span class="no">${n('what')}</span>What it is</${hSec}>` +
+      `<p>A documents engine for documents rendered as HTML and exported as PDF. It is framework-free, so it also runs ` +
+      `without a bundler, and it contains no brand, copy or document content of its own.</p></div>` +
+      `<div class="sec"><${hSec} class="sh"><span class="no">${n('packages')}</span>Two packages, one version</${hSec}>` +
       `<table><thead><tr><th>Package</th><th>What it is</th><th>Ships</th></tr></thead><tbody>` +
-      `<tr><td><strong>@n-uf/papyrus</strong></td><td>The engine, with no framework: the page contract, sheet sizes and print CSS, the document registry and the PDF exporter.</td><td>Plain ESM JavaScript with type declarations</td></tr>` +
-      `<tr><td><strong>@n-uf/papyrus-react</strong></td><td>React components on top of the engine: page and content blocks, a document registry typed for React, and print styles.</td><td>TypeScript source</td></tr>` +
+      `<tr><td><strong>@n-uf/papyrus</strong></td><td>The engine: page contract, sheets, document registry and PDF exporter.</td><td>Plain ESM JavaScript with type declarations</td></tr>` +
+      `<tr><td><strong>@n-uf/papyrus-react</strong></td><td>React components built on the engine: page and content blocks, a React-typed registry and print styles.</td><td>TypeScript source</td></tr>` +
       `</tbody></table>` +
-      `<p>Both carry no brand, copy or content of their own; your documents supply those. They are released together at one version.</p></div>` +
-      `<div class="sec"><${hSec}><span class="no">${n('contract')}</span>One element, one sheet, one page</${hSec}>` +
-      `<p>Every element with the class <code>pdf-page</code> is one sheet on screen and one page in the PDF. ` +
-      `<code>sheetCss()</code> sizes it to A4 (210 × 297 mm) or Letter (8.5 × 11 in) and keeps one per printed page.</p>` +
+      `<p>The two packages always share one version number.</p></div>` +
+      `<div class="sec"><${hSec} class="sh"><span class="no">${n('contract')}</span>One element, one sheet, one page</${hSec}>` +
+      `<p>The class <code>pdf-page</code> marks a page: one element, one sheet on screen, one page in the PDF. ` +
+      `<code>sheetCss()</code> gives it its size, A4 (210 × 297 mm) or Letter (8.5 × 11 in), and the exporter counts these elements to check the PDF.</p>` +
       `<pre><code>import { SHEETS, sheetCss } from "@n-uf/papyrus";\n\nconst css = sheetCss(SHEETS.LETTER);  // US Letter sheets</code></pre></div>` +
-      `<div class="sec"><${hSec}><span class="no">${n('check')}</span>The PDF check</${hSec}>` +
-      `<p>The <code>papyrus</code> command prints every document in a config file through headless Chromium. ` +
-      `It checks every PDF before writing it: the number of pages in the HTML, the PDF's own page count and the count you expect must agree. ` +
-      `If they don't, for example because a page overflowed onto an extra sheet, the export stops instead of writing the file.</p>` +
+      `<div class="sec"><${hSec} class="sh"><span class="no">${n('check')}</span>The PDF check</${hSec}>` +
+      `<p>Every PDF is checked before it is written: the page elements, the PDF's page count and the expected ` +
+      `<code>pageCount</code> must agree, so a broken render is never saved. This sample was printed with:</p>` +
       `<pre><code>papyrus pdf --config papyrus.config.json</code></pre></div>` +
-      `<div class="sec"><${hSec}><span class="no">${n('versions')}</span>Versions and licence</${hSec}>` +
+      `<div class="sec"><${hSec} class="sh"><span class="no">${n('versions')}</span>Versions and licence</${hSec}>` +
       `<p>Calendar versions, <code>YY.M.R</code>: <code>26.11.0</code> is the first release of November 2026. ` +
       `Licence: PolyForm Perimeter 1.0.1.</p></div>`,
   });
@@ -473,13 +469,12 @@ function buildDocs(h) {
       `<p class="eyebrow">@n-uf/papyrus</p>` +
       `<${hTitle} class="doc-title">Release notes</${hTitle}>` +
       `<p class="doc-sub">26.11.0 to 26.11.2</p>` +
-      `<p class="callout"><strong>Same code throughout.</strong> All three releases ship the same code as 0.4.1; what changed is the versioning, the licence and where the package is released from. ` +
-      `Pin an exact version and read the changelog before you upgrade.</p>` +
-      `<div class="release"><${hSec}>26.11.2</${hSec}><ul>` +
+      `<p class="callout"><strong>Same code throughout.</strong> All three releases ship the same code as 0.4.1; what changed is the versioning, the licence and where the package is released from.</p>` +
+      `<div class="release"><${hSec} class="sh">26.11.2</${hSec}><ul>` +
       `<li>The package's homepage is now its overview page, n-uf.com/papyrus. Same code as 26.11.1.</li></ul></div>` +
-      `<div class="release"><${hSec}>26.11.1</${hSec}><ul>` +
+      `<div class="release"><${hSec} class="sh">26.11.1</${hSec}><ul>` +
       `<li>Now released from its own repo, n-uf/papyrus, to npmjs (with provenance) as well as GitHub Packages. Same code as 26.11.0; the package now ships this CHANGELOG.</li></ul></div>` +
-      `<div class="release"><${hSec}>26.11.0</${hSec}><ul>` +
+      `<div class="release"><${hSec} class="sh">26.11.0</${hSec}><ul>` +
       `<li>Calendar versions (<code>YY.M.R</code>) from now on, like hypr-tiling, doodl and debugsy; <code>@n-uf/papyrus-react</code> shares the version. ` +
       `Same code as 0.4.1: <code>^0.4.x</code> ranges do not pick this up, so move them to <code>^26.11.0</code>.</li>` +
       `<li>License: PolyForm Perimeter 1.0.1 (was <code>UNLICENSED</code>); see <code>LICENSE</code>.</li></ul></div>` +
@@ -514,8 +509,8 @@ function buildDocs(h) {
   ];
 }
 
-/** The documents as shown on the /papyrus page (titles at h3, sections at h4). */
-export const sampleDocs = buildDocs(3);
+/** The documents as shown on the /papyrus page (no heading tags, see buildDocs). */
+export const sampleDocs = buildDocs(0);
 
 /**
  * A standalone HTML file: the same pages, with the full sheetCss() and the

@@ -1,12 +1,12 @@
 {
   "docs": {
     "fact-sheet": {
-      "fingerprint": "37f4a9414465ad40c364eb2e8ed5ba585345d3191f8575bd84f52240a96d2e4a",
+      "fingerprint": "c7c31b7e29a7122d2c3f5ddc02e201eec41bc1228759e67de18ac2dbe0e5d870",
       "file": "fact-sheet.pdf",
       "pages": 2
     },
     "release-notes": {
-      "fingerprint": "4f08ef34ae005b6ca395cf7801d9c16cf246b7ab0cae1d407afa8c93bdc82993",
+      "fingerprint": "5325cf16d637b1d26e18065d43a2bf8cf8b239eec9117ae007d9260fdc8b3d30",
       "file": "release-notes.pdf",
       "pages": 1,
       "layout": "LETTER .pdf-page"
