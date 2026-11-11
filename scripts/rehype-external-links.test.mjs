@@ -1,7 +1,7 @@
 // Tests for src/data/rehype-external-links.mjs on small hast trees. Run: node --test scripts/*.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import rehypeExternalLinks from "../src/data/rehype-external-links.mjs";
+import rehypeExternalLinks, { extArrow } from "../src/data/rehype-external-links.mjs";
 
 const isExternal = (href) => /^https?:\/\/(?!n-uf\.com(\/|$))/.test(href);
 const NOTE = " (opens in a new tab)";
@@ -14,12 +14,18 @@ const process = (...blocks) => {
 };
 const run = (...links) => process(el("p", ...links))[0].children;
 
-test("an external link opens in a new tab with rel noopener, the ↗ and a screen-reader note", () => {
+test("an external link opens in a new tab with rel noopener, the drawn arrow and a screen-reader note", () => {
   const [a] = run(link("https://developer.mozilla.org/en-US/docs/Web/CSS/@page", "MDN"));
   assert.equal(a.properties.target, "_blank");
   assert.deepEqual(a.properties.rel, ["noopener"]);
   assert.equal(a.children.length, 3);
-  assert.deepEqual(a.children[1], { type: "element", tagName: "span", properties: { className: ["ext-arrow"], ariaHidden: "true" }, children: [{ type: "text", value: "↗" }] });
+  assert.deepEqual(a.children[1], extArrow());
+  // the arrow is an SVG, not a "↗" a font has to carry (no font of the site has U+2197)
+  const [arrowSvg] = a.children[1].children;
+  assert.deepEqual(a.children[1].properties, { className: ["ext-arrow"], ariaHidden: "true" });
+  assert.equal(arrowSvg.tagName, "svg");
+  assert.equal(arrowSvg.children[0].tagName, "path");
+  assert.ok(!JSON.stringify(a.children[1]).includes("↗"));
   assert.deepEqual(a.children[2], { type: "element", tagName: "span", properties: { className: ["sr-only"] }, children: [{ type: "text", value: NOTE }] });
 });
 

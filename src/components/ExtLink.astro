@@ -4,9 +4,11 @@
  * to assistive tech with a visually hidden text, and shows a small arrow after the text.
  * Same-site links stay plain <a>.
  */
+import { EXT_ARROW_PATH, EXT_ARROW_STROKE, EXT_ARROW_VIEWBOX } from '../data/ext-arrow.mjs';
+
 interface Props {
   href: string;
-  /** The small ↗ after the text (default true) */
+  /** The small arrow after the text (default true) */
   arrow?: boolean;
 }
 
@@ -19,12 +21,18 @@ const { href, arrow = true } = Astro.props;
     text-underline-offset: 3px;
   }
 
+  /* The arrow is drawn (src/data/ext-arrow.mjs), so it looks and prints the same on every machine */
   .ext-arrow {
     display: inline-block;
-    margin-left: 0.2em;
+    margin-left: 0.25em;
     color: var(--muted);
-    font-size: 0.8em;
     text-decoration: none;
+  }
+
+  .ext-arrow svg {
+    display: block;
+    width: 0.55em;
+    height: 0.55em;
   }
 
   .sr-only {
@@ -37,4 +45,4 @@ const { href, arrow = true } = Astro.props;
   }
 </style>
 
-<a href={href} target="_blank" rel="noopener"><slot />{arrow && <span class="ext-arrow" aria-hidden="true">↗</span>}<span class="sr-only"> (opens in a new tab)</span></a>
+<a href={href} target="_blank" rel="noopener"><slot />{arrow && <span class="ext-arrow" aria-hidden="true"><svg viewBox={EXT_ARROW_VIEWBOX} width="10" height="10" focusable="false"><path d={EXT_ARROW_PATH} fill="none" stroke="currentColor" stroke-width={EXT_ARROW_STROKE} stroke-linecap="square" /></svg></span>}<span class="sr-only"> (opens in a new tab)</span></a>
