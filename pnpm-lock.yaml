@@ -18,8 +18,8 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0
       '@n-uf/papyrus':
-        specifier: 26.11.2
-        version: 26.11.2(vite@6.4.3(@types/node@24.13.6)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))
+        specifier: 26.11.1
+        version: 26.11.1(vite@6.4.3(@types/node@24.13.6)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))
       astro:
         specifier: ^5.14.1
         version: 5.18.2(@types/node@24.13.6)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.63.5)(typescript@5.9.3)(yaml@2.9.1)
@@ -622,8 +622,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@n-uf/papyrus@26.11.2':
-    resolution: {integrity: sha512-MdKNGB7lgU7Ja1EOK+MlCHTT+2JB6ICJqDjvmjMuDqDSV/Po9RwOpz72LsKV7J05jRgNhDz8/oWgta+ALyDd/w==}
+  '@n-uf/papyrus@26.11.1':
+    resolution: {integrity: sha512-++eNCQic4y1qcO449XfnvZv/ne61T8nQnl/1/3WMjzv3lmJ4k09DXNS6NCHFy+AS4O/7q+JETm4y5IYByYCLZw==}
     hasBin: true
     peerDependencies:
       playwright: ^1.40.0
@@ -2684,7 +2684,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@n-uf/papyrus@26.11.2(vite@6.4.3(@types/node@24.13.6)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))':
+  '@n-uf/papyrus@26.11.1(vite@6.4.3(@types/node@24.13.6)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))':
     optionalDependencies:
       vite: 6.4.3(@types/node@24.13.6)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1)
 
