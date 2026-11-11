@@ -158,3 +158,26 @@ test("a removed block with no space before it and text after keeps one space bet
   assert.equal(run(`<p>{{live:/papyrus/draft-page}}See ${link}.{{/live}} Two.</p>`), "<p>Two.</p>");
   assert.equal(dropLateLiveBlocks(`<p>One.${spanOf("2026-12-01", " See later.")} Two.</p>`, "2026-11-24"), "<p>One. Two.</p>");
 });
+
+test("a block that cuts through formatting fails the build: a tag opened or closed outside it", () => {
+  // "**Intro {{live:/x}}see** more.{{/live}}"
+  fails("<p><strong>Intro <a href=\"/papyrus\">{{live:/papyrus/live-page}}see</a></strong> more.{{/live}}</p>", /cuts through formatting/);
+  fails("<p><strong>Intro {{live:/papyrus/live-page}}see</strong> more.{{/live}}</p>", /<\/strong> closes a tag that was opened outside the block/);
+  fails("<p>Intro {{live:/papyrus/live-page}}see <em>more.{{/live}}</em></p>", /<em> is opened inside the block and closed outside it/);
+  fails("<p>{{live:/papyrus/draft-page}}a <code>b{{/live}} c</code></p>", /cuts through formatting/);
+});
+
+test("formatting that opens and closes inside the block, and void tags, are fine", () => {
+  assert.equal(run('<p>One. {{live:/papyrus/draft-page}}See <strong>this <em>page</em></strong>, <a href="/papyrus/draft-page">it</a>, <code>x</code><br>or an <img src="a.png">.{{/live}} Two.</p>'), "<p>One. Two.</p>");
+  assert.equal(run('<p>{{live:/papyrus/live-page}}<strong>All bold</strong>{{/live}}</p>'), "<p><strong>All bold</strong></p>");
+});
+
+test("a removed block right after an opening inline tag leaves no visible space there", () => {
+  assert.equal(run("<p>(<em>{{live:/papyrus/draft-page}}A.{{/live}} two</em>)</p>"), "<p>(<em>two</em>)</p>");
+  assert.equal(run("<p>“<strong>{{live:/papyrus/draft-page}}A.{{/live}} two</strong>”</p>"), "<p>“<strong>two</strong>”</p>");
+  // after a sentence the space is kept, whatever inline tag the block sits in
+  assert.equal(run("<p>One.<em>{{live:/papyrus/draft-page}}A.{{/live}} two</em></p>"), "<p>One.<em> two</em></p>");
+  assert.equal(run("<p><strong>One.</strong>{{live:/papyrus/draft-page}} A.{{/live}} Two.</p>"), "<p><strong>One.</strong> Two.</p>");
+  // and none at the start of a paragraph or list item
+  assert.equal(run("<ul>\n<li><em>{{live:/papyrus/draft-page}}A.{{/live}} Two.</em></li>\n</ul>"), "<ul>\n<li><em>Two.</em></li>\n</ul>");
+});
