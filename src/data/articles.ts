@@ -91,6 +91,16 @@ export async function pageStatus(path: string): Promise<'built' | 'unbuilt' | 'n
   return 'none';
 }
 
+/** The day an article goes live (its `published`, YYYY-MM-DD); undefined for a fixed page or a path with no article. */
+export async function pageLiveFrom(path: string): Promise<string | undefined> {
+  for (const key of Object.keys(sections) as SectionKey[]) {
+    if (fileCount[key] === 0 || !path.startsWith(`${sections[key].path}/`)) continue;
+    const found = ((await getCollection(key)) as Entry[]).find((entry) => articlePath(key, entry.id) === path);
+    if (found) return found.data.published.toISOString().slice(0, 10);
+  }
+  return undefined;
+}
+
 /**
  * The Related cards of an article. An entry that points at an article still hidden as a draft is left out (it appears
  * the day that article goes live); an entry that points at no page at all throws, so a typo fails the build
