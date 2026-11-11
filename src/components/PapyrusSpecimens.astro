@@ -11,7 +11,14 @@ import { SAMPLES_DIR, paperCss, sampleDocs, scopedSheetCss } from './papyrus-sam
 // against the PDFs by --check (a bundled JSON import, so it does not depend on the cwd)
 import pdfSizes from './papyrus-samples/pdf-sizes.json';
 
-const samplesBase: string = `/${SAMPLES_DIR}/`;
+import { siteUrl } from '../data/projects';
+
+// The links of the sheets point at the sample files. The page's PDFs are printed from a local preview, where
+// a relative link would be written into the PDF as that preview's address: the print build
+// (scripts/papyrus-samples.mjs sets PAPYRUS_PRINT) links to the files on the site itself.
+const printBuild: boolean = process.env.PAPYRUS_PRINT === '1';
+const sampleHref = (path: string): string =>
+  printBuild ? new URL(`/${SAMPLES_DIR}/${path}`, siteUrl).href : `/${SAMPLES_DIR}/${path}`;
 
 const formats: Record<string, string> = { a4: 'A4', letter: 'Letter', slide: '16:9' };
 
@@ -63,7 +70,7 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
                 <span class="docname">{doc.shortName}</span>
                 <span class="setmeta">
                   <span class="docmeta">{doc.meta}</span>
-                  <a class="pdf" href={`${samplesBase}${doc.pdf}`} aria-label={`Download the ${doc.name} PDF, ${doc.pdfKb}`}>
+                  <a class="pdf" href={sampleHref(doc.pdf)} aria-label={`Download the ${doc.name} PDF, ${doc.pdfKb}`}>
                     <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
                       <path
                         fill="none"
@@ -91,7 +98,7 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
                       </div>
                       <a
                         class="open"
-                        href={`${samplesBase}${doc.html}${index > 0 ? `#${doc.id}-page-${index + 1}` : ''}`}
+                        href={sampleHref(`${doc.html}${index > 0 ? `#${doc.id}-page-${index + 1}` : ''}`)}
                         aria-label={`Open the ${doc.name}, ${doc.unit} ${index + 1} of ${doc.count}, at full size`}
                       />
                     </div>
