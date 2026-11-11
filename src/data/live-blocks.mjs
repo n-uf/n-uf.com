@@ -62,6 +62,8 @@ export function applyLiveBlocks(html, status, where, liveFrom = () => undefined)
     const inner = html.slice(open.end, m.index);
     const tag = inner.match(BLOCK_TAG);
     if (tag) fail(`the live block for ${open.path} spans more than one paragraph (it contains ${tag[0]}>): keep it inside one sentence`);
+    const unbalanced = unbalancedInlineTag(inner);
+    if (unbalanced) fail(`the live block for ${open.path} cuts through formatting (${unbalanced}): put the markers inside or outside the whole **bold**, *italic* or link, not across its edge`);
     const s = status(open.path);
     if (s === "none") fail(`the live block target ${open.path} is no page: not a use case, an article or a fixed page of this site`);
     out += html.slice(pos, open.start);
@@ -81,13 +83,42 @@ export function applyLiveBlocks(html, status, where, liveFrom = () => undefined)
   return removed ? dropEmpty(out) : out;
 }
 
-const OPENING_BLOCK_TAG = /<(?:p|li|ul|ol|h[1-6]|td|th|div|blockquote)(?:\s[^>]*)?>$/i;
+const VOID_TAGS = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
+
+/**
+ * Does the HTML of a block close a tag it did not open, or leave one open? ("**Intro {{live:/x}}see** more.{{/live}}"
+ * renders as <strong>Intro <span…>see</strong> more., and the marker would wrap half of it.) Returns what is wrong, or
+ * null when the tags nest properly.
+ * @param {string} html
+ * @returns {string | null}
+ */
+function unbalancedInlineTag(html) {
+  const stack = [];
+  for (const m of html.matchAll(/<(\/?)([a-zA-Z][a-zA-Z0-9-]*)\b[^>]*?(\/?)>/g)) {
+    const [, closing, name, selfClosing] = m;
+    const tag = name.toLowerCase();
+    if (VOID_TAGS.has(tag) || selfClosing) continue;
+    if (!closing) {
+      stack.push(tag);
+    } else if (stack.at(-1) === tag) {
+      stack.pop();
+    } else {
+      return `</${tag}> closes a tag that was opened outside the block`;
+    }
+  }
+  return stack.length > 0 ? `<${stack.at(-1)}> is opened inside the block and closed outside it` : null;
+}
+
+const BLOCK_OPENING_TAG = /<(?:p|li|ul|ol|h[1-6]|td|th|div|blockquote)(?:\s[^>]*)?>/i;
+// characters after which a space would look wrong: the start of a bracket or a quotation
+const OPENING_PUNCTUATION = /[\s(\[{“‘"']/;
 
 /**
  * What is left around a block that was just removed (`out` is the HTML before it, `pos` where the HTML after it starts):
  * the space after the block goes with it, and the space before it too when a closing tag or the end follows. When text
  * follows and no space came before the block ("one.{{live:…}} two.{{/live}} Three."), one space is kept between the
- * two sentences, so they don't run together.
+ * two sentences, so they don't run together. Inline tags don't count as text: "(<em>{{live:…}}A{{/live}} two</em>)"
+ * stays "(<em>two</em>)", not "( two)"; and no space is added at the start of a paragraph or list item.
  * @param {string} html
  * @param {number} pos
  * @param {string} out
@@ -97,7 +128,11 @@ function closeGap(html, pos, out) {
   const start = pos;
   while (pos < html.length && /\s/.test(html[pos])) pos++;
   if (pos >= html.length || html.startsWith("</", pos)) return { out: out.trimEnd(), pos };
-  if (pos > start && out !== "" && !/\s$/.test(out) && !OPENING_BLOCK_TAG.test(out)) out += " ";
+  if (pos > start && out !== "") {
+    const tags = out.match(/(?:<[^>]*>)+$/)?.[0] ?? "";
+    const lastText = out.slice(0, out.length - tags.length).slice(-1);
+    if (lastText !== "" && !OPENING_PUNCTUATION.test(lastText) && !BLOCK_OPENING_TAG.test(tags)) out += " ";
+  }
   return { out, pos };
 }
 
