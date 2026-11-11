@@ -544,7 +544,8 @@ const reactSample: string =`<Logo name={<MyWordmark />} variantTextLines={{ home
     display: none;
   }
 
-  /* Narrow: the breadcrumb on its own line, then the four buttons in one row */
+  /* Narrow: the breadcrumb on its own line, then the four buttons in one row (they wrap rather than
+     push the page sideways if a larger text size makes them wider than the screen) */
   @media (max-width: 859px) {
     .crumbs {
       flex: 1 0 100%;
@@ -552,7 +553,6 @@ const reactSample: string =`<Logo name={<MyWordmark />} variantTextLines={{ home
 
     .view-tools {
       flex: 1 0 100%;
-      flex-wrap: nowrap;
       justify-content: flex-start;
       gap: 6px;
     }
@@ -569,6 +569,18 @@ const reactSample: string =`<Logo name={<MyWordmark />} variantTextLines={{ home
 
     .t-short {
       display: inline;
+    }
+  }
+
+  /* The smallest phones (320px): a little less padding keeps the four buttons in one row */
+  @media (max-width: 359px) {
+    .view-tools {
+      gap: 4px;
+    }
+
+    .view-tools .repo {
+      gap: 4px;
+      padding: 6px 5px;
     }
   }
 
