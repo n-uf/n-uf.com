@@ -61,6 +61,8 @@ const SHARED_SOURCES = [
   'src/data/live-blocks.mjs',
   'src/data/live.ts',
   'src/data/inline-code.mjs',
+  'src/data/links.ts',
+  'src/data/rehype-external-links.mjs',
   'src/data/articles.ts',
   'src/content.config.ts',
   'astro.config.mjs',
