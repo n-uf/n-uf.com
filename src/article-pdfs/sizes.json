@@ -8,15 +8,15 @@
     "pages": 8
   },
   "css-print-header-footer": {
-    "bytes": 314152,
+    "bytes": 313728,
     "pages": 9
   },
   "css-print-page-numbers": {
-    "bytes": 361479,
+    "bytes": 361669,
     "pages": 9
   },
   "html-to-pdf-nodejs": {
-    "bytes": 343366,
+    "bytes": 343361,
     "pages": 10
   },
   "playwright-pdf-from-html": {
@@ -28,7 +28,7 @@
     "pages": 10
   },
   "wkhtmltopdf-alternative": {
-    "bytes": 516621,
+    "bytes": 516620,
     "pages": 10
   }
 }
