@@ -4,11 +4,14 @@
 // only moves the same blocks into more sheets. Blocks are never split: a block that doesn't fit starts the next sheet,
 // taking with it a heading or a "…:" sentence left at the bottom; a block taller than a sheet gets a sheet that grows.
 
+// @ts-ignore: plain JS module, shared with the build (and its tests)
+import { dropLateLiveBlocks } from '../data/live-blocks.mjs';
+
 const WIDE = '(min-width: 900px)';
 // The `print-mode` class on <html> lays the article out on A4 sheets whatever the viewport width, with no reader bar,
 // and measures them with the wrapping the print CSS gives code and tables (article.css). The page sets it from `?print`
 // (any value): that is the page papyrus prints to the article's PDF (scripts/article-pdfs.mjs), whose A4 viewport is
-// 794 px, below WIDE. The Print as A4 button sets it while the print dialog is open.
+// 794 px, below WIDE. Printing from the browser (the button, Cmd/Ctrl+P) sets it while the print dialog is open.
 const PRINT_MODE = 'print-mode';
 const inPrintMode = (): boolean => document.documentElement.classList.contains(PRINT_MODE);
 
@@ -64,6 +67,13 @@ function paginate(paper: HTMLElement): void {
   const blocksOnSheet = (): number => current.querySelectorAll(':scope > :not(.flow), :scope > .flow > *').length;
 
   for (const { el, wrap } of items) {
+    // A sheet that grew to fit a tall block is full (its height is auto, so it would never overflow again and take
+    // everything after it): the next block starts a new sheet
+    if (current.parentElement?.classList.contains('tall')) {
+      current = newSheet();
+      wrapOf = null;
+      wrapCopy = null;
+    }
     const container = place(el, wrap);
     if (!overflows()) continue;
     if (blocksOnSheet() === 1) {
@@ -122,36 +132,52 @@ const paper = document.querySelector<HTMLElement>('[data-paper]');
 if (paper) {
   const original = paper.innerHTML;
   const wide = matchMedia(WIDE);
+  // The PDF's page (`?print`) is a snapshot of the article on the day it goes live: a {{live:}} block stays only if its
+  // target is live by then. A reader printing from the browser gets the page as it is today.
+  const published = new URLSearchParams(location.search).has('print') ? (paper.dataset.published ?? '') : '';
   const layout = (): void => {
-    paper.innerHTML = original;
-    if (inPrintMode()) forPaper(paper);
-    if (wide.matches || inPrintMode()) paginate(paper);
-    document.documentElement.classList.remove('paginating');
+    try {
+      const printing = inPrintMode();
+      paper.innerHTML = printing && published ? dropLateLiveBlocks(original, published) : original;
+      if (printing) forPaper(paper);
+      if (wide.matches || printing) paginate(paper);
+    } catch (error) {
+      // Whatever went wrong, the reader gets the article as the server sent it
+      console.error('paginate:', error);
+      paper.innerHTML = original;
+    } finally {
+      document.documentElement.classList.remove('paginating');
+    }
   };
-  // Lay out once the web fonts are in, so the sheets break where they'll stay; never wait longer than 1.5 s
-  const fontsReady = document.fonts?.ready ?? Promise.resolve();
-  Promise.race([fontsReady, new Promise((resolve) => setTimeout(resolve, 1500))]).then(layout);
+  // Lay out once the web fonts are in, so the sheets break where they'll stay. Never wait longer than 1.5 s; a font
+  // that arrives after that changes the text metrics, so lay out again then.
+  const fontsReady: Promise<unknown> = document.fonts?.ready ?? Promise.resolve();
+  const cap = new Promise<boolean>((resolve) => setTimeout(() => resolve(true), 1500));
+  Promise.race([fontsReady.then(() => false), cap]).then((late) => {
+    layout();
+    if (late) fontsReady.then(layout);
+  });
   wide.addEventListener('change', layout);
+
+  // Print as A4, or Cmd/Ctrl+P: lay the sheets out as they print (code and tables wrap on paper, so they are taller than
+  // on screen), and put the screen layout back when the dialog closes
+  let enteredPrintMode = false;
+  addEventListener('beforeprint', () => {
+    if (inPrintMode()) return;
+    enteredPrintMode = true;
+    document.documentElement.classList.add(PRINT_MODE);
+    layout();
+  });
+  addEventListener('afterprint', () => {
+    if (!enteredPrintMode) return;
+    enteredPrintMode = false;
+    document.documentElement.classList.remove(PRINT_MODE);
+    layout();
+  });
 
   const print = document.querySelector<HTMLButtonElement>('[data-print]');
   if (print) {
     print.hidden = false;
-    print.addEventListener('click', () => {
-      // Lay the sheets out as they print (code and tables wrap on paper, so they are taller than on screen), then
-      // put the screen layout back when the dialog closes
-      if (!inPrintMode()) {
-        document.documentElement.classList.add(PRINT_MODE);
-        layout();
-        addEventListener(
-          'afterprint',
-          () => {
-            document.documentElement.classList.remove(PRINT_MODE);
-            layout();
-          },
-          { once: true },
-        );
-      }
-      window.print();
-    });
+    print.addEventListener('click', () => window.print());
   }
 }
