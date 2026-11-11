@@ -10,8 +10,8 @@ import { Code } from 'astro:components';
 interface Props {
   /** The code, exactly as it is copied */
   code: string;
-  /** A Shiki language: js, json, tsx, sh ... */
-  lang: string;
+  /** A Shiki language */
+  lang: 'js' | 'json' | 'tsx' | 'sh';
   /** The label in the header strip: a language or a file name */
   label: string;
 }
@@ -43,26 +43,28 @@ const { code, lang, label } = Astro.props;
   .code-box {
     /* Shiki's css-variables theme, in the site's colors: ink for keywords and names, a faint comment,
        one quiet green for strings and one for constants */
-    --astro-code-foreground: var(--copy);
+    /* Quiet on purpose: plain code about 6:1 on the box, comments about 3.5:1, one very soft accent */
+    --code-text: color-mix(in srgb, var(--ink) 58%, transparent);
+    --astro-code-foreground: var(--code-text);
     --astro-code-background: transparent;
-    --astro-code-token-constant: color-mix(in srgb, var(--accent-2) 30%, var(--copy));
-    --astro-code-token-string: color-mix(in srgb, var(--accent-3) 34%, var(--copy));
-    --astro-code-token-string-expression: color-mix(in srgb, var(--accent-3) 34%, var(--copy));
-    --astro-code-token-comment: var(--faint);
-    --astro-code-token-keyword: var(--lead);
-    --astro-code-token-parameter: var(--copy);
-    --astro-code-token-function: var(--copy);
-    --astro-code-token-punctuation: var(--muted);
-    --astro-code-token-link: var(--copy);
+    --astro-code-token-constant: var(--code-text);
+    --astro-code-token-string: color-mix(in srgb, var(--accent-3) 18%, var(--code-text));
+    --astro-code-token-string-expression: color-mix(in srgb, var(--accent-3) 18%, var(--code-text));
+    --astro-code-token-comment: color-mix(in srgb, var(--ink) 40%, transparent);
+    --astro-code-token-keyword: color-mix(in srgb, var(--ink) 66%, transparent);
+    --astro-code-token-parameter: var(--code-text);
+    --astro-code-token-function: var(--code-text);
+    --astro-code-token-punctuation: var(--faint);
+    --astro-code-token-link: var(--code-text);
 
     box-sizing: border-box;
     min-width: 0;
     max-width: 100%;
     margin: 0 0 16px;
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--ink) 9%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ink) 6.5%, transparent);
     border-radius: 4px;
-    background: color-mix(in srgb, var(--ink) 2.5%, transparent);
+    background: color-mix(in srgb, var(--ink) 2%, transparent);
   }
 
   .code-head {
@@ -72,7 +74,7 @@ const { code, lang, label } = Astro.props;
     gap: 12px;
     min-height: 28px;
     padding: 0 8px 0 14px;
-    border-bottom: 1px solid color-mix(in srgb, var(--ink) 9%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 6.5%, transparent);
     color: var(--faint);
     font-family: var(--mono);
     font-size: 11px;
