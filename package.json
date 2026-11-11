@@ -13,7 +13,8 @@
     "samples:page": "node scripts/papyrus-samples.mjs --page",
     "article-pdfs": "node scripts/article-pdfs.mjs --pdf",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "test": "node --test scripts/*.test.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",
