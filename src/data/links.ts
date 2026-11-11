@@ -6,7 +6,7 @@ import { siteUrl } from './projects';
 
 const siteHost: string = new URL(siteUrl).host;
 
-/** True for a link to another host; relative links and links to n-uf.com itself are not external. */
+/** True for a link to another host; links without a host and links to n-uf.com itself are not external. */
 export function isExternal(href: string): boolean {
   try {
     return new URL(href, siteUrl).host !== siteHost;
