@@ -71,9 +71,7 @@ export function applyLiveBlocks(html, status, where, liveFrom = () => undefined)
       out += from ? `<span data-live-from="${from}">${inner}</span>${LIVE_FROM_END}` : inner;
     } else {
       removed = true;
-      // take the space after the block with it, and the space before it too when a closing tag or the end follows
-      while (pos < html.length && /\s/.test(html[pos])) pos++;
-      if (pos >= html.length || html.startsWith("</", pos)) out = out.trimEnd();
+      ({ out, pos } = closeGap(html, pos, out));
     }
     open = null;
   }
@@ -81,6 +79,26 @@ export function applyLiveBlocks(html, status, where, liveFrom = () => undefined)
   out += html.slice(pos);
   if (/\{\{\s*\/?\s*live/i.test(out)) fail("stray {{live: or {{/live}} (not a complete {{live:/path/}}…{{/live}} pair)");
   return removed ? dropEmpty(out) : out;
+}
+
+const OPENING_BLOCK_TAG = /<(?:p|li|ul|ol|h[1-6]|td|th|div|blockquote)(?:\s[^>]*)?>$/i;
+
+/**
+ * What is left around a block that was just removed (`out` is the HTML before it, `pos` where the HTML after it starts):
+ * the space after the block goes with it, and the space before it too when a closing tag or the end follows. When text
+ * follows and no space came before the block ("one.{{live:…}} two.{{/live}} Three."), one space is kept between the
+ * two sentences, so they don't run together.
+ * @param {string} html
+ * @param {number} pos
+ * @param {string} out
+ * @returns {{ out: string, pos: number }}
+ */
+function closeGap(html, pos, out) {
+  const start = pos;
+  while (pos < html.length && /\s/.test(html[pos])) pos++;
+  if (pos >= html.length || html.startsWith("</", pos)) return { out: out.trimEnd(), pos };
+  if (pos > start && out !== "" && !/\s$/.test(out) && !OPENING_BLOCK_TAG.test(out)) out += " ";
+  return { out, pos };
 }
 
 /**
@@ -120,8 +138,7 @@ export function dropLateLiveBlocks(html, published) {
       continue;
     }
     removed = true;
-    while (pos < html.length && /\s/.test(html[pos])) pos++;
-    if (pos >= html.length || html.startsWith("</", pos)) out = out.trimEnd();
+    ({ out, pos } = closeGap(html, pos, out));
   }
   out += html.slice(pos);
   return removed ? dropEmpty(out) : out;

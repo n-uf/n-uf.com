@@ -149,3 +149,12 @@ test("the print layout of a block is what the production build of that day makes
   const printed = dropLateLiveBlocks(applyLiveBlocks(body, () => "built", "x.md", (p) => FROM[p]), "2026-11-24");
   assert.equal(printed, production);
 });
+
+test("a removed block with no space before it and text after keeps one space between the sentences", () => {
+  assert.equal(run(`<p>One.{{live:/papyrus/draft-page}} See ${link}.{{/live}} Two.</p>`), "<p>One. Two.</p>");
+  assert.equal(run(`<li>Split it by you.{{live:/papyrus/draft-page}} ${link} tells you how.{{/live}} Count the pages.</li>`),
+    "<li>Split it by you. Count the pages.</li>");
+  // and not at the start of a block, where there is nothing to separate
+  assert.equal(run(`<p>{{live:/papyrus/draft-page}}See ${link}.{{/live}} Two.</p>`), "<p>Two.</p>");
+  assert.equal(dropLateLiveBlocks(`<p>One.${spanOf("2026-12-01", " See later.")} Two.</p>`, "2026-11-24"), "<p>One. Two.</p>");
+});
