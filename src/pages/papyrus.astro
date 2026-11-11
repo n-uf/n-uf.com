@@ -1,7 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PapyrusSpecimens from '../components/PapyrusSpecimens.astro';
+import { SAMPLES_DIR, sampleDocs } from '../components/papyrus-samples/documents.mjs';
+import pdfSizes from '../components/papyrus-samples/pdf-sizes.json';
 import { siteUrl, studioId } from '../data/projects';
+
+// The page as a PDF: the fact sheet, the same facts printed by papyrus pdf (see PapyrusSpecimens)
+const factSheet = sampleDocs[0];
+const factSheetPdf: string = `/${SAMPLES_DIR}/${factSheet.pdf}`;
+const factSheetPages: number = factSheet.pages.length;
+const factSheetKb: number = Math.max(1, Math.round((pdfSizes as Record<string, number>)[factSheet.pdf] / 1024));
+const factSheetLabel: string = `fact sheet · ${factSheetPages} ${factSheetPages === 1 ? 'page' : 'pages'} · ${factSheetKb} KB`;
 
 const pageTitle: string = 'papyrus: HTML and React documents to A4 and Letter PDF';
 const pageDescription: string =
@@ -99,6 +108,19 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
             </svg>
             <span>Source on GitHub</span>
             <span class="repo-path">n-uf/papyrus</span>
+          </a>
+          <a class="repo" href={factSheetPdf} download="papyrus-fact-sheet.pdf" type="application/pdf">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+              <path
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="square"
+                d="M8 1.75v8.5M4.25 6.5 8 10.25l3.75-3.75M2.25 13.75h11.5"
+              ></path>
+            </svg>
+            <span>Download PDF</span>
+            <span class="repo-path">{factSheetLabel}</span>
           </a>
         </p>
 
@@ -271,6 +293,9 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
   }
 
   .repo-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
     margin: -8px 0 32px;
   }
 
