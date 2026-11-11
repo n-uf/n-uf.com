@@ -9,6 +9,7 @@
  * lists the Papyrus* components and papyrus.astro, so a new article never makes those PDFs stale.
  */
 import { articlePath, dateText, getArticles, isLive, type Entry } from '../data/articles';
+import { plainText } from '../data/inline-code.mjs';
 
 const articles: Entry[] = await getArticles('papyrus');
 ---
@@ -20,7 +21,7 @@ const articles: Entry[] = await getArticles('papyrus');
       <ul>
         {articles.map((entry: Entry) => (
           <li>
-            <a href={articlePath('papyrus', entry.id)}>{entry.data.h1}</a>
+            <a href={articlePath('papyrus', entry.id)}>{plainText(entry.data.h1)}</a>
             {!isLive(entry) && <span class="scheduled"> Scheduled for {dateText(entry.data.published)}</span>}
           </li>
         ))}
@@ -45,9 +46,11 @@ const articles: Entry[] = await getArticles('papyrus');
     letter-spacing: -0.01em;
   }
 
+  /* Tailwind's reset removes the markers */
   ul {
     margin: 0;
     padding-left: 22px;
+    list-style: disc;
   }
 
   li {
@@ -64,6 +67,7 @@ const articles: Entry[] = await getArticles('papyrus');
 
   a {
     color: var(--ink);
+    text-decoration: underline;
     text-underline-offset: 3px;
   }
 
