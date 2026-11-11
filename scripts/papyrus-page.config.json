@@ -1,0 +1,18 @@
+{
+  "docUrl": "papyrus?view=pages&sheet={id}",
+  "outDir": "../public/papyrus-samples",
+  "pageSelector": ".leaf",
+  "sources": [
+    "../src/pages/papyrus.astro",
+    "../src/components/PapyrusLeaf.astro",
+    "../src/components/PapyrusSpecimens.astro",
+    "../src/components/papyrus-samples/documents.mjs",
+    "../src/layouts/Layout.astro",
+    "../src/styles/global.css",
+    "../public/papyrus-samples/fonts"
+  ],
+  "docs": [
+    { "id": "a4", "filename": "papyrus-a4.pdf", "sheet": "A4", "pageCount": 5 },
+    { "id": "letter", "filename": "papyrus-letter.pdf", "sheet": "letter", "pageCount": 5 }
+  ]
+}
