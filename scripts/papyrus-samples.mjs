@@ -29,8 +29,12 @@
  * The paged /papyrus page itself is printed too, once per sheet format
  * (papyrus-a4.pdf, papyrus-letter.pdf; config: papyrus-page.config.json). --pdf builds the
  * site, serves it with `astro preview` and prints /papyrus?view=pages&sheet=a4|letter, one
- * .leaf element per page, the page count checked. Its fingerprint covers the page, its
- * components, the layout and the samples source; --check needs no browser for it either.
+ * .leaf element per page, the page count checked. Its fingerprint covers only the page's own
+ * sources (papyrus.astro, the Papyrus* components, ExtLink, documents.mjs, the fonts), not the
+ * shared layout or global.css: an edit to those (the home page, the SEO head) must not fail
+ * the Vercel build until someone reprints. The cost: a change to the layout or global.css that
+ * does alter the sheets is not noticed; reprint with `pnpm samples:page` then.
+ * --check needs no browser for it either.
  */
 
 import { spawn, spawnSync } from 'node:child_process';
