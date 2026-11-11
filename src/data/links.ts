@@ -1,15 +1,20 @@
-import { siteUrl } from './projects';
+// The extension lets Node load this file in scripts/links.test.mjs (Astro and Vite accept it too)
+import { siteUrl } from './projects.ts';
 
 // Operator's rule for n-uf.com (2026-11-11): "All external links should open in a new window."
-// External = another host than n-uf.com (GitHub, npm, the n-uf subdomain sites). rel="noopener" without
-// "noreferrer": the sites we link to may see the visit came from here, as on debugsy's site.
+// External = an http(s) link to another host than n-uf.com (GitHub, npm, the n-uf subdomain sites). rel="noopener"
+// without "noreferrer": the sites we link to may see the visit came from here, as on debugsy's site.
 
 const siteHost: string = new URL(siteUrl).host;
 
-/** True for a link to another host; links without a host and links to n-uf.com itself are not external. */
+/**
+ * True for an http(s) link to another host. Links without a host, links to n-uf.com itself and links that open no
+ * page (mailto:, tel:) are not external.
+ */
 export function isExternal(href: string): boolean {
   try {
-    return new URL(href, siteUrl).host !== siteHost;
+    const url = new URL(href, siteUrl);
+    return (url.protocol === 'http:' || url.protocol === 'https:') && url.host !== siteHost;
   } catch {
     return false;
   }
