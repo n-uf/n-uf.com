@@ -47,6 +47,11 @@ const leafCss: string = `
 @media screen and (min-width: 860px) {
   ${sheetRule(SHEETS.A4, 'a4')}
   ${sheetRule(SHEETS.LETTER, 'letter')}
+  /* On screen a sheet is at least the paper's height and grows with its content, so a wider fallback font or a
+     larger minimum text size never cuts text; the fixed height is for print, where papyrus counts the pages */
+  .doc[data-sheet][data-view='pages'] .leaf-set > .pdf-page.leaf {
+    height: auto;
+  }
 }
 .doc[data-view='pages'] .leaf-set > .pdf-page.leaf {
   margin: 0 auto 28px;
