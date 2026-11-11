@@ -2,9 +2,11 @@
 // Scheduled publishing: go live by flipping `draft: true` to `draft: false`.
 //
 // How it works: a finished page is merged to main with `draft: true` and its go-live date in `published`
-// (YYYY-MM-DD, UTC). Production builds don't render drafts. This script, run daily at 00:10 UTC by
+// (YYYY-MM-DD, UTC). Production builds don't render drafts: that is the content layer's job (src/content.config.ts
+// and the draft rule `isLive` in src/data/articles.ts, from the branch fl/papyrus-articles-layer), and this script
+// ships together with it; on its own, main has no draft handling. This script, run daily at 00:10 UTC by
 // .github/workflows/publish.yml, looks at every .md directly inside every content collection (each folder directly
-// under src/content: papyrus today, any later one without a change here) and, for each one whose front matter has
+// under src/content, any new one without a change here) and, for each one whose front matter has
 // `draft: true` and a `published` date on or before today (UTC), changes that one line to `draft: false` and nothing
 // else in the file. It prints one `<collection>/<slug>` per line (the folder under src/content and the file name
 // without .md, e.g. `papyrus/html-to-pdf`).
