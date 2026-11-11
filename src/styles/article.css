@@ -37,7 +37,13 @@
   line-height: 1.45;
 }
 
-/* The article's name can be long: it gives way, so the tools stay on the bar's line */
+/* The article's name can be long: it gives way (the other crumbs keep their size, "n-uf" never breaks at its hyphen),
+   so the tools stay on the bar's line */
+.article .crumbs > :not([aria-current]) {
+  flex: none;
+  white-space: nowrap;
+}
+
 .article .crumbs [aria-current] {
   min-width: 0;
   overflow: hidden;
