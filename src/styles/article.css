@@ -1,13 +1,13 @@
 /* Article pages (/papyrus/<slug>): the article is a document on A4 sheets, made like the leaves of the /papyrus page
    (src/pages/papyrus.astro, src/components/PapyrusLeaf.astro): dark paper on the site's own background, the same ink
-   tokens, running head and folio (those come from PapyrusLeaf itself), shadow, type and top bar. One site, one paper.
+   tokens, running head and folio (those come from PapyrusLeaf itself), sheet edge, type and top bar. One site, one paper.
 
    Reused as they are: the PapyrusLeaf and ExtLink components, and the tokens in global.css (--bg, --ink, --copy,
    --muted, --faint, --sans, --mono, --accent-*). Copied, because the /papyrus page keeps them in its scoped styles:
    the top bar's .repo buttons, the page-view type sizes, the code box. When the paper changes there, change it here.
 
    The server HTML is one sheet with every word in it; src/scripts/paginate.ts lays it out on more sheets (class
-   "paged") on wide screens. The sheet's size and shadow rules are built in src/pages/papyrus/[slug].astro. */
+   "paged") on wide screens. The sheet's size and edge rules are built in src/pages/papyrus/[slug].astro. */
 
 .article {
   box-sizing: border-box;
