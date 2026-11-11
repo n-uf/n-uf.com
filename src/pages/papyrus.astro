@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ExtLink from '../components/ExtLink.astro';
 import PapyrusCode from '../components/PapyrusCode.astro';
 import PapyrusLeaf from '../components/PapyrusLeaf.astro';
 import PapyrusSpecimens from '../components/PapyrusSpecimens.astro';
@@ -167,7 +168,13 @@ const reactSample: string =`<Logo name={<MyWordmark />} variantTextLines={{ home
         <span aria-current="page">papyrus</span>
       </nav>
       <div class="view-tools">
-        <a class="repo" href={repoUrl} aria-label={`Source on GitHub: ${repoSlug}`}>
+        <a
+          class="repo"
+          href={repoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Source on GitHub: ${repoSlug} (opens in a new tab)`}
+        >
           <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
             <path
               fill="currentColor"
@@ -266,13 +273,13 @@ const reactSample: string =`<Logo name={<MyWordmark />} variantTextLines={{ home
         <h2>Two packages, one version</h2>
         <ul>
           <li>
-            <strong><a href={engineNpm}>@n-uf/papyrus</a></strong>, the engine. Plain ESM
+            <strong><ExtLink href={engineNpm}>@n-uf/papyrus</ExtLink></strong>, the engine. Plain ESM
             JavaScript with type declarations and no framework, so it runs in a plain HTML page, in a
             bundled app and in Node. It holds the page contract, the sheet sizes and print CSS, the
             document registry and the PDF exporter.
           </li>
           <li>
-            <strong><a href={reactNpm}>@n-uf/papyrus-react</a></strong>, React components on top of
+            <strong><ExtLink href={reactNpm}>@n-uf/papyrus-react</ExtLink></strong>, React components on top of
             the engine: page and content blocks, a document registry typed for React, and print
             styles. It ships TypeScript source.
           </li>
@@ -378,11 +385,11 @@ const reactSample: string =`<Logo name={<MyWordmark />} variantTextLines={{ home
           for the PDF export and the Vite plugin.
         </p>
         <p>
-          Source on GitHub: <a href={repoUrl}>n-uf/papyrus</a>. On npm:
-          <a href={engineNpm}>@n-uf/papyrus</a> and <a href={reactNpm}>@n-uf/papyrus-react</a>.
-          Changelogs: <a href={engineChangelog}>engine</a>,
-          <a href={reactChangelog}>React components</a>. Licence:
-          <a href={licenceUrl}>PolyForm Perimeter 1.0.1</a>.
+          Source on GitHub: <ExtLink href={repoUrl}>n-uf/papyrus</ExtLink>. On npm:
+          <ExtLink href={engineNpm}>@n-uf/papyrus</ExtLink> and <ExtLink href={reactNpm}>@n-uf/papyrus-react</ExtLink>.
+          Changelogs: <ExtLink href={engineChangelog}>engine</ExtLink>,
+          <ExtLink href={reactChangelog}>React components</ExtLink>. Licence:
+          <ExtLink href={licenceUrl}>PolyForm Perimeter 1.0.1</ExtLink>.
         </p>
         </PapyrusLeaf>
       </article>
