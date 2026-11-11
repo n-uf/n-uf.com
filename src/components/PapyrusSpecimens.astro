@@ -81,6 +81,15 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     width: min(1040px, calc(100vw - 48px));
     margin: 0 0 56px;
     translate: -50% 0;
+    container-type: inline-size;
+  }
+
+  /* On a sheet of the paged view the specimens fill the sheet's text column */
+  :global(.doc[data-view='pages']) .specimens {
+    left: 0;
+    width: 100%;
+    margin: 0;
+    translate: none;
   }
 
   .specimen-grid {
@@ -208,7 +217,17 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     text-underline-offset: 3px;
   }
 
-  @media (max-width: 899px) {
+  @media (max-width: 639px) {
+    .specimens {
+      left: 0;
+      width: 100%;
+      translate: none;
+    }
+  }
+
+  /* The breakpoints follow the width the specimens have (a container), not the window's:
+     the paged view puts them on a sheet whose text column is about 700px */
+  @container (max-width: 851px) {
     .specimen-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -220,13 +239,7 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     }
   }
 
-  @media (max-width: 639px) {
-    .specimens {
-      left: 0;
-      width: 100%;
-      translate: none;
-    }
-
+  @container (max-width: 591px) {
     .specimen-grid {
       grid-template-columns: minmax(0, 1fr);
       gap: 44px;
@@ -244,9 +257,45 @@ const sheetStyles: string = `${paperCss}\n${sheetCssScoped}`;
     }
   }
 
-  @media print {
-    .specimens {
-      display: none;
+  /* Paged view: three columns from 640px of sheet, one below */
+  @container (min-width: 640px) {
+    :global(.doc[data-view='pages']) .specimen-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    :global(.doc[data-view='pages']) .specimen[data-pages='2'] {
+      grid-column: span 2;
+      width: auto;
+    }
+
+    :global(.doc[data-view='pages']) .specimen[data-pages='1'] {
+      grid-column: auto;
+      width: auto;
+      justify-self: stretch;
+    }
+
+    :global(.doc[data-view='pages']) .specimen[data-pages='2'] .sheets {
+      --n: 2;
+      gap: 20px;
+    }
+  }
+
+  @container (min-width: 592px) and (max-width: 639px) {
+    :global(.doc[data-view='pages']) .specimen-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 44px;
+    }
+
+    :global(.doc[data-view='pages']) .specimen[data-pages='2'],
+    :global(.doc[data-view='pages']) .specimen[data-pages='1'] {
+      grid-column: auto;
+      width: 100%;
+    }
+
+    :global(.doc[data-view='pages']) .specimen[data-pages='2'] .sheets {
+      --n: 1;
+      gap: 28px;
     }
   }
 </style>
