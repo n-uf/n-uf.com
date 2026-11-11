@@ -18,7 +18,7 @@ faq:
   - q: "How do I generate a PDF from HTML with Playwright?"
     a: "Launch Chromium, open the page with `page.goto(url)` or `page.setContent(html)`, then call `page.pdf({ path: 'out.pdf', format: 'A4' })`. `page.pdf()` prints with the print CSS media and returns the PDF as a Buffer. Without `path` it doesn't save a file."
   - q: "Does Playwright generate PDFs in Firefox or WebKit?"
-    a: "No, use Chromium. The `page.pdf()` reference doesn't list browsers, but Playwright's own code throws 'PDF generation is only supported for Headless Chromium' in the others, and its MCP PDF tool page says PDF generation is Chromium-only."
+    a: "No. `page.pdf()` works only in Chromium. The `page.pdf()` reference doesn't list browsers, but Playwright's own code throws 'PDF generation is only supported for Headless Chromium' in the others, and its MCP PDF tool page says the same."
   - q: "How do I print with no header and footer?"
     a: "Leave `displayHeaderFooter` out. It defaults to false, so Playwright prints neither. Set it to true only when you also pass `headerTemplate` and `footerTemplate`."
   - q: "How do I get A4 and margins in Playwright?"
@@ -100,7 +100,7 @@ related:
   - /papyrus/css-page-size-a4
   - /papyrus/css-page-break-print
 ---
-To have Playwright generate a PDF from HTML, launch Chromium, open the page with `page.goto()` or `page.setContent()`, and call `page.pdf({ path: "out.pdf", format: "A4" })`. It has to be Chromium: in Firefox or WebKit, Playwright throws "PDF generation is only supported for Headless Chromium". You get the page printed with its print CSS, saved to the path you gave.
+To have Playwright generate a PDF from HTML, launch Chromium, open the page with `page.goto()` or `page.setContent()`, and call `page.pdf({ path: "out.pdf", format: "A4" })`. `page.pdf()` works only in Chromium: in Firefox or WebKit, Playwright throws "PDF generation is only supported for Headless Chromium". You get the page printed with its print CSS, saved to the path you gave.
 
 That's enough for a first PDF. Making it repeatable in CI takes a few more things: the options that matter, headers and footers, waiting for fonts, and a check on the page count. This article assumes Node and a page you can open by URL, for example from a local server. For the CSS side, see [css page size a4](/papyrus/css-page-size-a4) for sizing and [css page break print](/papyrus/css-page-break-print) for breaks.
 
@@ -221,7 +221,7 @@ Puppeteer does the same job with a different API. Its home page says it controls
 | Waiting for fonts | no option; wait yourself | `waitForFonts`, default `true` |
 | `timeout` option | none listed | `30_000` ms |
 | `tagged` default | `false` | `true` (marked experimental) |
-| Browsers it drives | Chromium, Firefox, WebKit (PDF in Chromium only) | Chrome, Firefox |
+| Browsers it drives | Chromium, Firefox, WebKit (`page.pdf()` works only in Chromium) | Chrome, Firefox |
 
 Use the one you already run for tests. Both print with the page's print CSS, so the same stylesheet gives the same layout rules. The differences are in the options and their defaults, as the table shows. If you move a script from one to the other, check the format and the margins first, then fonts, since only Puppeteer waits for them on its own.
 
@@ -248,7 +248,7 @@ papyrus is young. Its versions are dates (`YY.M.R`), not semantic versions, so a
 
 ## What to remember
 
-- To make Playwright generate a PDF from HTML: `chromium.launch()`, `page.goto()`, `page.pdf({ format: "A4" })`. Chromium only.
+- To make Playwright generate a PDF from HTML: `chromium.launch()`, `page.goto()`, `page.pdf({ format: "A4" })`. `page.pdf()` works only in Chromium.
 - The defaults are Letter, no margins and no backgrounds.
 - No header or footer unless `displayHeaderFooter` is true.
 - Wait for `document.fonts.ready`, then count the pages in the finished file.
