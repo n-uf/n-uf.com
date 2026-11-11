@@ -1,0 +1,142 @@
+---
+/**
+ * One page of the /papyrus page: a dark sheet with a running head (the site
+ * name, the sheet format and the section), the content, and a folio. The sheet
+ * is an element with the papyrus page class; its A4 / Letter size comes from
+ * sheetCss() (see `leafCss` in src/pages/papyrus.astro).
+ *
+ * The head and the folio are decoration: aria-hidden, no headings. The page's
+ * own h2s stay real headings inside the content.
+ *
+ * The page wrapper (`.doc`) carries `data-view="pages|web"` and
+ * `data-sheet="a4|letter"`. In the web view the sheet drops out of the layout
+ * (display: contents) and the content reads as one plain column.
+ */
+import { PAGE_CLASS } from '@n-uf/papyrus';
+
+interface Props {
+  /** 1-based page number */
+  n: number;
+  /** Number of pages in the stack */
+  total: number;
+  /** The section shown in the running head */
+  section: string;
+}
+
+const { n, total, section } = Astro.props;
+---
+
+<section class={`leaf ${PAGE_CLASS}`} aria-label={`Page ${n} of ${total}`}>
+  <p class="leaf-head" aria-hidden="true">
+    <span>papyrus · <span class="fmt-a4">A4</span><span class="fmt-letter">US Letter</span></span>
+    <span class="leaf-section">{section}</span>
+  </p>
+  <div class="leaf-body">
+    <slot />
+  </div>
+  <p class="leaf-folio" aria-hidden="true">Page {n} of {total}</p>
+</section>
+
+<style>
+  .leaf {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 36px 60px 28px;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--ink) 3.5%, var(--bg));
+  }
+
+  .leaf-head,
+  .leaf-folio {
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+  }
+
+  .leaf-head {
+    display: flex;
+    flex: none;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 12px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+
+  .leaf-section {
+    text-align: right;
+  }
+
+  /* The format shown in the head follows the page's data-sheet */
+  .fmt-letter,
+  :global(.doc[data-sheet='letter']) .fmt-a4 {
+    display: none;
+  }
+
+  :global(.doc[data-sheet='letter']) .fmt-letter {
+    display: inline;
+  }
+
+  .leaf-body {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  :global(.doc[data-view='pages']) .leaf-body > :global(:first-child) {
+    margin-top: 0;
+  }
+
+  /* An h2 that opens a page needs no rule over it: the head's rule is right above */
+  :global(.doc[data-view='pages']) .leaf-body > :global(h2:first-child) {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .leaf-folio {
+    flex: none;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    text-align: center;
+  }
+
+  /* Narrow screens: a fluid page, no fixed sheet box */
+  @media screen and (max-width: 859px) {
+    .leaf {
+      padding: 24px 20px 20px;
+    }
+
+    .leaf-head {
+      margin-bottom: 24px;
+    }
+
+    .leaf-body {
+      flex: none;
+    }
+  }
+
+  /* Web view: the sheet disappears and the text is one column, as before the pages */
+  :global(.doc[data-view='web']) .leaf,
+  :global(.doc[data-view='web']) .leaf-body {
+    display: contents;
+  }
+
+  :global(.doc[data-view='web']) .leaf-head,
+  :global(.doc[data-view='web']) .leaf-folio {
+    display: none;
+  }
+
+  @media print {
+    .leaf {
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+  }
+</style>

@@ -1,16 +1,59 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PapyrusLeaf from '../components/PapyrusLeaf.astro';
 import PapyrusSpecimens from '../components/PapyrusSpecimens.astro';
-import { SAMPLES_DIR, sampleDocs } from '../components/papyrus-samples/documents.mjs';
+import { SHEETS } from '@n-uf/papyrus';
+import { SAMPLES_DIR, scopedSheetCss } from '../components/papyrus-samples/documents.mjs';
 import pdfSizes from '../components/papyrus-samples/pdf-sizes.json';
 import { siteUrl, studioId } from '../data/projects';
 
-// The page as a PDF: the fact sheet, the same facts printed by papyrus pdf (see PapyrusSpecimens)
-const factSheet = sampleDocs[0];
-const factSheetPdf: string = `/${SAMPLES_DIR}/${factSheet.pdf}`;
-const factSheetPages: number = factSheet.pages.length;
-const factSheetKb: number = Math.max(1, Math.round((pdfSizes as Record<string, number>)[factSheet.pdf] / 1024));
-const factSheetLabel: string = `fact sheet · ${factSheetPages} ${factSheetPages === 1 ? 'page' : 'pages'} · ${factSheetKb} KB`;
+// The page is a stack of sheets. The split is fixed in the markup below; keep `leafTotal` equal
+// to the number of <PapyrusLeaf> elements (and "pageCount" in scripts/papyrus-page.config.json).
+const leafTotal: number = 5;
+
+// The page as a PDF, once per sheet format: the paged page itself, printed by papyrus pdf
+// (scripts/papyrus-samples.mjs --pdf). The sizes are recorded in pdf-sizes.json.
+const pagePdfs = (['a4', 'letter'] as const).map((key) => {
+  const file: string = `papyrus-${key}.pdf`;
+  const bytes: number | undefined = (pdfSizes as Record<string, number>)[file];
+  const format: string = key === 'a4' ? 'A4' : 'US Letter';
+  const size: string = bytes ? ` · ${Math.max(1, Math.round(bytes / 1024))} KB` : '';
+  return {
+    key,
+    file,
+    href: `/${SAMPLES_DIR}/${file}`,
+    label: `${format} · ${leafTotal} pages${size}`,
+  };
+});
+const pagePdf = pagePdfs[0];
+
+// Sheet sizes from papyrus' sheetCss(): only its page rule is used, scoped to the sheets of this
+// page (the @page, print and canvas rules of sheetCss would reshape the whole site page).
+// Switched by data-sheet (a4 | letter) on the wrapper; fixed boxes only where the sheet fits.
+const sheetRule = (sheet: typeof SHEETS.A4, key: string): string => {
+  const scoped: string = scopedSheetCss(sheet, '.doc');
+  const from = '.doc .pdf-page';
+  if (!scoped.startsWith(from)) throw new Error('scopedSheetCss() no longer starts with the scoped page selector');
+  const target = `.doc[data-sheet='${key}'][data-view='pages'] .leaf-set > .pdf-page.leaf`;
+  return scoped.replace(from, target);
+};
+const printRule = (sheet: typeof SHEETS.A4, key: string): string =>
+  `.doc[data-sheet='${key}'][data-view='pages'] .leaf-set > .pdf-page.leaf { width: ${sheet.width}; height: ${sheet.height}; min-height: 0; box-sizing: border-box; margin: 0; box-shadow: none; page-break-after: always; break-after: page; break-inside: avoid; }`;
+const leafCss: string = `
+@media screen and (min-width: 860px) {
+  ${sheetRule(SHEETS.A4, 'a4')}
+  ${sheetRule(SHEETS.LETTER, 'letter')}
+}
+.doc[data-view='pages'] .leaf-set > .pdf-page.leaf {
+  margin: 0 auto 28px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 22px 60px -12px rgb(0 0 0 / 0.65);
+}
+@media print {
+  ${printRule(SHEETS.A4, 'a4')}
+  ${printRule(SHEETS.LETTER, 'letter')}
+  .doc[data-view='pages'] .leaf-set > .pdf-page.leaf:last-child { page-break-after: auto; break-after: auto; }
+}
+`;
 
 const pageTitle: string = 'papyrus: HTML and React documents to A4 and Letter PDF';
 const pageDescription: string =
@@ -87,7 +130,29 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
   path={pagePath}
   structuredData={[software, breadcrumbs]}
 >
-  <div class="doc">
+  <div class="doc" data-view="pages" data-sheet="a4">
+    <!-- Before the sheets, so a returning visitor gets the view and the format they chose without a flash.
+         The URL (?view=web|pages, ?sheet=a4|letter) wins over the remembered choice. -->
+    <script is:inline>
+      (function () {
+        var doc = document.currentScript.parentElement;
+        var q = new URLSearchParams(location.search);
+        function stored(key) {
+          try {
+            return localStorage.getItem(key);
+          } catch (e) {
+            return null;
+          }
+        }
+        var view = q.get('view');
+        if (view !== 'web' && view !== 'pages') view = stored('papyrus-view');
+        if (view === 'web' || view === 'pages') doc.setAttribute('data-view', view);
+        var sheet = q.get('sheet');
+        if (sheet !== 'a4' && sheet !== 'letter') sheet = stored('papyrus-sheet');
+        if (sheet === 'a4' || sheet === 'letter') doc.setAttribute('data-sheet', sheet);
+      })();
+    </script>
+
     <nav class="crumbs" aria-label="Breadcrumb">
       <a href="/">n-uf</a>
       <span aria-hidden="true">/</span>
@@ -95,7 +160,10 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
     </nav>
 
     <main>
-      <article>
+      <article class="leaf-set">
+        <style is:inline set:html={leafCss}></style>
+
+        <PapyrusLeaf n={1} total={leafTotal} section="Introduction · Two packages">
         <h1>Documents in HTML, printed to PDF</h1>
 
         <p class="repo-row">
@@ -109,7 +177,18 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
             <span>Source on GitHub</span>
             <span class="repo-path">n-uf/papyrus</span>
           </a>
-          <a class="repo" href={factSheetPdf} download="papyrus-fact-sheet.pdf" type="application/pdf">
+          <a
+            class="repo pdf-link"
+            href={pagePdf.href}
+            download={pagePdf.file}
+            type="application/pdf"
+            data-a4-href={pagePdfs[0].href}
+            data-a4-file={pagePdfs[0].file}
+            data-a4-label={pagePdfs[0].label}
+            data-letter-href={pagePdfs[1].href}
+            data-letter-file={pagePdfs[1].file}
+            data-letter-label={pagePdfs[1].label}
+          >
             <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
               <path
                 fill="none"
@@ -120,11 +199,43 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
               ></path>
             </svg>
             <span>Download PDF</span>
-            <span class="repo-path">{factSheetLabel}</span>
+            <span class="repo-path">{pagePdf.label}</span>
           </a>
+          <!-- Two-state controls, one button each; shown by the script below (they do nothing without it) -->
+          <button class="repo view-toggle" type="button" aria-pressed="false" hidden>
+            <svg class="icon-web" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+              <path
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="square"
+                d="M2.25 3.25h11.5v9.5H2.25zM2.25 6.25h11.5"
+              ></path>
+            </svg>
+            <svg class="icon-pages" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+              <path
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="square"
+                d="M3.75 1.75h8.5v12.5h-8.5zM6 5.25h4M6 8h4"
+              ></path>
+            </svg>
+            <span class="toggle-label">Web view</span>
+          </button>
+          <button class="repo sheet-toggle" type="button" hidden>
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+              <path
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="square"
+                d="M4.25 1.75h7.5v12.5h-7.5zM1.75 4.25v7.5M14.25 4.25v7.5"
+              ></path>
+            </svg>
+            <span class="toggle-label">US Letter</span>
+          </button>
         </p>
-
-        <PapyrusSpecimens />
 
         <p>
           papyrus is a documents engine. You write a document as HTML or React pages. On screen each
@@ -159,7 +270,13 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
           Both carry no brand, copy or content of their own; your documents supply those. They are
           released together at one version, on npmjs with provenance and on GitHub Packages.
         </p>
+        </PapyrusLeaf>
 
+        <PapyrusLeaf n={2} total={leafTotal} section="What papyrus prints">
+          <PapyrusSpecimens />
+        </PapyrusLeaf>
+
+        <PapyrusLeaf n={3} total={leafTotal} section="One element, one sheet, one page">
         <h2>One element, one sheet, one page</h2>
         <p>
           Every element with the class <code>pdf-page</code> is one sheet on screen and one page in
@@ -178,7 +295,9 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
           <code>numberToc()</code> numbers the entries, appendices included.
         </p>
         <pre><code>{tocSample}</code></pre>
+        </PapyrusLeaf>
 
+        <PapyrusLeaf n={4} total={leafTotal} section="Export to PDF">
         <h2>Export to PDF</h2>
         <p>
           The <code>papyrus</code> command prints every document in a config file through headless
@@ -222,6 +341,9 @@ const reactSample: string = `<Logo name={<MyWordmark />} variantTextLines={{ hom
           <code>/docs/&lt;id&gt;.pdf</code>.
         </p>
 
+        </PapyrusLeaf>
+
+        <PapyrusLeaf n={5} total={leafTotal} section="React components · Install">
         <h2>React components</h2>
         <p>
           <code>@n-uf/papyrus-react</code> gives you <code>PDFPage</code> and blocks for text,
@@ -252,8 +374,49 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
           <a href={reactChangelog}>React components</a>. Licence:
           <a href={licenceUrl}>PolyForm Perimeter 1.0.1</a>.
         </p>
+        </PapyrusLeaf>
       </article>
     </main>
+
+    <script is:inline>
+      (function () {
+        var doc = document.querySelector('.doc');
+        var viewBtn = doc.querySelector('.view-toggle');
+        var sheetBtn = doc.querySelector('.sheet-toggle');
+        var pdf = doc.querySelector('.pdf-link');
+        function remember(key, value) {
+          try {
+            localStorage.setItem(key, value);
+          } catch (e) {}
+        }
+        function sync() {
+          var view = doc.getAttribute('data-view');
+          var sheet = doc.getAttribute('data-sheet');
+          // Labelled for the state a click switches to; aria-pressed is true in the web view
+          viewBtn.setAttribute('aria-pressed', view === 'web' ? 'true' : 'false');
+          viewBtn.querySelector('.toggle-label').textContent = view === 'web' ? 'Page view' : 'Web view';
+          sheetBtn.querySelector('.toggle-label').textContent = sheet === 'a4' ? 'US Letter' : 'A4';
+          pdf.setAttribute('href', pdf.getAttribute('data-' + sheet + '-href'));
+          pdf.setAttribute('download', pdf.getAttribute('data-' + sheet + '-file'));
+          pdf.querySelector('.repo-path').textContent = pdf.getAttribute('data-' + sheet + '-label');
+        }
+        viewBtn.addEventListener('click', function () {
+          var next = doc.getAttribute('data-view') === 'web' ? 'pages' : 'web';
+          doc.setAttribute('data-view', next);
+          remember('papyrus-view', next);
+          sync();
+        });
+        sheetBtn.addEventListener('click', function () {
+          var next = doc.getAttribute('data-sheet') === 'a4' ? 'letter' : 'a4';
+          doc.setAttribute('data-sheet', next);
+          remember('papyrus-sheet', next);
+          sync();
+        });
+        sync();
+        viewBtn.hidden = false;
+        sheetBtn.hidden = false;
+      })();
+    </script>
   </div>
 </Layout>
 
@@ -299,27 +462,55 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
     margin: -8px 0 32px;
   }
 
-  /* The repo link sits under the H1 as an outlined button, so it's seen first */
-  article a.repo {
+  /* The links and toggles under the H1: one family of small tinted buttons */
+  article .repo {
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 6px 10px;
     max-width: 100%;
+    margin: 0;
     padding: 8px 14px;
-    border: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
-    border-radius: 6px;
+    border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
     color: var(--ink);
     font-family: var(--mono);
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.4;
+    text-align: left;
     text-decoration: none;
+    cursor: pointer;
     transition: border-color 160ms ease, background-color 160ms ease;
   }
 
-  article a.repo:is(:hover, :focus-visible) {
-    border-color: var(--ink);
-    background: color-mix(in srgb, var(--ink) 6%, transparent);
+  article .repo:is(:hover, :focus-visible) {
+    border-color: color-mix(in srgb, var(--ink) 40%, transparent);
+    background: color-mix(in srgb, var(--ink) 10%, transparent);
+  }
+
+  article .repo:focus-visible {
+    outline: 1px solid color-mix(in srgb, var(--ink) 70%, transparent);
+    outline-offset: 3px;
+  }
+
+  article .repo[hidden] {
+    display: none;
+  }
+
+  /* The format means nothing in the web view */
+  .doc[data-view='web'] .sheet-toggle {
+    display: none;
+  }
+
+  /* One icon per state of the view toggle: the page icon while in the web view, the web icon in pages */
+  .view-toggle .icon-pages,
+  .doc[data-view='web'] .view-toggle .icon-web {
+    display: none;
+  }
+
+  .doc[data-view='web'] .view-toggle .icon-pages {
+    display: block;
   }
 
   .repo svg {
@@ -332,7 +523,7 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
   }
 
   @media (prefers-reduced-motion: reduce) {
-    article a.repo {
+    article .repo {
       transition: none;
     }
   }
@@ -414,5 +605,110 @@ pnpm add @n-uf/papyrus-react      # React components</code></pre>
     margin-top: 48px;
     color: var(--muted);
     font-size: 14px;
+  }
+
+  /* Web view: the sheets drop out (display: contents, see PapyrusLeaf) and the content is one
+     column as before the pages. A flex column lets the sheet specimens sit under the buttons,
+     where they were, though their page comes after the intro in the markup. */
+  .doc[data-view='web'] .leaf-set {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Flex items do not collapse margins: the gap before an h2 is the old 56px less the 16px above */
+  .doc[data-view='web'] h2 {
+    margin-top: 40px;
+  }
+
+  /* Page view: the text is a little smaller, to sit on a sheet like print */
+  .doc[data-view='pages'] {
+    width: min(100%, 850px);
+    padding-inline: 16px;
+  }
+
+  .doc[data-view='pages'] h1 {
+    margin-bottom: 24px;
+    font-size: clamp(28px, 7vw, 38px);
+  }
+
+  .doc[data-view='pages'] .repo-row {
+    margin: 0 0 28px;
+  }
+
+  .doc[data-view='pages'] h2 {
+    margin: 36px 0 14px;
+    font-size: 21px;
+  }
+
+  .doc[data-view='pages'] :is(p, li) {
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .doc[data-view='pages'] p {
+    margin-bottom: 14px;
+  }
+
+  .doc[data-view='pages'] :is(ul, ol) {
+    margin-bottom: 14px;
+  }
+
+  .doc[data-view='pages'] li {
+    margin-bottom: 8px;
+  }
+
+  /* No scrolling inside a sheet: long code lines wrap */
+  .doc[data-view='pages'] pre {
+    margin-bottom: 14px;
+    padding: 14px 16px;
+    overflow: visible;
+    font-size: 13px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .doc[data-view='pages'] pre code {
+    overflow-wrap: anywhere;
+  }
+
+  /* Print: only the sheets, dark as on screen (the PDF of this page is printed from here) */
+  @media print {
+    :global(html),
+    :global(body) {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .doc {
+      width: auto;
+      margin: 0;
+      padding: 0;
+    }
+
+    .doc[data-view='pages'] {
+      width: auto;
+      padding: 0;
+    }
+
+    .crumbs,
+    .repo-row {
+      display: none;
+    }
+
+    .doc[data-view='pages'] h1 {
+      margin-top: 0;
+    }
+  }
+</style>
+<style is:global>
+  /* Web view order: the heading, the buttons and the sheet specimens first (as on the page before
+     the pages), then the rest in document order. Global, since the specimens are a component. */
+  .doc[data-view='web'] .leaf-body > * {
+    order: 1;
+  }
+
+  .doc[data-view='web'] .leaf-body > :is(h1, .repo-row, .specimens) {
+    order: 0;
   }
 </style>
