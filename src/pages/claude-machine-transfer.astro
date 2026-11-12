@@ -1,7 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Faq from '../components/Faq.astro';
 import { siteUrl, studioId } from '../data/projects';
 import { externalAttrs, newTabNote } from '../data/links';
+import { machineTransferFaq, plainFaq } from '../data/faq';
+import { faqPage } from '../data/schema';
 
 const pageTitle: string = 'machine-transfer: move a Claude Code workspace to a new Mac';
 const pageDescription: string =
@@ -49,7 +52,7 @@ const breadcrumbs: Record<string, unknown> = {
   title={pageTitle}
   description={pageDescription}
   path={pagePath}
-  structuredData={[software, breadcrumbs]}
+  structuredData={[software, breadcrumbs, faqPage(plainFaq(machineTransferFaq))]}
 >
   <div class="doc">
     <nav class="crumbs" aria-label="Breadcrumb">
@@ -246,6 +249,7 @@ const breadcrumbs: Record<string, unknown> = {
           the MIT licence: use it, change it and share it.
         </p>
 
+        <Faq items={machineTransferFaq} variant="doc" />
         <p class="note">
           n-uf is not affiliated with Anthropic. Claude and Claude Code are Anthropic's products.
         </p>
