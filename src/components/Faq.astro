@@ -1,0 +1,164 @@
+---
+/**
+ * A "Questions" section: each question a heading, its answer right below it, all visible (no accordion), so the page
+ * text is what the FAQPage JSON-LD repeats. The page passes plainFaq(items) to faqPage() (src/data/schema.ts) for the
+ * markup. A link to another host opens in a new tab (ExtLink); a link to n-uf.com stays in the tab.
+ *
+ * variant "home": a grid in the home page's look (mono type, an accent line per question).
+ * variant "doc": one column in an article page's look (the page's h2 style, sans question headings).
+ */
+import ExtLink from './ExtLink.astro';
+import { isExternal } from '../data/links';
+import { siteUrl } from '../data/projects';
+import type { FaqItem, Part } from '../data/faq';
+
+interface Props {
+  items: readonly FaqItem[];
+  /** Used for the ids, so a page can link to #questions */
+  id?: string;
+  variant?: 'home' | 'doc';
+}
+
+const { items, id = 'questions', variant = 'home' } = Astro.props;
+
+// Same-site links are written with the full URL in the data; on the page they are paths
+const local = (href: string): string => {
+  const url: URL = new URL(href, siteUrl);
+  return url.host === new URL(siteUrl).host ? `${url.pathname}${url.search}${url.hash}` : href;
+};
+---
+
+<section class={`faq faq-${variant}`} id={id} aria-labelledby={`${id}-title`}>
+  <h2 id={`${id}-title`}>Questions</h2>
+  <ul class="faq-list">
+    {
+      items.map((item: FaqItem, index: number) => (
+        <li data-bar={String(index % 5)}>
+          <h3>{item.q}</h3>
+          <p>
+            {item.a.map((part: Part) =>
+              typeof part === 'string' ? (
+                part
+              ) : isExternal(part.href) ? (
+                <ExtLink href={part.href} arrow={false}>
+                  {part.text}
+                </ExtLink>
+              ) : (
+                <a href={local(part.href)}>{part.text}</a>
+              ),
+            )}
+          </p>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .faq-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  h3 {
+    margin: 0;
+    font-weight: 400;
+  }
+
+  p {
+    margin: 8px 0 0;
+    overflow-wrap: anywhere;
+  }
+
+  p a {
+    color: var(--ink);
+    text-underline-offset: 3px;
+  }
+
+  li[data-bar='0'] { --accent: var(--accent-0); }
+  li[data-bar='1'] { --accent: var(--accent-1); }
+  li[data-bar='2'] { --accent: var(--accent-2); }
+  li[data-bar='3'] { --accent: var(--accent-3); }
+  li[data-bar='4'] { --accent: var(--accent-4); }
+
+  /* home: the project grid's look */
+  .faq-home {
+    box-sizing: border-box;
+    width: min(100%, 1120px);
+    margin: 8px auto 56px;
+  }
+
+  .faq-home h2 {
+    margin: 0 0 24px;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.3;
+  }
+
+  .faq-home .faq-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 40px;
+    row-gap: 32px;
+  }
+
+  .faq-home li {
+    min-width: 0;
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  }
+
+  .faq-home h3 {
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .faq-home p {
+    max-width: 62ch;
+    color: var(--copy);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 820px) {
+    .faq-home .faq-list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* doc: the article page's look */
+  .faq-doc h2 {
+    margin: 56px 0 16px;
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    font-family: var(--sans);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .faq-doc li {
+    margin: 0 0 24px;
+  }
+
+  .faq-doc h3 {
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .faq-doc p {
+    color: var(--copy);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+</style>

@@ -9,6 +9,7 @@ import {
   type Project,
 } from "../data/projects";
 import { plainText } from "../data/inline-code.mjs";
+import { answerMarkdown, homeFaq, machineTransferFaq, type FaqItem } from "../data/faq";
 import { articlePath, getArticles, sections, type Entry, type SectionKey } from "../data/articles";
 
 // The live articles of each project that has a collection, listed under that project (drafts only in previews)
@@ -47,6 +48,11 @@ function projectBlock(project: Project): string {
   return lines.join("\n");
 }
 
+// The questions the pages show (src/data/faq.ts), with their links as Markdown
+function faqBlock(items: readonly FaqItem[]): string {
+  return items.map((item: FaqItem) => `### ${item.q}\n\n${answerMarkdown(item.a)}`).join("\n\n");
+}
+
 export const GET: APIRoute = (): Response => {
   const body: string = [
     `# ${studioName}`,
@@ -60,6 +66,14 @@ export const GET: APIRoute = (): Response => {
     "## Projects",
     "",
     projects.map(projectBlock).join("\n\n"),
+    "",
+    "## Questions about n-uf",
+    "",
+    faqBlock(homeFaq),
+    "",
+    "## Questions about machine-transfer",
+    "",
+    faqBlock(machineTransferFaq),
     "",
   ].join("\n");
 
