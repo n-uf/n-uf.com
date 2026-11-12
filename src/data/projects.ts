@@ -39,6 +39,18 @@ export const projects: readonly Project[] = [
     status: "live",
   },
   {
+    id: "motion",
+    name: "motion & placement",
+    tagline:
+      "Two TypeScript packages for windows, panels and toolbars: @n-uf/motion moves them without overshoot, @n-uf/placement works out where they dock.",
+    description:
+      "Packages: @n-uf/motion, @n-uf/placement. Licence: PolyForm Perimeter 1.0.1.",
+    url: "https://motion.n-uf.com",
+    repo: "https://github.com/n-uf/motion",
+    npm: "@n-uf/motion",
+    status: "live",
+  },
+  {
     id: "doodl",
     name: "DOODL",
     tagline:

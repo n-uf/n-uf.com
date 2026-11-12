@@ -53,8 +53,8 @@ for (const [page, items, min, max] of [
 
 test("every listed project is named and linked to its site in the tools answer", () => {
   const item = answerOf("What tools does n-uf make?");
-  assert.equal(listed.length, 10, "the answers say ten projects: rewrite them");
-  assert.match(answerText(item.a), /^n-uf makes ten tools/);
+  assert.equal(listed.length, 11, "the answers say eleven projects: rewrite them");
+  assert.match(answerText(item.a), /^n-uf makes eleven tools/);
   // the answer groups them by kind (libraries, UI kits, apps, skill), so the order differs from the data's
   const byName = (a, b) => a[0].localeCompare(b[0]);
   assert.deepEqual(
@@ -69,15 +69,15 @@ test("licence answer: each group of projects, as the project entries say", () =>
   assert.ok(text.includes(`${joined(names(polyform))} use PolyForm Perimeter 1.0.1`), "PolyForm group");
   assert.ok(text.includes(`${joined(names(mit))} is MIT`), "MIT group");
   assert.ok(text.includes(`${joined(names(unlicensed))} have no public source yet`), "no-licence group");
-  assert.equal(publicSource.length, 7, "the answer says the seven with public source: rewrite it");
-  assert.ok(text.includes("the seven with public source are free to use"));
+  assert.equal(publicSource.length, 8, "the answer says the eight with public source: rewrite it");
+  assert.ok(text.includes("the eight with public source are free to use"));
 });
 
 test("source answer: public source and not-public source, as the project entries say", () => {
   const item = answerOf("Is n-uf open source?");
   const text = answerText(item.a);
-  assert.ok(text.includes("seven of the ten"), "count");
-  assert.equal(publicSource.length, 7);
+  assert.ok(text.includes("eight of the eleven"), "count");
+  assert.equal(publicSource.length, 8);
   assert.equal(privateSource.length, 3);
   for (const project of privateSource) assert.match(project.description, /Source not public yet/);
   assert.ok(text.includes(`${joined(names(privateSource))} say their source is not public yet`));
@@ -91,7 +91,7 @@ test("source answer: public source and not-public source, as the project entries
 
 test("stability answer links the issues pages of projects with a public repository", () => {
   const item = answerOf("Is n-uf stable?");
-  assert.ok(answerText(item.a).includes("seven public projects"));
+  assert.ok(answerText(item.a).includes("eight public projects"));
   for (const link of links(item)) {
     const repo = publicSource.find((project) => link.href === `${project.repo}/issues`);
     assert.ok(repo, link.href);

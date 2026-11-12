@@ -57,8 +57,10 @@ export const homeFaq: readonly FaqItem[] = [
   {
     q: 'What tools does n-uf make?',
     a: [
-      'n-uf makes ten tools: four developer libraries, three React UI kits, two Mac apps for Claude and a Claude Code skill. Each has its own page. They are ',
+      'n-uf makes eleven tools: five developer libraries, three React UI kits, two Mac apps for Claude and a Claude Code skill. Each has its own page. They are ',
       site('hypr-tiling'),
+      ', ',
+      site('motion'),
       ', ',
       site('doodl'),
       ', ',
@@ -83,7 +85,7 @@ export const homeFaq: readonly FaqItem[] = [
   {
     q: 'Is n-uf free?',
     a: [
-      'Yes: none of the tools is sold, and the seven with public source are free to use. hypr-tiling, DOODL, debugsy, papyrus, cl_audit and cl_quick use ',
+      'Yes: none of the tools is sold, and the eight with public source are free to use. hypr-tiling, motion & placement, DOODL, debugsy, papyrus, cl_audit and cl_quick use ',
       polyform,
       ', which lets you use, change and share them, but not to build a competing product. machine-transfer is MIT. harbuz, kavun and dynia have no public source yet.',
     ],
@@ -91,8 +93,10 @@ export const homeFaq: readonly FaqItem[] = [
   {
     q: 'Is n-uf open source?',
     a: [
-      'Partly: seven of the ten projects have public source, and only one of them, machine-transfer, is MIT-licensed open source. The other six, ',
+      'Partly: eight of the eleven projects have public source, and only one of them, machine-transfer, is MIT-licensed open source. The other seven, ',
       repo('hypr-tiling'),
+      ', ',
+      repo('motion'),
       ', ',
       repo('doodl'),
       ', ',
@@ -109,7 +113,7 @@ export const homeFaq: readonly FaqItem[] = [
   {
     q: 'Is n-uf stable?',
     a: [
-      'No, n-uf tools are not yet stable. The READMEs of the seven public projects carry a "Not yet stable" notice, and version numbers are dates (YY.M.R), not semantic versions, so any release may change how a tool works. Report problems as GitHub issues, for example at ',
+      'No, n-uf tools are not yet stable. The READMEs of the eight public projects carry a "Not yet stable" notice, and version numbers are dates (YY.M.R), not semantic versions, so any release may change how a tool works. Report problems as GitHub issues, for example at ',
       issues('hypr-tiling'),
       ' or ',
       issues('doodl'),
