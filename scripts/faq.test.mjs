@@ -68,7 +68,7 @@ test("licence answer: each group of projects, as the project entries say", () =>
   assert.ok(polyform.length > 0 && mit.length > 0 && unlicensed.length > 0);
   assert.ok(text.includes(`${joined(names(polyform))} use PolyForm Perimeter 1.0.1`), "PolyForm group");
   assert.ok(text.includes(`${joined(names(mit))} is MIT`), "MIT group");
-  assert.ok(text.includes(`${joined(names(unlicensed))} are not public yet`), "no-licence group");
+  assert.ok(text.includes(`${joined(names(unlicensed))} have no public source yet`), "no-licence group");
   assert.equal(publicSource.length, 7, "the answer says the seven with public source: rewrite it");
   assert.ok(text.includes("the seven with public source are free to use"));
 });

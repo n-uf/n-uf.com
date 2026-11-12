@@ -27,9 +27,10 @@ const local = (href: string): string => {
   return url.host === new URL(siteUrl).host ? `${url.pathname}${url.search}${url.hash}` : href;
 };
 
-// "n uf" (the other way to write the name) must not break across two lines. A no-break space on the page only: the
-// FAQPage JSON-LD and /llms.txt keep the plain space from the data.
-const keepTogether = (text: string): string => text.replace(/\bn uf\b/g, 'n uf');
+// "n uf" (the other way to write the name) and "sign-ins" must not break across two lines. A no-break space and a
+// no-break hyphen (U+2011) on the page only: the FAQPage JSON-LD and /llms.txt keep the plain characters from the data.
+const keepTogether = (text: string): string =>
+  text.replace(/\bn uf\b/g, 'n uf').replace(/\bsign-ins\b/g, 'sign‑ins');
 ---
 
 <section class={`faq faq-${variant}`} id={id} aria-labelledby={`${id}-title`}>
@@ -38,7 +39,7 @@ const keepTogether = (text: string): string => text.replace(/\bn uf\b/g, 'n uf'
     {
       items.map((item: FaqItem, index: number) => (
         <li data-bar={String(index % 5)}>
-          <h3>{item.q}</h3>
+          <h3>{keepTogether(item.q)}</h3>
           <p>
             {item.a.map((part: Part) =>
               typeof part === 'string' ? (

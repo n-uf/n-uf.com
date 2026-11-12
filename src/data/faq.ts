@@ -51,7 +51,7 @@ export const homeFaq: readonly FaqItem[] = [
     a: [
       'n-uf makes utilities for fun and for professional work: libraries and React UI kits for developers, Mac apps for Claude, and a Claude Code skill. It is also written nuf or n uf. The code is on GitHub at ',
       orgLink,
-      ', and each project states its own licence.',
+      ', and each public project states its own licence.',
     ],
   },
   {
@@ -85,7 +85,7 @@ export const homeFaq: readonly FaqItem[] = [
     a: [
       'Yes: none of the tools is sold, and the seven with public source are free to use. hypr-tiling, DOODL, debugsy, papyrus, cl_audit and cl_quick use ',
       polyform,
-      ', which lets you use, change and share them, but not to build a competing product. machine-transfer is MIT. harbuz, kavun and dynia are not public yet.',
+      ', which lets you use, change and share them, but not to build a competing product. machine-transfer is MIT. harbuz, kavun and dynia have no public source yet.',
     ],
   },
   {
