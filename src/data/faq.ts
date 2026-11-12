@@ -83,9 +83,9 @@ export const homeFaq: readonly FaqItem[] = [
   {
     q: 'Is n-uf free?',
     a: [
-      "n-uf's pages and READMEs list no prices, only licences. hypr-tiling, DOODL, debugsy, papyrus, cl_audit and cl_quick use ",
+      'Yes, the tools are free to use: none of them is sold. hypr-tiling, DOODL, debugsy, papyrus, cl_audit and cl_quick use ',
       polyform,
-      ': you may use, change and share them, but not to build a product that competes with them. machine-transfer is MIT. harbuz, kavun and dynia state no licence yet.',
+      ', which lets you use, change and share them, but not to build a competing product. machine-transfer is MIT. harbuz, kavun and dynia state no licence yet.',
     ],
   },
   {

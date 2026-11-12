@@ -26,6 +26,10 @@ const local = (href: string): string => {
   const url: URL = new URL(href, siteUrl);
   return url.host === new URL(siteUrl).host ? `${url.pathname}${url.search}${url.hash}` : href;
 };
+
+// "n uf" (the other way to write the name) must not break across two lines. A no-break space on the page only: the
+// FAQPage JSON-LD and /llms.txt keep the plain space from the data.
+const keepTogether = (text: string): string => text.replace(/\bn uf\b/g, 'n uf');
 ---
 
 <section class={`faq faq-${variant}`} id={id} aria-labelledby={`${id}-title`}>
@@ -38,7 +42,7 @@ const local = (href: string): string => {
           <p>
             {item.a.map((part: Part) =>
               typeof part === 'string' ? (
-                part
+                keepTogether(part)
               ) : isExternal(part.href) ? (
                 <ExtLink href={part.href} arrow={false}>
                   {part.text}
