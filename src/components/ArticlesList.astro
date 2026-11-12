@@ -8,6 +8,7 @@
  * Named without the Papyrus prefix on purpose: the fingerprint of the page PDFs (scripts/papyrus-page.config.json)
  * lists the Papyrus* components and papyrus.astro, so a new article never makes those PDFs stale.
  */
+import '../styles/papyrus-phone.css'; // the page's phone rules, kept out of the fingerprinted files (see that file)
 import { articlePath, dateText, getArticles, isLive, type Entry } from '../data/articles';
 import { plainText } from '../data/inline-code.mjs';
 
