@@ -110,3 +110,32 @@ function repoLine(repo: string): string {
     </div>
   </div>
 </Layout>
+
+<style>
+  /* Phones: 44 px tap targets for the project rows and the foot link. The padding sits inside the link and the underline is
+     drawn at the text's own bottom edge (background-origin: content-box), so it stays where it was. */
+  @media (max-width: 640px) {
+    .projects {
+      row-gap: 12px;
+    }
+
+    .name {
+      padding-block: 9px;
+      margin-block: -9px;
+      background-origin: content-box;
+    }
+
+    .meta,
+    .meta + .meta,
+    .foot-link {
+      margin-top: 0;
+    }
+
+    .meta a,
+    .foot-link a {
+      display: inline-block;
+      padding-block: 12px;
+      background-origin: content-box;
+    }
+  }
+</style>
