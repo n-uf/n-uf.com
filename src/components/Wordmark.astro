@@ -4,9 +4,11 @@ import { studioName } from '../data/projects';
 interface Props {
   missingSegment?: number;
   size: string;
+  // The letters are painted by CSS, so the surrounding heading's text does not start with "nuf"
+  drawn?: boolean;
 }
 
-const { missingSegment, size } = Astro.props;
+const { missingSegment, size, drawn = false } = Astro.props;
 const parts: readonly string[] = studioName.split('-');
 const lead: string = parts[0] ?? 'n';
 const tail: string = parts[1] ?? 'uf';
@@ -14,14 +16,14 @@ const segments: readonly number[] = [0, 1, 2, 3, 4];
 ---
 
 <span class="wordmark" style={`--wm-size: ${size}`} aria-hidden="true">
-  <span class="wm-lead">{lead}</span><span class="hyphen">{
+  <span class="wm-lead" data-glyph={drawn ? lead : undefined}>{drawn ? '' : lead}</span><span class="hyphen">{
     segments.map((index: number) => (
       <span
         class:list={['seg', index === missingSegment && 'is-missing']}
         data-bar={String(index)}
       />
     ))
-  }</span><span class="wm-tail">{tail}</span>
+  }</span><span class="wm-tail" data-glyph={drawn ? tail : undefined}>{drawn ? '' : tail}</span>
 </span>
 
 <style>
@@ -43,6 +45,11 @@ const segments: readonly number[] = [0, 1, 2, 3, 4];
 
   .wm-tail {
     letter-spacing: -0.06em;
+  }
+
+  .wm-lead[data-glyph]::before,
+  .wm-tail[data-glyph]::before {
+    content: attr(data-glyph);
   }
 
   .hyphen {
