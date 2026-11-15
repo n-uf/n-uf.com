@@ -56,8 +56,9 @@ function repoLine(repo: string): string {
 
 <Layout title={pageTitle} description={pageDescription} path="/" structuredData={[website, projectList, faqPage(plainFaq(homeFaq))]}>
   <div class="page home">
-    <h1 class="wordmark-heading" aria-label="n-uf">
+    <h1 class="wordmark-heading">
       <Wordmark size={wordmarkSize} />
+      <span class="sr-only">{pageTitle}</span>
     </h1>
 
     <main>
