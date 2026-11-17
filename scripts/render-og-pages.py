@@ -21,7 +21,14 @@ INK = (242, 242, 240)           # --ink
 MUTED = (140, 140, 138)         # --muted over the background
 DOTS = [(244, 114, 182), (251, 146, 60), (251, 191, 36), (52, 211, 153), (34, 211, 238)]   # --accent-0..4
 # the project's name as written (lower case), and its address on the card
-PROJECTS = {"papyrus": {"name": "papyrus", "address": "n-uf.com/papyrus"}}
+# "page_h1": the project's own guides page (a kit's /harbuz), drawn as public/og/<key>.png; keep it equal to `h1` in
+# src/data/kits.ts
+PROJECTS = {
+    "papyrus": {"name": "papyrus", "address": "n-uf.com/papyrus"},
+    "harbuz": {"name": "harbuz", "address": "n-uf.com/harbuz", "page_h1": "harbuz guides: theming, file explorer and more"},
+    "kavun": {"name": "kavun", "address": "n-uf.com/kavun", "page_h1": "kavun guides: toolbar, themes and more"},
+    "dynia": {"name": "dynia", "address": "n-uf.com/dynia", "page_h1": "dynia guides: dashboard blocks, stepper and more"},
+}
 NBSP = " "
 # names a line break must not split; a no-break space holds a name that has a space in it. The wrap splits only at plain
 # spaces, so "papyrus" and "n-uf.com" are already whole; add a name with a space here when an h1 needs one.
@@ -118,6 +125,12 @@ def card(project, h1):
 made = 0
 skipped = []
 for key, project in PROJECTS.items():
+    if project.get("page_h1") and (not args.only or key in args.only):
+        out, size, n = card(project, project["page_h1"])
+        path = os.path.join(ROOT, "public/og", f"{key}.png")
+        out.save(path, optimize=True)
+        made += 1
+        print(f"wrote public/og/{key}.png  {os.path.getsize(path) // 1024} KB  {size}px x{n}")
     for md in sorted(glob.glob(os.path.join(ROOT, "src/content", key, "*.md"))):
         slug = os.path.splitext(os.path.basename(md))[0]
         if args.only and slug not in args.only:
