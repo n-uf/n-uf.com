@@ -1,0 +1,19 @@
+---
+// /dynia/<slug>: a guide to dynia, from src/content/dynia/<slug>.md (src/components/KitArticle.astro draws it).
+// Drafts are built only in dev and Vercel previews (src/data/articles.ts); in production they have no page.
+import KitArticle from '../../components/KitArticle.astro';
+import { getArticles, type Entry } from '../../data/articles';
+
+export async function getStaticPaths() {
+  const entries: Entry[] = await getArticles('dynia');
+  return entries.map((entry: Entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: Entry;
+}
+
+const { entry } = Astro.props;
+---
+
+<KitArticle entry={entry} kit="dynia" />

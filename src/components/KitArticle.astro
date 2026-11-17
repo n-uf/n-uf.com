@@ -1,0 +1,237 @@
+---
+/**
+ * One guide of a kit (/harbuz/<slug>, /kavun/<slug>, /dynia/<slug>), from src/content/<kit>/<slug>.md. The three route
+ * files (src/pages/<kit>/[slug].astro) only pick the entries; this draws the page.
+ *
+ * The article look of /papyrus/<slug> (src/styles/article.css) on a plain, fluid sheet (src/styles/kit-guides.css), with
+ * no paging script and no PDF: the server HTML is the whole page. Drafts are built only in dev and Vercel previews
+ * (src/data/articles.ts), with a "Scheduled for" badge and noindex; production has no page for them.
+ *
+ * The body gets its calls to action at build time (src/data/actions.mjs, from the front matter's `actions`).
+ */
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import Layout from '../layouts/Layout.astro';
+import ExtLink from './ExtLink.astro';
+import '../styles/article.css';
+import '../styles/kit-guides.css';
+import {
+  articlePath,
+  dateText,
+  isLive,
+  kindLabel,
+  relatedCards,
+  sections,
+  showDrafts,
+  type Entry,
+  type SectionKey,
+} from '../data/articles';
+import { withActions } from '../data/actions.mjs';
+import { externalAttrs, isExternal, newTabNote } from '../data/links';
+import { inlineCodeHtml, plainText } from '../data/inline-code.mjs';
+import { withLiveBlocks } from '../data/live';
+import { breadcrumbList, faqPage, techArticle } from '../data/schema';
+
+interface Props {
+  entry: Entry;
+  kit: SectionKey;
+}
+
+const { entry, kit } = Astro.props;
+const data = entry.data;
+const section = sections[kit];
+const path: string = articlePath(section.key, entry.id);
+// The guide's own share image, made by scripts/render-og-pages.py
+const image: string = `/og/${section.key}/${entry.id}.png`;
+// A draft is built only in dev and previews: it gets the "Scheduled for" badge and noindex
+const scheduled: boolean = showDrafts && !isLive(entry);
+
+const file: string = entry.filePath ?? `src/content/${section.key}/${entry.id}.md`;
+// A page whose share card is missing would send a broken og:image: fail the build instead
+if (!existsSync(join(process.cwd(), 'public', image))) {
+  throw new Error(
+    `${file}: the share card public${image} is missing; draw it with ` +
+      '`python3 scripts/render-og-pages.py --font <Inter-Variable.ttf>` and commit it with the guide',
+  );
+}
+if (entry.rendered?.html === undefined) {
+  throw new Error(`${file}: the markdown body was not rendered`);
+}
+const live: string = await withLiveBlocks(entry.rendered.html, file);
+// The page's h1 is the front matter's h1; a "# Heading" in the body would be a second one
+if (/<h1[\s>]/i.test(live)) {
+  throw new Error(`${file}: the body has a "# " heading (an h1); the page's h1 comes from the front matter, start body headings at "##"`);
+}
+// The calls to action, where the text names the need (src/data/actions.mjs); none when the front matter has none
+const html: string = withActions(live, data.actions, {
+  page: path,
+  mainKeyword: data.mainKeyword,
+  isExternal,
+  note: newTabNote,
+});
+// A related entry that points at a guide still hidden as a draft is left out until it goes live (src/data/related.mjs)
+const related = await relatedCards(data.related);
+// The contents list: the body's "## " sections, numbered as the headings are (article.css counter). Plain text: a heading
+// may hold a link or `code`, and a link inside the contents link would nest.
+const toc = [...html.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map((m, i) => ({
+  id: m[1],
+  html: m[2].replace(/<[^>]*>/g, ''),
+  n: i + 1,
+}));
+
+// Front matter may hold `inline code` (takeaways, FAQ, related cards): shown as <code> on the page, and as plain text,
+// backticks removed, in the meta tags and the structured data (src/data/inline-code.mjs)
+const plainFaq = data.faq.map(({ q, a }: { q: string; a: string }) => ({ q: plainText(q), a: plainText(a) }));
+const siteUrl: string = section.siteUrl ?? '';
+const siteHost: string = new URL(siteUrl).host;
+
+const structuredData = [
+  techArticle({
+    path,
+    headline: plainText(data.h1),
+    description: plainText(data.description),
+    published: data.published,
+    updated: data.updated,
+    image,
+    aboutId: section.softwareId,
+  }),
+  breadcrumbList([
+    { name: 'n-uf', path: '/' },
+    { name: section.label, path: section.path },
+    { name: plainText(data.h1), path },
+  ]),
+  faqPage(plainFaq),
+];
+---
+
+<Layout
+  title={plainText(data.title)}
+  description={plainText(data.description)}
+  path={path}
+  robots={scheduled ? 'noindex' : 'index, follow'}
+  image={image}
+  imageAlt={plainText(data.h1)}
+  ogType="article"
+  structuredData={structuredData}
+>
+  <div class="article" data-kit={section.key}>
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">n-uf</a>
+        <span aria-hidden="true">/</span>
+        <a href={section.path}>{section.label}</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{plainText(data.h1)}</span>
+      </nav>
+      <div class="view-tools">
+        <a
+          class="repo site-link"
+          href={siteUrl}
+          {...externalAttrs(siteUrl)}
+          aria-label={`${section.label} live demo: ${siteHost} (opens in a new tab)`}
+        >
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="square"
+              d="M6.5 3.25h-4v10h10v-4M9.25 2.25h4.5v4.5M13.75 2.25 7.5 8.5"></path>
+          </svg>
+          <span>{section.label} site</span>
+          <span class="repo-path">{siteHost}</span>
+        </a>
+      </div>
+    </div>
+
+    <main>
+      <article class="paper plain" data-published={data.published.toISOString().slice(0, 10)}>
+        <div class="leaf-body">
+          <header class="title-block">
+            <p class="kicker">{kindLabel[data.kind]} · {section.label}</p>
+            <h1>{data.h1}</h1>
+            <p class="byline">
+              Updated <time datetime={data.updated.toISOString().slice(0, 10)}>{dateText(data.updated)}</time>
+              {
+                scheduled && (
+                  <span class="scheduled">
+                    · Scheduled for <time datetime={data.published.toISOString().slice(0, 10)}>{dateText(data.published)}</time>
+                  </span>
+                )
+              }
+            </p>
+          </header>
+
+          <aside class="takeaways" aria-label="Key takeaways">
+            <p class="box-title">Key takeaways</p>
+            <ul>
+              {data.takeaways.map((takeaway: string) => <li set:html={inlineCodeHtml(takeaway)} />)}
+            </ul>
+          </aside>
+
+          {
+            toc.length > 0 && (
+              <nav class="toc" aria-labelledby="toc-title">
+                <p class="box-title" id="toc-title">Contents</p>
+                <ol>
+                  {toc.map((item) => (
+                    <li>
+                      <a href={`#${item.id}`}>
+                        <span class="toc-no">{item.n}</span>
+                        <span class="toc-text" set:html={item.html} />
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            )
+          }
+
+          <div class="prose flow" set:html={html} />
+
+          <section class="faq flow" aria-labelledby="faq-title">
+            <h2 id="faq-title">Questions</h2>
+            {
+              data.faq.map(({ q, a }: { q: string; a: string }) => (
+                <>
+                  <h3 set:html={inlineCodeHtml(q)} />
+                  <p set:html={inlineCodeHtml(a)} />
+                </>
+              ))
+            }
+          </section>
+
+          {
+            data.sources.length > 0 && (
+              <section class="sources flow" aria-labelledby="sources-title">
+                <h2 id="sources-title">Sources</h2>
+                <ol>
+                  {data.sources.map((source) => (
+                    <li>
+                      <ExtLink href={source.url}>{source.title}</ExtLink>{' '}
+                      <span class="checked">checked {dateText(source.checked)}</span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )
+          }
+
+          <section class="related flow" aria-labelledby="related-title">
+            <h2 id="related-title">Related</h2>
+            <ul>
+              {
+                related.map((item) => (
+                  <li>
+                    <a href={item.path} set:html={inlineCodeHtml(item.title)} />
+                    <span class="related-note" set:html={inlineCodeHtml(item.description)} />
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+        </div>
+      </article>
+    </main>
+  </div>
+</Layout>
