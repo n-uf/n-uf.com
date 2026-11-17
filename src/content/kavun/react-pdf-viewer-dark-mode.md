@@ -149,9 +149,9 @@ import { KAVUN_THEMES, KAVUN_THEME_ORDER, type KavunThemeName } from "@n-uf/kavu
 </select>
 ```
 
- The themes themselves are sets of `--kavun-*` CSS variables, which load with the package root.
+Each theme is a set of `--kd-*` CSS variables from `KAVUN_DOSSIER_TOKENS`, which the dossier sets on its own root.
 
-kavun does not document a way to add a sixth theme, and it is young: the README warns that any 0.x release may change the five themes and the `--kavun-*` variables, so pin an exact version when the package is available.
+kavun does not document a way to add a sixth theme, and it is young: the README warns that any 0.x release may change the five dossier themes and the `--kavun-*` theme variables, so pin an exact version when the package is available.
 
 ## What is it not?
 
