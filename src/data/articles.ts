@@ -2,12 +2,14 @@
 // and the addresses. The one rule for drafts lives here, in `isLive` and `showDrafts`, and every page, list, sitemap
 // entry and llms.txt line asks these two.
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { kits, type Kit } from './kits';
 import { siteUrl } from './projects';
 import { resolveRelated } from './related.mjs';
 import { fixedPages } from './site-pages';
 
-export type Entry = CollectionEntry<'papyrus'>;
-export type SectionKey = 'papyrus';
+// Every collection has the same `article` schema (src/content.config.ts), so an entry is one shape whichever it is from
+export type SectionKey = 'papyrus' | 'harbuz' | 'kavun' | 'dynia';
+export type Entry = CollectionEntry<SectionKey>;
 
 export interface Section {
   /** The collection's folder under src/content, and the first part of every article's address */
@@ -18,24 +20,53 @@ export interface Section {
   path: string;
   /** The project's SoftwareSourceCode node, which the articles are "about" */
   softwareId: string;
+  /** What the page lists the entries as ("Articles", "Guides") */
+  listLabel: string;
+  /** The project's public repository; a kit's is private, so none */
+  repoUrl?: string;
+  repoName?: string;
+  /** The project's own site, when the articles are about a project that has one (a kit's subdomain) */
+  siteUrl?: string;
+}
+
+/** A section whose project has a public repository: the article page's top bar links to it */
+export interface RepoSection extends Section {
   repoUrl: string;
   repoName: string;
 }
 
-export const sections: Record<SectionKey, Section> = {
+/** The section of a kit: the guides page at /<kit>, no repository (the kits are private and not installable yet) */
+const kitSection = (kit: Kit): Section => ({
+  key: kit.id,
+  label: kit.name,
+  path: kit.path,
+  softwareId: `${siteUrl}${kit.path}#software`,
+  listLabel: 'Guides',
+  siteUrl: kit.siteUrl,
+});
+
+export const sections: Record<SectionKey, Section> & { papyrus: RepoSection } = {
   papyrus: {
     key: 'papyrus',
     label: 'papyrus',
     path: '/papyrus',
     softwareId: `${siteUrl}/papyrus#software`,
+    listLabel: 'Articles',
     repoUrl: 'https://github.com/n-uf/papyrus',
     repoName: 'n-uf/papyrus',
   },
+  harbuz: kitSection(kits.harbuz),
+  kavun: kitSection(kits.kavun),
+  dynia: kitSection(kits.dynia),
 };
 
 // Counted with a file glob first: asking Astro for an empty collection logs a warning on every page that does it.
+// (import.meta.glob takes literal patterns, so each section has its own line.)
 const fileCount: Record<SectionKey, number> = {
   papyrus: Object.keys(import.meta.glob('/src/content/papyrus/*.md')).length,
+  harbuz: Object.keys(import.meta.glob('/src/content/harbuz/*.md')).length,
+  kavun: Object.keys(import.meta.glob('/src/content/kavun/*.md')).length,
+  dynia: Object.keys(import.meta.glob('/src/content/dynia/*.md')).length,
 };
 
 export const kindLabel: Record<Entry['data']['kind'], string> = {

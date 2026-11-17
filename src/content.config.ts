@@ -1,6 +1,8 @@
-// Content collections: the articles under a project's page, one collection per project (today only papyrus, in
-// src/content/papyrus/*.md, served at /papyrus/<slug>). A file that breaks this schema fails the build.
-// Another project gets its own collection: add a folder here and an entry in src/data/articles.ts.
+// Content collections: the articles under a project's page, one collection per project (papyrus, in
+// src/content/papyrus/*.md, served at /papyrus/<slug>; the three kits harbuz, kavun and dynia, in src/content/<kit>/*.md,
+// served at /<kit>/<slug>). All share one schema. A file that breaks it fails the build.
+// Another project gets its own collection: add a folder here, an entry in `collections` below and an entry in
+// `sections` in src/data/articles.ts (its page, and for a kit its entry in src/data/kits.ts).
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { hasAlwaysLiveEntry } from './data/related.mjs';
@@ -46,6 +48,19 @@ const article = z
       )
       .default([]),
     related: z.array(sitePath).min(2).max(4),
+    // Calls to action placed in the body at build time (src/data/actions.mjs): where the page's problem is named, a
+    // heading, one sentence and one button. Optional: an article without them (every papyrus one) shows none.
+    actions: z
+      .array(
+        z.object({
+          heading: z.string().min(8).max(70),
+          text: z.string().min(40).max(220),
+          label: z.string().min(6).max(40),
+          href: z.string().url(),
+        }),
+      )
+      .max(3)
+      .optional(),
   })
   .refine((data) => data.updated >= data.published, {
     message: 'updated is earlier than published',
@@ -75,4 +90,7 @@ const article = z
 
 export const collections = {
   papyrus: defineCollection({ loader: glob({ pattern: '*.md', base: './src/content/papyrus' }), schema: article }),
+  harbuz: defineCollection({ loader: glob({ pattern: '*.md', base: './src/content/harbuz' }), schema: article }),
+  kavun: defineCollection({ loader: glob({ pattern: '*.md', base: './src/content/kavun' }), schema: article }),
+  dynia: defineCollection({ loader: glob({ pattern: '*.md', base: './src/content/dynia' }), schema: article }),
 };
