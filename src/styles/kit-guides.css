@@ -1,0 +1,210 @@
+/* The kits' guides (/harbuz, /kavun, /dynia and their guides): the article look of /papyrus/<slug> (src/styles/article.css,
+   which these pages import too: the same top bar, type, tinted boxes and tokens), on a plain fluid sheet instead of A4
+   sheets: the guides are not printed to PDF, and the server HTML is the whole page, with no layout script that moves it
+   after the load.
+
+   Two things are new here: the sheet (.paper.plain) and the calls to action in the body (.kit-cta, built by
+   src/data/actions.mjs, in this site's own tinted-box language). Each kit's accent is the colour its entry has on the home
+   page (harbuz amber, kavun green, dynia cyan). */
+
+.article[data-kit='harbuz'] {
+  --kit-accent: var(--accent-2);
+}
+
+.article[data-kit='kavun'] {
+  --kit-accent: var(--accent-3);
+}
+
+.article[data-kit='dynia'] {
+  --kit-accent: var(--accent-4);
+}
+
+/* The sheet: the paper of the /papyrus page (dark sheet, hairline edge), fluid in width and as tall as its text */
+.article .paper.plain {
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 36px 44px 40px;
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 3.5%, var(--bg));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 22px 60px -12px rgb(0 0 0 / 0.65);
+}
+
+@media screen and (max-width: 640px) {
+  .article .paper.plain {
+    padding: 24px 18px 28px;
+  }
+}
+
+/* The kit's own site in the top bar leads by the same stronger tint as the PDF button on /papyrus articles */
+.article .repo.site-link {
+  border-color: color-mix(in srgb, var(--ink) 45%, transparent);
+  background: color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.article .repo.site-link .repo-path {
+  color: var(--copy);
+}
+
+.article .repo.site-link:is(:hover, :focus-visible) {
+  border-color: color-mix(in srgb, var(--ink) 55%, transparent);
+  background: color-mix(in srgb, var(--ink) 26%, transparent);
+}
+
+/* The package is private and not installable yet: said plainly, in a box of its own */
+.article .leaf-body .availability {
+  margin: 0 0 20px;
+  padding: 12px 16px 2px;
+  border: 1px solid color-mix(in srgb, var(--ink) 6.5%, transparent);
+  border-left: 3px solid var(--kit-accent, var(--ink));
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+
+.article .leaf-body .availability p {
+  color: var(--copy);
+}
+
+/* ---- The calls to action in a guide's body (src/data/actions.mjs) ---- */
+
+.article .leaf-body .kit-cta {
+  margin: 24px 0;
+  padding: 16px 18px 6px;
+  border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  border-left: 3px solid var(--kit-accent, var(--ink));
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.article .leaf-body .kit-cta .kit-cta-title {
+  margin: 0 0 6px;
+  font-family: var(--sans);
+  font-size: 16.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.article .leaf-body .kit-cta .kit-cta-text {
+  margin: 0 0 12px;
+  color: var(--copy);
+}
+
+.article .leaf-body .kit-cta .kit-cta-act {
+  margin: 0 0 12px;
+}
+
+/* The button: a verb and an object, in the family of the top bar's tinted buttons */
+.article .leaf-body a.kit-cta-button,
+.article .leaf-body a.guides-site {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 20%, transparent);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.article .leaf-body a.kit-cta-button:is(:hover, :focus-visible),
+.article .leaf-body a.guides-site:is(:hover, :focus-visible) {
+  border-color: color-mix(in srgb, var(--ink) 55%, transparent);
+  background: color-mix(in srgb, var(--ink) 26%, transparent);
+}
+
+.article .leaf-body a.kit-cta-button:focus-visible,
+.article .leaf-body a.guides-site:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.article .kit-cta .sr-only,
+.article .guides-site .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article .leaf-body a.kit-cta-button,
+  .article .leaf-body a.guides-site {
+    transition: none;
+  }
+}
+
+/* Phones: 44 px taps for the button */
+@media screen and (max-width: 640px) {
+  .article .leaf-body a.kit-cta-button,
+  .article .leaf-body a.guides-site {
+    min-height: 44px;
+  }
+}
+
+/* ---- The guides page (/harbuz): the site button and the list of guides ---- */
+
+.article .leaf-body .guides-actions {
+  margin: 4px 0 22px;
+}
+
+.article .leaf-body .guides-list {
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.article .leaf-body .guides-list li {
+  margin: 0 0 10px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+.article .leaf-body .guides-list a {
+  display: block;
+  font-weight: 600;
+}
+
+.article .leaf-body .guides-list .guide-note {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.article .leaf-body .guides-list .scheduled {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+}
+
+.article .leaf-body .guides-more {
+  margin: 0 0 14px;
+}
+
+/* Phones: 44 px taps for the links in the lists */
+@media screen and (max-width: 640px) {
+  .article .leaf-body .guides-list a,
+  .article .leaf-body .guides-more a {
+    display: inline-block;
+    padding-block: 11px;
+    margin-block: -11px;
+  }
+}
+
+@media print {
+  .article .kit-cta {
+    break-inside: avoid;
+  }
+}

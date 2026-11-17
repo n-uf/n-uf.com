@@ -1,0 +1,19 @@
+---
+// /kavun/<slug>: a guide to kavun, from src/content/kavun/<slug>.md (src/components/KitArticle.astro draws it).
+// Drafts are built only in dev and Vercel previews (src/data/articles.ts); in production they have no page.
+import KitArticle from '../../components/KitArticle.astro';
+import { getArticles, type Entry } from '../../data/articles';
+
+export async function getStaticPaths() {
+  const entries: Entry[] = await getArticles('kavun');
+  return entries.map((entry: Entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: Entry;
+}
+
+const { entry } = Astro.props;
+---
+
+<KitArticle entry={entry} kit="kavun" />
