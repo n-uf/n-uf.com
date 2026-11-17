@@ -11,14 +11,16 @@ import {
 import { plainText } from "../data/inline-code.mjs";
 import { answerMarkdown, homeFaq, machineTransferFaq, type FaqItem } from "../data/faq";
 import { articlePath, getArticles, sections, type Entry, type SectionKey } from "../data/articles";
+import { kitOf } from "../data/kits";
 
-// The live articles of each project that has a collection, listed under that project (drafts only in previews)
+// The live articles of each project that has a collection, listed under that project (drafts only in previews);
+// a kit's are its guides
 const articleLines: Record<string, string[]> = {};
 for (const key of Object.keys(sections) as SectionKey[]) {
   const entries: Entry[] = await getArticles(key);
   if (entries.length > 0) {
     articleLines[key] = [
-      "- Articles:",
+      `- ${sections[key].listLabel}:`,
       ...entries.map(
         (entry: Entry) =>
           `  - [${plainText(entry.data.h1)}](${new URL(articlePath(key, entry.id), siteUrl).href}): ${plainText(entry.data.description)}`,
@@ -43,6 +45,10 @@ function projectBlock(project: Project): string {
   }
   if (project.npm !== undefined) {
     lines.push(`- npm: ${project.npm}`);
+  }
+  const kit = kitOf(project.id);
+  if (kit !== undefined) {
+    lines.push(`- Guides page: ${new URL(kit.path, siteUrl).href}`);
   }
   lines.push(...(articleLines[project.id] ?? []));
   return lines.join("\n");
