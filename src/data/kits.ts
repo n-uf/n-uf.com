@@ -43,8 +43,8 @@ export const kits: Record<KitId, Kit> = {
     description:
       'Guides to harbuz, n-uf’s set of React components with eight CSS themes: switch themes, build a file explorer, see what each part does. Not installable yet.',
     about: [
-      'harbuz is a collection of React components from n-uf: primitives, blocks and shells for dossiers (a document shell), terminals and file explorers, with eight built-in CSS-variable themes. It is built with React 19, TypeScript, Tailwind CSS v4 and Radix UI primitives, and it ships as TypeScript source.',
-      'harbuz.n-uf.com is built from harbuz itself: the whole site is one HarbuzDossier, so every part below can be tried live there. The guides here take one job at a time and show the code that does it.',
+      'harbuz is a collection of React components from n-uf: primitives, blocks and shells for dossiers (a document shell), terminals and explorers, with eight built-in CSS-variable themes. It is built with React 19, TypeScript, Tailwind CSS v4 and Radix UI primitives, and it ships as TypeScript source.',
+      'harbuz.n-uf.com is built from harbuz itself: the whole site is one HarbuzDossier, so the dossier, the terminal and the themes can be tried live there. The guides here take one job at a time and show the code that does it.',
     ],
     homeLabel: 'harbuz guides',
     siteButton: 'Open harbuz.n-uf.com',
