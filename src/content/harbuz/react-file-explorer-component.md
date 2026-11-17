@@ -42,10 +42,10 @@ related:
   - /harbuz
   - /harbuz/react-theme-switcher
 actions:
-  - heading: "See an explorer in a live harbuz shell"
-    text: "The dossier demo on harbuz.n-uf.com has an explorer in its side panel, a different one from this file explorer. There is no file explorer demo there yet, and the package is private for now."
-    label: "Open the harbuz dossier demo"
-    href: "https://harbuz.n-uf.com/dossier"
+  - heading: "See the kit this file explorer comes from, live"
+    text: "harbuz.n-uf.com runs on harbuz itself: its dossier, terminal and eight themes. FileExplorer has no demo there yet, and the package is private for now."
+    label: "Open harbuz.n-uf.com"
+    href: "https://harbuz.n-uf.com/"
 ---
 A React file explorer component draws the browsing part of a file manager: a list of files and folders, a breadcrumb, back and forward buttons, a list or grid view and sorting. harbuz's `FileExplorer` does that over a flat list of items you give it. It is a file manager shell, not a filesystem: it reads no disk, uploads nothing and renames nothing, and your app decides what every item means.
 
