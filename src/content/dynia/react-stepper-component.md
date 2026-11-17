@@ -45,7 +45,7 @@ actions:
 ---
 A React stepper component shows where a job or a flow is: which steps are done, which one is running and which one needs attention. dynia's `Stepper` is a pipeline in one line, with numbered steps joined by arrows, each in one of four states: `todo`, `active`, `done` or `warn`. It draws the states your app gives it. Moving from step to step is your app's job.
 
-This is one of the guides to dynia. dynia is private for now. The package `@n-uf/dynia` is not on a public registry, so you can't install it yet. The code below is its real API, and the [stepper on dynia.n-uf.com](https://dynia.n-uf.com/library/blocks/pipeline) runs live.
+dynia is private for now. The package `@n-uf/dynia` is not on a public registry, so you can't install it yet. The code below is its real API, and the [stepper on dynia.n-uf.com](https://dynia.n-uf.com/library/blocks/pipeline) runs live.
 
 ## What does the stepper show?
 
@@ -149,4 +149,4 @@ Yes. `DyniaDashboard` takes `steps` for a pipeline in its header, and `stepsLabe
 
 No. `Stepper` is a display. It takes `steps`, `label` and `wrap`, and there are no click handlers, no back and next buttons and no step content. If your flow needs validation, routing between steps or clickable steps, you write that, and the stepper shows the result. That keeps it small, and it means the same component works for a job that runs by itself, such as a document pipeline, and for an onboarding flow a person moves through.
 
-The package is private, so you can read this page and try the demo, but you can't install it yet. The rest of the kit, with a guide per job, is on the [dynia guides](/dynia) page. The sister kits have their own: [harbuz guides](/harbuz) and [kavun guides](/kavun).
+The package is private, so you can read this page and try the demo, but you can't install it yet. Every guide to the kit is listed on the [dynia guides](/dynia) page. The sister kits have their own: [harbuz's guides](/harbuz) and [kavun's guides](/kavun).
