@@ -12,6 +12,7 @@ import {
   type Project,
 } from '../data/projects';
 import { externalAttrs, isExternal, newTabNote } from '../data/links';
+import { kitOf, type Kit } from '../data/kits';
 import { homeFaq, plainFaq } from '../data/faq';
 import { faqPage } from '../data/schema';
 
@@ -69,6 +70,8 @@ function repoLine(repo: string): string {
             const repoHref: string | undefined = project.repo;
             const repoText: string | undefined =
               repoHref === undefined ? undefined : repoLine(repoHref);
+            // A kit's guides live on this site (src/data/kits.ts), next to the kit's own site
+            const kit: Kit | undefined = kitOf(project.id);
             return (
               <li data-bar={String(index % 5)}>
                 <h2 class="name-heading">
@@ -90,6 +93,11 @@ function repoLine(repo: string): string {
                       {repoText}
                       <span class="sr-only">{newTabNote}</span>
                     </a>
+                  </p>
+                )}
+                {kit !== undefined && (
+                  <p class="meta">
+                    <a href={kit.path}>{kit.homeLabel}</a>
                   </p>
                 )}
               </li>
