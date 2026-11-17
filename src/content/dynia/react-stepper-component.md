@@ -23,8 +23,8 @@ faq:
     a: "Yes. It renders an ordered list whose accessible name is the `label` you pass, and the active step carries `aria-current=\"step\"`. After each other step it adds a visually hidden word: done, needs attention or to do. The arrows between steps are hidden from assistive technology, so a screen reader hears only the steps."
   - q: "Can the stepper handle clicks, back and next buttons or validation?"
     a: "No. `Stepper` takes only `steps`, `label` and `wrap`, with no click handlers, no back or next buttons and no step content. It shows progress. Your app owns the flow, its validation and its routing, and it passes the new states in when something changes."
-  - q: "Can I install dynia today?"
-    a: "Not yet. The dynia package is private for now and is not on a public registry. dynia.n-uf.com is built from it, and its library has a page for the pipeline stepper. The code on this page is the component's real API."
+  - q: "Where can I see the dynia stepper running?"
+    a: "On dynia.n-uf.com. Its library's Pipeline and surfaces page shows the `Stepper` with live samples, its props and the code, built from dynia itself. The dynia package is private for now and not on a public registry, so you can't install it yet. The code on this page is the component's real API."
 sources:
   - title: "dynia library: Pipeline and surfaces (dynia.n-uf.com/library/blocks/pipeline)"
     url: "https://dynia.n-uf.com/library/blocks/pipeline"
