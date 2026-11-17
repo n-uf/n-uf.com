@@ -23,8 +23,8 @@ faq:
     a: "Yes. `viewMode` takes `\"list\"` or `\"grid\"`, and the toolbar has a toggle for it. In grid view, `gridSize` takes `\"sm\"`, `\"md\"` or `\"lg\"`. In list view, `showDetails` controls whether the file details are shown. With `useFileExplorer` the starting view is `initialViewMode`."
   - q: "How do I sort files in the React file explorer?"
     a: "Pass `sortConfig` with a `field` (`\"name\"`, `\"size\"`, `\"modifiedAt\"` or `\"type\"`) and a `direction` (`\"asc\"` or `\"desc\"`). The toolbar has Name, Date and Size buttons that call `onSortChange`. With a sort set, folders are listed before files, whatever the field, and `type` compares file extensions."
-  - q: "Can I install harbuz and its file explorer today?"
-    a: "Not yet. The harbuz package is private for now and is not on a public registry. harbuz.n-uf.com shows the kit live, but its file explorer has no demo page there yet; the dossier demo has an explorer panel of a different kind. The code on this page is the component's real API."
+  - q: "Is there a live demo of the harbuz file explorer?"
+    a: "Not yet. harbuz.n-uf.com is built from harbuz and shows its dossier, terminal and themes live, but `FileExplorer` has no demo page there. The package is private for now and not on a public registry, so you can't install it yet either. The code on this page is the component's real API."
 sources:
   - title: "harbuz: home page (harbuz.n-uf.com)"
     url: "https://harbuz.n-uf.com/"

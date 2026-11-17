@@ -23,8 +23,8 @@ faq:
     a: "No. kavun draws no PDF pages, so the theme dresses kavun's own parts, such as the header, deck, rail and drawers. Your renderer draws each page. `renderPage` is not given the theme, so keep it in your own state through `onThemeChange` if your pages should change with it."
   - q: "Is the viewer's theme choice remembered?"
     a: "Yes, per viewer. kavun stores it in `localStorage` under the key `kavun-dossier-theme` by default. Pass your own key as `themeStorageKey`, or `null` to remember nothing, in which case the dossier starts from `defaultTheme` on every load. A controlled `theme` prop takes over from the stored one."
-  - q: "Can I install kavun today?"
-    a: "Not yet. The kavun package is private for now and is not on a public registry. kavun.n-uf.com is built from it, and its library shows the five themes live, so you can try each one in the browser. The code on this page is the component's real API."
+  - q: "Where can I try kavun's five themes before it is public?"
+    a: "On kavun.n-uf.com. The site is built from kavun, and its library's Themes page shows Surface, Panel, Dark, Paper and Contrast live, so you can compare them in the browser. The package itself is private for now and not on a public registry, so you can't install it yet. The code on this page is its real API."
 sources:
   - title: "kavun library: Themes (kavun.n-uf.com/library/foundations/themes)"
     url: "https://kavun.n-uf.com/library/foundations/themes"
