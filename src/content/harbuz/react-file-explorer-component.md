@@ -49,7 +49,7 @@ actions:
 ---
 A React file explorer component draws the browsing part of a file manager: a list of files and folders, a breadcrumb, back and forward buttons, a list or grid view and sorting. harbuz's `FileExplorer` does that over a flat list of items you give it. It is a file manager shell, not a filesystem: it reads no disk, uploads nothing and renames nothing, and your app decides what every item means.
 
-This is one of the guides to harbuz. harbuz is private for now. The package `@n-uf/harbuz` is not on a public registry, so you can't install it yet. The code below is the component's real API; the kit itself runs live on [harbuz.n-uf.com](https://harbuz.n-uf.com/), though its file explorer has no demo page there yet.
+harbuz is private for now. The package `@n-uf/harbuz` is not on a public registry, so you can't install it yet. The code below is the component's real API; the kit itself runs live on [harbuz.n-uf.com](https://harbuz.n-uf.com/), though its file explorer has no demo page there yet.
 
 ## What does a React file explorer component need from you?
 
@@ -124,7 +124,7 @@ Four parts, top to bottom:
 
 - **Toolbar.** Back and forward buttons, sort buttons (Name, Date, Size), a list and grid toggle, and a slot for your own buttons, `toolbarActions`.
 - **Breadcrumb.** The path from the root to the current folder; each segment calls `onBreadcrumbNavigate`.
-- **The list.** Folders first, then files, in list or grid view.
+- **The list.** The items in list or grid view; with a sort set, folders come first.
 - **Status bar.** The number of items, the number selected, and a loading note while `isLoading` is true.
 
 An optional `title` adds a title bar above the toolbar. When the folder is empty, the list shows `emptyState`, which is any node you pass.
@@ -166,4 +166,4 @@ The explorer draws with harbuz's theme variables, so it takes the active theme's
 
 The props above are all the explorer exposes. There is nothing in them for uploading, renaming, deleting or reading a real filesystem. Those belong to your app: handle `onItemOpen` and `onContextMenu(item, event)`, and put your own buttons in `toolbarActions`. If you need a file manager that talks to a disk or a cloud store, you write that layer and feed its results in as `FileItem`s.
 
-The package is also private, so you can read this page but can't install it yet. The rest of the kit, with a guide per job, is on the [harbuz guides](/harbuz) page. The sister kits have their own: [kavun guides](/kavun) and [dynia guides](/dynia).
+The package is also private, so you can read this page but can't install it yet. Every guide to the kit is listed on the [harbuz guides](/harbuz) page. The sister kits have their own: [kavun's guides](/kavun) and [dynia's guides](/dynia).

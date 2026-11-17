@@ -52,11 +52,11 @@ actions:
 ---
 A React theme switcher component has three jobs: change which set of CSS variables is active, remember the choice, and apply it before React hydrates so the page doesn't flash the wrong colours. harbuz does all three. Its `ThemeSwitcher` sets the `data-theme` attribute on `<html>` to one of eight built-in themes, saves the choice in `localStorage`, and a small script applies the saved theme before hydration.
 
-This is one of the guides to harbuz. harbuz is private for now. The package `@n-uf/harbuz` is not on a public registry, so you can't install it yet. The code below is its real API, and the [live demo on harbuz.n-uf.com](https://harbuz.n-uf.com/themes) shows it working.
+harbuz is private for now. The package `@n-uf/harbuz` is not on a public registry, so you can't install it yet. The code below is its real API, and the [live demo on harbuz.n-uf.com](https://harbuz.n-uf.com/themes) shows it working.
 
 ## How does a React theme switcher change the theme?
 
-harbuz has a CSS-variable theme system, so this is a React CSS theme switcher in the plain sense: the colours live in variables, not in components. The active theme is the `data-theme` attribute on `<html>`, so switching is one attribute change: no stylesheet is swapped and nothing is rebuilt. The `useTheme` hook makes the change for you and persists the choice in `localStorage` under the key `harbuz-theme`.
+In harbuz the colours live in CSS variables, not in components. The active theme is the `data-theme` attribute on `<html>`, so switching is one attribute change: no stylesheet is swapped and nothing is rebuilt. The `useTheme` hook makes the change for you and persists the choice in `localStorage` under the key `harbuz-theme`.
 
 It returns `theme` (the current name), `setTheme` and `themes` (the list of names). Here is a theme switch in React with nothing but a button:
 
@@ -208,4 +208,4 @@ Run it once near the root of the app, and leave the toggle for visitors who want
 
 This page covers the eight built-in themes and the switch between them. The visitor's choice lives in the browser's `localStorage` under one key, so it is per browser, not per account. And the package is private: you can read this page and try the demo, but you can't install it yet.
 
-{{live:/harbuz/react-file-explorer-component}}A theme switcher is one part of the kit; [a React file explorer component](/harbuz/react-file-explorer-component) is another, and it follows the same themes.{{/live}} The rest of the kit, with a guide per job, is on the [harbuz guides](/harbuz) page. The sister kits have their own: [kavun guides](/kavun) and [dynia guides](/dynia).
+{{live:/harbuz/react-file-explorer-component}}A theme switcher is one part of the kit; [a React file explorer component](/harbuz/react-file-explorer-component) is another, and it follows the same themes.{{/live}} Every guide to the kit is listed on the [harbuz guides](/harbuz) page. The sister kits have their own: [guides to kavun's PDF viewer parts](/kavun) and [guides to dynia's dashboard blocks](/dynia).

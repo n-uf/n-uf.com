@@ -51,9 +51,9 @@ actions:
     label: "Try the five kavun themes"
     href: "https://kavun.n-uf.com/library/foundations/themes"
 ---
-React PDF viewer dark mode, in kavun, is a choice among five themes of the viewer's interface: Surface, Panel, Dark, Paper and Contrast. The viewer picks one inside the dossier, and kavun remembers it per viewer. kavun draws no PDF pages, so the pages themselves come from your renderer; the theme dresses the parts kavun draws around them.
+In kavun, React PDF viewer dark mode is one of five themes for the viewer's interface: Surface, Panel, Dark, Paper and Contrast. The viewer picks one inside the dossier, and kavun remembers it per viewer. kavun draws no PDF pages, so the pages themselves come from your renderer; the theme dresses the parts kavun draws around them.
 
-This is one of the guides to kavun. kavun is private for now. The package `@n-uf/kavun` is not on a public registry, so you can't install it yet. The code below is its real API, and the [five themes on kavun.n-uf.com](https://kavun.n-uf.com/library/foundations/themes) run live.
+kavun is private for now. The package `@n-uf/kavun` is not on a public registry, so you can't install it yet. The code below is its real API, and the [five themes on kavun.n-uf.com](https://kavun.n-uf.com/library/foundations/themes) run live.
 
 ## What does React PDF viewer dark mode mean in kavun?
 
@@ -155,6 +155,6 @@ kavun does not document a way to add a sixth theme, and it is young: the README 
 
 ## What is it not?
 
-It is not a React PDF viewer dark mode that recolours the PDF. It is not an automatic dark mode either: nothing follows the system setting unless you wire it, as above. And the package is private, so you can read this page and try the demo, but you can't install it yet.
+It doesn't recolour the PDF. It is not an automatic dark mode either: nothing follows the system setting unless you wire it, as above. And the package is private, so you can read this page and try the demo, but you can't install it yet.
 
-For the toolbar, zoom and thumbnails around the same pages, see the guide to a [React PDF viewer custom toolbar](/kavun/react-pdf-viewer-custom-toolbar). The rest of the kit, with a guide per job, is on the [kavun guides](/kavun) page. The sister kits have their own: [harbuz guides](/harbuz) and [dynia guides](/dynia).
+For the toolbar, zoom and thumbnails around the same pages, see the guide to a [React PDF viewer custom toolbar](/kavun/react-pdf-viewer-custom-toolbar). Every guide to the kit is listed on the [kavun guides](/kavun) page. The sister kits have their own: [harbuz's guides](/harbuz) and [dynia's guides](/dynia).

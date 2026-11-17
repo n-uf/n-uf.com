@@ -60,7 +60,7 @@ actions:
 ---
 A React PDF viewer custom toolbar is mostly a layout question: which controls the viewer has, where they sit and how they talk to your page renderer. kavun's dossier answers it with a deck, a tool strip and a zoom field, all driven by props. kavun draws no PDF pages. Your app supplies each page through `renderPage`, from [pdf.js](https://mozilla.github.io/pdf.js/) or any other renderer, and kavun is the interface around it.
 
-This is one of the guides to kavun. kavun is private for now. The package `@n-uf/kavun` is not on a public registry, so you can't install it yet. The code below is its real API, and the [live dossier on kavun.n-uf.com](https://kavun.n-uf.com/dossier) shows it working. kavun is independent of PDF.js and of Mozilla.
+kavun is private for now. The package `@n-uf/kavun` is not on a public registry, so you can't install it yet. The code below is its real API, and the [live dossier on kavun.n-uf.com](https://kavun.n-uf.com/dossier) shows it working. kavun is independent of PDF.js and of Mozilla.
 
 ## What does kavun add around a PDF renderer?
 
@@ -136,9 +136,9 @@ Pass `renderThumbnail`, a function that receives a page number and a width. Givi
 
 ## Can viewers move the toolbar?
 
-Yes, and this is the part a fixed toolbar can't do. Every part of the dossier but the title bar moves. The panel tabs, the tools, the commands and the zoom are groups, and the viewer can drag them to the deck, a left or right side bar, or the index rail, or float them over the pages. Each group has one drag handle. Drawers change sides and float too.
+Yes. Every part of the dossier but the title bar moves. The panel tabs, the tools, the commands and the zoom are groups, and the viewer can drag them to the deck, a left or right side bar, or the index rail, or float them over the pages. Each group has one drag handle. Drawers change sides and float too.
 
-The arrangement is remembered per viewer under `layoutStorageKey`, or not at all when you pass `null`. `layoutPreset` gives a starting arrangement over the built-in one. Under 720 px nothing docks: the groups reorder in the deck, and the panels become sheets. This is kavun's default layout, and a viewer can make it their own.
+The arrangement is remembered per viewer under `layoutStorageKey`, or not at all when you pass `null`. `layoutPreset` gives a starting arrangement over the built-in one. Under 720 px nothing docks: the groups reorder in the deck, and the panels become sheets.
 
 ## What is it not?
 
@@ -151,4 +151,4 @@ kavun styles itself: its components render their own scoped stylesheets, so ther
 export default { transpilePackages: ["@n-uf/kavun", "@n-uf/angiospermae", "@n-uf/papyrus-react"] };
 ```
 
-{{live:/kavun/react-pdf-viewer-dark-mode}}The dossier also comes in five themes, which have their own guide on [dark mode and themes for a React PDF viewer](/kavun/react-pdf-viewer-dark-mode).{{/live}} The rest of the kit, with a guide per job, is on the [kavun guides](/kavun) page. The sister kits have their own: [harbuz guides](/harbuz) and [dynia guides](/dynia).
+{{live:/kavun/react-pdf-viewer-dark-mode}}The dossier also comes in five themes, which have their own guide on [dark mode and themes for a React PDF viewer](/kavun/react-pdf-viewer-dark-mode).{{/live}} Every guide to the kit is listed on the [kavun guides](/kavun) page. The sister kits have their own: [guides to harbuz's themes and shells](/harbuz) and [guides to dynia's dashboard blocks](/dynia).

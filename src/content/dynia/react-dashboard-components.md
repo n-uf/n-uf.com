@@ -52,11 +52,11 @@ actions:
 ---
 React dashboard components should draw the parts every dashboard has and leave the data alone. dynia's do: a shell with a header and a footer tray, a panel, stat tiles, a written summary, bars and a trend line, a dense table and cards of tagged findings. You compose them and pass in your own numbers. dynia only draws.
 
-This is one of the guides to dynia. dynia is private for now. The package `@n-uf/dynia` is not on a public registry, so you can't install it yet. The code below is its real API, and the [dynia library on dynia.n-uf.com](https://dynia.n-uf.com/library) shows the blocks working.
+dynia is private for now. The package `@n-uf/dynia` is not on a public registry, so you can't install it yet. The code below is its real API, and the [dynia library on dynia.n-uf.com](https://dynia.n-uf.com/library) shows the blocks working.
 
 ## Which React dashboard components does dynia have?
 
-The dashboard UI components, with what each one is:
+Eight groups, each with what it draws:
 
 | Block | What it is |
 | --- | --- |
@@ -179,4 +179,4 @@ export default {
 
 No. A template ships pages and data; dynia ships blocks. It has no routing, data fetching or sign-in of its own, and the only chart marks are bars and a sparkline, so a line chart, a pie or a map needs another library. If you were looking for a React analytics dashboard template, dynia gives you the look, the layout and the dense, readable numbers, and you build the pages.
 
-The package is private too, so you can read this page and try the demo, but you can't install it yet. {{live:/dynia/react-stepper-component}}The shell's header can show a pipeline stepper, which has its own guide to a [React stepper component](/dynia/react-stepper-component).{{/live}} The rest of the kit, with a guide per job, is on the [dynia guides](/dynia) page. The sister kits have their own: [harbuz guides](/harbuz) and [kavun guides](/kavun).
+The package is private too, so you can read this page and try the demo, but you can't install it yet. {{live:/dynia/react-stepper-component}}The shell's header can show a pipeline stepper, which has its own guide to a [React stepper component](/dynia/react-stepper-component).{{/live}} Every guide to the kit is listed on the [dynia guides](/dynia) page. The sister kits have their own: [guides to harbuz's themes and shells](/harbuz) and [guides to kavun's PDF viewer parts](/kavun).
