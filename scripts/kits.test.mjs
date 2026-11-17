@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { kitList, kits, kitOf } from "../src/data/kits.ts";
+import { kitList, kitOf } from "../src/data/kits.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const plain = (text) => text.replace(/`/g, "");
