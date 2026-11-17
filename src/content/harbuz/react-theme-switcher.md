@@ -130,7 +130,7 @@ It is also exported from `@n-uf/harbuz/hooks/theme-script`, a file with no React
 ```tsx
 import { getThemeScript } from "@n-uf/harbuz/hooks/theme-script";
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html data-theme="ocean">
       <head>
@@ -186,6 +186,7 @@ function DarkModeToggle() {
 To follow the visitor's system setting instead, `useSystemTheme` returns `"light"` or `"dark"`:
 
 ```tsx
+import { useEffect } from "react";
 import { useSystemTheme, useTheme } from "@n-uf/harbuz";
 
 function FollowSystem() {
