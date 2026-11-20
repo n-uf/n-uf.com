@@ -16,15 +16,15 @@ takeaways:
   - "The date, title and URL the browser adds are a print-dialog setting. Chrome's blog says a page margin of 0, or one too small for them, keeps them off."
 faq:
   - q: "How do I add a header and footer to every printed page in CSS?"
-    a: "Use `@page` margin boxes such as `@top-center` and `@bottom-center` if you print from Chrome, Edge or Opera, or a `position: fixed` element, which CSS 2.1 says is repeated on every page in print. MDN's table lists margin boxes from Chrome 131 and not in Firefox or Safari. A fixed element doesn't reserve space for itself, so plan for the text under it."
+    a: "Use `@page` margin boxes such as `@top-center` and `@bottom-center` if you print from Chrome, Edge or Opera, or a `position: fixed` element, which CSS 2.1 says repeats on every page in print. MDN lists margin boxes from Chrome 131, not in Firefox or Safari. A fixed element reserves no space, so plan for the text under it."
   - q: "Why does my fixed header cover the text on the second page?"
-    a: "A fixed box is placed against the page and takes no room in the text flow, so from page 2 on the text starts at the top of the page and runs under it. Padding on `body` or `main` only moves the text on the first page. In our Chrome 157 test, spacer rows in a `thead` and `tfoot` kept the text clear on every page."
+    a: "A fixed box is placed against the page and takes no room in the text flow, so from page 2 on the text starts at the top of the page and runs under it. Padding on `body` or `main` only moves the text on page 1. In our Chrome 157 test, spacer rows in a `thead` and `tfoot` fixed it."
   - q: "How do I repeat a table header on every printed page?"
     a: "Put the header row in a real `thead` element. CSS 2.1 says print user agents may repeat header rows on each page a table spans, and Chrome 157 did in our test. A `thead` switched to `display: table-row-group`, a `tbody` given `display: table-header-group`, and `div` elements styled as a table header did not repeat."
   - q: "How do I hide the header and footer the browser adds when printing?"
     a: "Turn off the headers and footers option in the print dialog. Chrome's blog says they also won't display if the page margin is 0 or too small to hold them. In a script, Playwright prints none unless you set `displayHeaderFooter` to true."
   - q: "Do @page margin boxes work in Firefox and Safari?"
-    a: "No, not as of 11 November 2026. MDN's compatibility table marks every `@page` margin box as experimental and lists it as unsupported in Firefox and Safari. Chrome 131, Edge 131 and Opera 116 are the first versions with them."
+    a: "No, not as of 11 November 2026. MDN's compatibility table marks every `@page` margin box as experimental and lists it as unsupported in Firefox and Safari. Chrome 131, Edge 131 and Opera 116 are the first versions with them, so for the other browsers put the header and footer in the HTML."
 sources:
   - title: "MDN: @page at-rule (compatibility table read in Chrome)"
     url: "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@page"
