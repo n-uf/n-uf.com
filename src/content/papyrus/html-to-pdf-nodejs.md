@@ -24,7 +24,7 @@ faq:
   - q: "How do I generate a PDF from an HTML template in Node.js?"
     a: "Render the template to an HTML string with your template engine, call `page.setContent(html)`, then `page.pdf()`. The browser only sees HTML, so the engine doesn't matter. Playwright's docs say `setContent` calls `document.write()`, so for a page with many assets, write it to a file or serve it and use `goto()`."
   - q: "Do I need Docker to convert HTML to PDF in Node.js?"
-    a: "No. Playwright and Puppeteer run a browser from your Node process, with no container needed. Gotenberg is the one that needs Docker, because it ships as a Docker image with an HTTP API; in return, there's no browser to manage inside your app. Pick by whether you want a library or a service."
+    a: "No. Playwright and Puppeteer run a browser from your Node process. Gotenberg is the one that needs Docker, because it ships as a Docker image with an HTTP API; in return, there's no browser to manage inside your app. From Node, any HTTP client can send it the files."
 sources:
   - title: "Playwright README"
     url: "https://github.com/microsoft/playwright/blob/main/README.md"
