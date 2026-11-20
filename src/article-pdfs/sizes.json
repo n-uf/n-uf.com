@@ -1,6 +1,6 @@
 {
   "css-page-break-print": {
-    "bytes": 320587,
+    "bytes": 320613,
     "pages": 8
   },
   "css-page-size-a4": {
@@ -12,11 +12,11 @@
     "pages": 9
   },
   "css-print-page-numbers": {
-    "bytes": 361436,
+    "bytes": 361473,
     "pages": 9
   },
   "html-to-pdf-nodejs": {
-    "bytes": 343482,
+    "bytes": 343472,
     "pages": 10
   },
   "playwright-pdf-from-html": {
