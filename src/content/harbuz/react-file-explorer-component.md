@@ -4,7 +4,7 @@ description: "A React file explorer component: harbuz's FileExplorer gives you b
 h1: "React file explorer component: a file manager shell for your data"
 mainKeyword: "react file explorer component"
 kind: use-case
-draft: true
+draft: false
 published: 2026-11-20
 updated: 2026-11-20
 author: n-uf
