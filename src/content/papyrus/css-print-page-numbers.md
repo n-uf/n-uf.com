@@ -20,11 +20,11 @@ faq:
   - q: "Can page numbers start at a number other than 1?"
     a: "Yes, in Chrome 157, with `counter-increment` on the first page. The draft says an explicit `counter-increment` for `page` in the page context replaces the default increment of 1. `@page :first { counter-increment: page 5; }` printed 5, then 6, in our test, while `counter(pages)` stayed the real total. Avoid `counter-reset: page 4`, which printed 4, 1, 2, 3, 4."
   - q: "How do I hide the page number on the first page?"
-    a: "Give the first page's margin box no content: `@page :first { @bottom-center { content: none; } }`. The draft generates a margin box only if its `content` isn't `none`, and its own examples use `@page :first`. In Chrome 157 the first page had no number and the others did. MDN's `:first` note is narrower, so test your browsers."
+    a: "Give the first page's margin box no content: `@page :first { @bottom-center { content: none; } }`. The draft generates a margin box only if its `content` isn't `none`, and its own examples put margin boxes in `@page :first`. Chrome 157 numbered every page but the first. MDN's `:first` note is narrower, so test your browsers."
   - q: "Why is counter(page) showing 0 or nothing?"
     a: "Usually because it isn't in a margin box, the name is wrong, or the margin is 0. In our Chrome 157 test, `counter(page)` in a `::after` on the body printed 0, `counter(pageNumber)` in a margin box printed 0, and a margin box on a page with `margin: 0` printed nothing. The predefined counter is called `page`."
   - q: "How do I add page numbers when I make a PDF with a script?"
-    a: "Use the PDF tool's footer. In Playwright, set `displayHeaderFooter: true` and a `footerTemplate` with elements of the classes `pageNumber` and `totalPages`. Puppeteer's `footerTemplate` has the same special classes, and Gotenberg's `footer.html` uses them too. Playwright's docs add that script tags in these templates are not evaluated and page styles are not visible in them."
+    a: "Use the PDF tool's footer. In Playwright, set `displayHeaderFooter: true` and a `footerTemplate` with elements of the classes `pageNumber` and `totalPages`; its docs say scripts in the template don't run and the page's styles don't reach it, so style it inline. Puppeteer's `footerTemplate` has the same special classes, and Gotenberg's `footer.html` uses them too."
 sources:
   - title: "MDN: @page at-rule (page source and compatibility table read in Chrome)"
     url: "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@page"
