@@ -22,7 +22,7 @@ faq:
   - q: "How do I print A4 landscape in CSS?"
     a: "Write `@page { size: A4 landscape; }`. MDN's compatibility table marks the `landscape` and `portrait` keywords as unsupported in Safari. The syntax also accepts two lengths, width first, so `size: 297mm 210mm` describes the same page box; we have not tested that form in Safari."
   - q: "Can I put @page inside @media print?"
-    a: "Yes. MDN's `size` page has an example of an `@page` rule nested inside `@media print`. MDN's printing guide says styles in `@media print` are used only for printed content."
+    a: "Yes. MDN's `size` page has an example of an `@page` rule nested inside `@media print`. MDN's printing guide says styles in `@media print` are used only for printed content, so a nested `@page` rule is a way to keep the page size together with the other print-only rules of your stylesheet."
   - q: "What happens if the paper in the printer is not A4?"
     a: "The browser decides. The W3C draft lists what it should do, in order of preference: render the page box on a larger sheet, rotate it, scale it, slice it over several sheets, or clip it. It adds that the browser may consult the user first."
 sources:
