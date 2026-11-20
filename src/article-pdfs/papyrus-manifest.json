@@ -1,7 +1,7 @@
 {
   "docs": {
     "css-page-break-print": {
-      "fingerprint": "865ad093c127d8c25b734f6640687cb35b5d00ce034f6e29fe1ce283ae1626d4",
+      "fingerprint": "4cb831256a15ea61e7ad06371277fa93a469f2a23373147a0c1e3ea2805bb0c2",
       "file": "css-page-break-print.pdf",
       "pages": 8,
       "layout": "A4 .leaf"
@@ -19,13 +19,13 @@
       "layout": "A4 .leaf"
     },
     "css-print-page-numbers": {
-      "fingerprint": "0b28e4e0a94447fee14ebac40fa8c99061e0c47e8fe8b9659d13ef49a2f466be",
+      "fingerprint": "718d7033ac9fc7d31c482dfb72d3cd61112fbc4e52400705dbbb99ea6414cb19",
       "file": "css-print-page-numbers.pdf",
       "pages": 9,
       "layout": "A4 .leaf"
     },
     "html-to-pdf-nodejs": {
-      "fingerprint": "09ccb79b3bbd8350de0a76cd9433049505987eca01af477edaef8cca9634c832",
+      "fingerprint": "52b4d643cc09d9e6a1f1d742525a1c8b3a0bbbae32d81893e908f51466f2694e",
       "file": "html-to-pdf-nodejs.pdf",
       "pages": 10,
       "layout": "A4 .leaf"
