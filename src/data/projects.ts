@@ -5,8 +5,14 @@ export interface Project {
   description: string;
   url: string;
   repo?: string;
-  npm?: string;
+  /** The project's packages on npmjs.com, main package first; left out when nothing is published */
+  npm?: readonly string[];
   status: "live" | "preview";
+}
+
+/** "@n-uf/motion" -> "https://www.npmjs.com/package/@n-uf/motion" (the form the project sites use) */
+export function npmUrl(packageName: string): string {
+  return `https://www.npmjs.com/package/${packageName}`;
 }
 
 export const studioName: string = "n-uf";
@@ -35,7 +41,7 @@ export const projects: readonly Project[] = [
       "Keyboard commands. Licence: PolyForm Perimeter 1.0.1.",
     url: "https://hypr-tiling.n-uf.com",
     repo: "https://github.com/n-uf/hypr-tiling",
-    npm: "@n-uf/hypr-tiling",
+    npm: ["@n-uf/hypr-tiling"],
     status: "live",
   },
   {
@@ -47,7 +53,7 @@ export const projects: readonly Project[] = [
       "Packages: @n-uf/motion, @n-uf/placement, @n-uf/docking. Licence: PolyForm Perimeter 1.0.1.",
     url: "https://motion.n-uf.com",
     repo: "https://github.com/n-uf/motion",
-    npm: "@n-uf/motion",
+    npm: ["@n-uf/motion", "@n-uf/placement", "@n-uf/docking"],
     status: "live",
   },
   {
@@ -59,6 +65,7 @@ export const projects: readonly Project[] = [
       "Packages: @n-uf/doodl, @n-uf/doodl-react, @n-uf/doodl-react-pdf, @n-uf/doodl-go. JSON export. Licence: PolyForm Perimeter 1.0.1.",
     url: "https://doodl.n-uf.com",
     repo: "https://github.com/n-uf/doodl",
+    npm: ["@n-uf/doodl"],
     status: "live",
   },
   {
@@ -70,6 +77,7 @@ export const projects: readonly Project[] = [
       "Records re-render causes from dependency and prop changes. Licence: PolyForm Perimeter 1.0.1.",
     url: "https://debugsy.n-uf.com",
     repo: "https://github.com/n-uf/debugsy",
+    npm: ["@n-uf/debugsy"],
     status: "live",
   },
   {
@@ -81,7 +89,7 @@ export const projects: readonly Project[] = [
       "Packages: @n-uf/papyrus, @n-uf/papyrus-react. Every PDF is checked against the expected page count. Licence: PolyForm Perimeter 1.0.1.",
     url: "https://n-uf.com/papyrus",
     repo: "https://github.com/n-uf/papyrus",
-    npm: "@n-uf/papyrus",
+    npm: ["@n-uf/papyrus", "@n-uf/papyrus-react"],
     status: "live",
   },
   {

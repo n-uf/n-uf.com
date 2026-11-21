@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import {
   githubOrgUrl,
+  npmUrl,
   projects,
   siteUrl,
   studioAlternateNames,
@@ -44,7 +45,7 @@ function projectBlock(project: Project): string {
     lines.push(`- Repository: ${project.repo}`);
   }
   if (project.npm !== undefined) {
-    lines.push(`- npm: ${project.npm}`);
+    lines.push(`- npm: ${project.npm.map((name: string) => `[${name}](${npmUrl(name)})`).join(", ")}`);
   }
   const kit = kitOf(project.id);
   if (kit !== undefined) {
