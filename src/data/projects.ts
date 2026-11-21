@@ -40,11 +40,11 @@ export const projects: readonly Project[] = [
   },
   {
     id: "motion",
-    name: "motion & placement",
+    name: "motion",
     tagline:
-      "Two TypeScript packages for windows, panels and toolbars: @n-uf/motion moves them without overshoot, @n-uf/placement works out where they dock.",
+      "Three TypeScript packages for app windows: @n-uf/motion moves them without overshoot, @n-uf/placement does the layout math, @n-uf/docking turns it into a window kit.",
     description:
-      "Packages: @n-uf/motion, @n-uf/placement. Licence: PolyForm Perimeter 1.0.1.",
+      "Packages: @n-uf/motion, @n-uf/placement, @n-uf/docking. Licence: PolyForm Perimeter 1.0.1.",
     url: "https://motion.n-uf.com",
     repo: "https://github.com/n-uf/motion",
     npm: "@n-uf/motion",
