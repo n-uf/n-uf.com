@@ -71,7 +71,7 @@ Note that Panel's value is `"light"`, while its label is Panel. The type of a va
 
 ## How does the viewer switch themes?
 
-Inside the dossier. The window handle's menu, which opens on a right-click on the ⠿ handle, has a Theme row that opens the theme drawer. The drawer is a slim side panel with one card per theme and a live miniature of each, so the dossier stays in view while the viewer tries them. The choice applies to every open dossier.
+Inside the dossier. The window handle's menu, which opens on a right-click on the header (its empty part or the document name), has a Theme row that opens the theme drawer. The drawer is a slim side panel with one card per theme and a live miniature of each, so the dossier stays in view while the viewer tries them. The choice applies to every open dossier.
 
 `showThemes` turns this panel on or off; it is on by default. The viewer's pick is remembered per viewer, in `localStorage`.
 
