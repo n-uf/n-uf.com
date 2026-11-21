@@ -1,6 +1,7 @@
 // Structured data (JSON-LD) nodes for the articles. The Organization node itself comes from Layout.astro; articles
 // point to it by id as author and publisher, and to their project's SoftwareSourceCode node with "about".
-import { siteUrl, studioId } from './projects';
+// The extension lets Node load this file in scripts/projects-npm.test.mjs (Astro and Vite accept it too)
+import { npmUrl, siteUrl, studioId, type Project } from './projects.ts';
 
 type Node = Record<string, unknown>;
 
@@ -24,6 +25,41 @@ export function breadcrumbList(crumbs: readonly Crumb[]): Node {
       position: index + 1,
       name: crumb.name,
       item: absolute(crumb.path),
+    })),
+  };
+}
+
+/**
+ * The home page's list of projects. Each list item holds the project as a SoftwareSourceCode node (not
+ * SoftwareApplication, which Google wants offers and ratings for): its own site as url, its repository, the n-uf
+ * Organization as author. `sameAs` names the project's main npm package only; the other packages are parts of it.
+ * The ListItem wrapper carries just position and item. Projects with no package on npm get neither sameAs nor hasPart.
+ */
+export function projectItemList(projects: readonly Project[]): Node {
+  return {
+    '@context': context,
+    '@type': 'ItemList',
+    name: 'n-uf projects',
+    itemListElement: projects.map((project: Project, index: number) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'SoftwareSourceCode',
+        name: project.name,
+        url: project.url,
+        description: project.tagline,
+        ...(project.repo !== undefined && { codeRepository: project.repo }),
+        author: { '@id': studioId },
+        ...(project.npm !== undefined && { sameAs: [npmUrl(project.npm[0])] }),
+        ...(project.npm !== undefined &&
+          project.npm.length > 1 && {
+            hasPart: project.npm.slice(1).map((name: string) => ({
+              '@type': 'SoftwareSourceCode',
+              name,
+              url: npmUrl(name),
+            })),
+          }),
+      },
     })),
   };
 }
