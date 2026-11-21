@@ -25,6 +25,7 @@ DOTS = [(244, 114, 182), (251, 146, 60), (251, 191, 36), (52, 211, 153), (34, 21
 # src/data/kits.ts
 PROJECTS = {
     "papyrus": {"name": "papyrus", "address": "n-uf.com/papyrus"},
+    "notes": {"name": "notes", "address": "n-uf.com/notes"},
     "harbuz": {"name": "harbuz", "address": "n-uf.com/harbuz", "page_h1": "harbuz guides: theming, file explorer and more"},
     "kavun": {"name": "kavun", "address": "n-uf.com/kavun", "page_h1": "kavun guides: toolbar, themes and more"},
     "dynia": {"name": "dynia", "address": "n-uf.com/dynia", "page_h1": "dynia guides: dashboard blocks, stepper and more"},

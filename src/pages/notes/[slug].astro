@@ -1,0 +1,19 @@
+---
+// /notes/<slug>: a note, from src/content/notes/<slug>.md (src/components/NoteArticle.astro draws it).
+// Drafts are built only in dev and Vercel previews (src/data/articles.ts); in production they have no page.
+import NoteArticle from '../../components/NoteArticle.astro';
+import { getNotes, type NoteEntry } from '../../data/articles';
+
+export async function getStaticPaths() {
+  const entries: NoteEntry[] = await getNotes();
+  return entries.map((entry: NoteEntry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: NoteEntry;
+}
+
+const { entry } = Astro.props;
+---
+
+<NoteArticle entry={entry} />

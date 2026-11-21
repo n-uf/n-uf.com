@@ -22,6 +22,8 @@ interface Props {
   ogType?: string;
   /** Extra JSON-LD nodes for this page, published next to the Organization node */
   structuredData?: Record<string, unknown>[];
+  /** An RSS feed to advertise in the head: its address as a site path and its title (the notes pages) */
+  feed?: { href: string; title: string };
 }
 
 const {
@@ -33,6 +35,7 @@ const {
   imageAlt = 'n-uf',
   ogType = 'website',
   structuredData = [],
+  feed,
 } = Astro.props;
 
 const canonicalUrl: string = new URL(path, siteUrl).href;
@@ -89,6 +92,7 @@ const jsonLd: {
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    {feed && <link rel="alternate" type="application/rss+xml" title={feed.title} href={new URL(feed.href, siteUrl).href} />}
     <script
       type="application/ld+json"
       set:html={JSON.stringify(structuredData.length > 0 ? [jsonLd, ...structuredData] : jsonLd)}
