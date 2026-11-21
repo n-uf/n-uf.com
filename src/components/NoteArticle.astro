@@ -4,7 +4,7 @@
  * the entries; this draws the page.
  *
  * The look of a kit's guide (src/components/KitArticle.astro: the article look of /papyrus/<slug> on a plain, fluid sheet),
- * with what a first-hand note adds: an "Evidence" line under the title (what was tested, when, and a link to repeat it),
+ * with what a first-hand note adds: an "Evidence" line under the title (what was tested, when and on which Claude Code, model and OS, and a link to repeat it),
  * the topic as a label, and a link to the section's feed. The server HTML is the whole page. Drafts are built only in dev
  * and Vercel previews (src/data/articles.ts), with a "Scheduled for" badge and noindex; production has no page for them.
  *
@@ -153,7 +153,8 @@ const structuredData = [
               data.tested && (
                 <>
                   {' '}
-                  Tested <time datetime={day(data.tested)}>{dateText(data.tested)}</time>.
+                  Tested <time datetime={day(data.tested.day)}>{dateText(data.tested.day)}</time> · Claude Code {data.tested.claudeCode} ·{' '}
+                  {data.tested.model} · {data.tested.os}.
                 </>
               )
             }

@@ -53,9 +53,11 @@ test("the fixture note is a valid draft, with every field the schema knows", () 
   assert.equal(r.data.draft, true);
   assert.equal(r.data.topic, "claude");
   assert.equal(r.data.kind, "test");
-  assert.ok(r.data.tested instanceof Date);
+  assert.ok(r.data.tested.day instanceof Date);
+  assert.deepEqual([r.data.tested.claudeCode, r.data.tested.model, r.data.tested.os], ["2.1.0", "Sonnet 5.5", "macOS 27.3"]);
+  assert.equal(r.data.pinned, false);
   assert.equal(r.data.repro, "https://github.com/n-uf/fixture-repro");
-  assert.equal(r.data.faq.length, 1);
+  assert.equal(r.data.faq.length, 3);
   assert.equal(r.data.sources.length, 1);
 });
 
@@ -96,8 +98,16 @@ test("evidence is required, one short line", () => {
 test("a note of kind test needs `tested`; any other kind may leave it out; a test day ahead is refused", () => {
   failsOn({ tested: undefined }, "tested", /kind "test" needs `tested`/);
   assert.equal(parse(withFields({ kind: "how-to", tested: undefined })).success, true);
-  failsOn({ tested: "2999-01-01" }, "tested", /future day/);
-  failsOn({ tested: "yesterday-ish" }, "tested");
+  const tested = (changes) => ({ ...fixtureData().tested, ...changes });
+  failsOn({ tested: tested({ day: "2999-01-01" }) }, "tested", /future day/);
+  failsOn({ tested: tested({ day: "yesterday-ish" }) }, "tested");
+});
+
+test("`tested` carries the day, the Claude Code version, the model and the OS, all required", () => {
+  const tested = (changes) => ({ ...fixtureData().tested, ...changes });
+  for (const key of ["day", "claudeCode", "model", "os"]) failsOn({ tested: tested({ [key]: undefined }) }, `tested.${key}`);
+  for (const key of ["claudeCode", "model", "os"]) failsOn({ tested: tested({ [key]: "" }) }, `tested.${key}`);
+  failsOn({ tested: "2026-11-20" }, "tested"); // a bare day is no longer enough
 });
 
 test("repro must be a link", () => {
@@ -117,7 +127,10 @@ test("takeaways: 3 to 5, each 20 characters or more", () => {
 test("the FAQ is optional, at most 5, and each question ends in ? with an answer of 40 characters or more", () => {
   const q = (n) => Array.from({ length: n }, (_, i) => ({ q: `Question ${i + 1}?`, a: "An answer that is long enough for the forty characters." }));
   assert.deepEqual(parse(withFields({ faq: undefined })).data.faq, []);
-  assert.equal(parse(withFields({ faq: q(5) })).success, true);
+  assert.deepEqual(parse(withFields({ faq: [] })).data.faq, []);
+  for (const n of [3, 4, 5]) assert.equal(parse(withFields({ faq: q(n) })).success, true, `${n} questions`);
+  failsOn({ faq: q(1) }, "faq", /0 questions, or 3 to 5/);
+  failsOn({ faq: q(2) }, "faq", /0 questions, or 3 to 5/);
   failsOn({ faq: q(6) }, "faq");
   failsOn({ faq: [{ q: "No question mark", a: "An answer that is long enough for the forty characters." }] }, "faq");
   failsOn({ faq: [{ q: "A question?", a: "Too short." }] }, "faq");
@@ -187,6 +200,18 @@ test("notes of the same day keep their order by the day they changed, then by ti
   assert.deepEqual(visibleNotes([c, b, a], false).map((e) => e.id), ["a", "b", "c"]);
 });
 
+test("a pinned live note sorts first, then the rest by published; pinned defaults to false", () => {
+  const pinned = live("changelog", "2026-11-01", { pinned: true });
+  const pinnedToo = live("pinned-two", "2026-11-12", { pinned: true });
+  assert.equal(entries()[0].data.pinned, false);
+  assert.deepEqual(visibleNotes([...entries(), pinned], false).map((e) => e.id), ["changelog", "newest", "middle", "older"]);
+  assert.deepEqual(visibleNotes([...entries(), pinned, pinnedToo], false).map((e) => e.id), ["pinned-two", "changelog", "newest", "middle", "older"]);
+  // a pinned draft stays out of production, whatever its place
+  const pinnedDraft = entry("pinned-draft", { pinned: true });
+  assert.deepEqual(visibleNotes([...entries(), pinnedDraft], false).map((e) => e.id), ["newest", "middle", "older"]);
+  assert.equal(visibleNotes([...entries(), pinnedDraft], true)[0].id, "pinned-draft");
+});
+
 test("with no live note, production lists nothing (and so builds no index), while a preview lists the draft", () => {
   assert.deepEqual(visibleNotes([draft], false), []);
   assert.deepEqual(visibleNotes([], false), []);
@@ -221,6 +246,14 @@ test("an item carries the description and the takeaways, escaped, backticks remo
   assert.ok(xml.includes("<title>Using a &amp; b &lt;now&gt;</title>"));
   assert.ok(xml.includes("&lt;li&gt;Run ps &amp;amp; read the RSS &amp;lt;column&amp;gt; of each session.&lt;/li&gt;"));
   assert.doesNotMatch(xml, /<column>|`/);
+});
+
+test("an apostrophe is escaped once, as &#39; (not a double-escaped &amp;apos;)", () => {
+  const e = live("quote", "2026-11-18", { title: "Claude's memory, measured", description: "Claude's sessions, measured on a 16 GB Mac: how much memory each one takes at rest, while it works and after a long run of tasks." });
+  const xml = rssFeed({ siteUrl: SITE, entries: [e] });
+  assert.ok(xml.includes("<title>Claude&#39;s memory, measured</title>"));
+  assert.ok(xml.includes("&lt;p&gt;Claude&amp;#39;s sessions"));
+  assert.doesNotMatch(xml, /&apos;|&amp;apos;/);
 });
 
 test("a preview's feed marks the draft as scheduled; with no entry the feed is empty but valid", () => {
