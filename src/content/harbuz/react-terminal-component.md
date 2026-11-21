@@ -29,7 +29,7 @@ sources:
   - title: "xterm.js README (github.com/xtermjs/xterm.js)"
     url: "https://github.com/xtermjs/xterm.js"
     checked: 2026-11-20
-    supports: "xterm.js is a frontend component that brings fully-featured terminals to the browser; works with terminal apps such as bash, vim and tmux; is not a terminal application and not bash; connects to processes through a library such as node-pty; addons; real-world uses"
+    supports: "xterm.js is a frontend component that brings fully-featured terminals to the browser; works with terminal apps such as bash, vim and tmux; is not a terminal application and not bash; connects to processes through a library such as node-pty; addons, a clipboard addon among them; real-world uses"
   - title: "xterm.js home page (xtermjs.org)"
     url: "https://xtermjs.org/"
     checked: 2026-11-20
@@ -37,7 +37,7 @@ sources:
   - title: "xterm.js API: Terminal class (xtermjs.org/docs/api/terminal/classes/terminal)"
     url: "https://xtermjs.org/docs/api/terminal/classes/terminal/"
     checked: 2026-11-20
-    supports: "open(parent), write(data), onData, dispose(); the element must be visible when open is called; onData is meant to be passed to the backing pty"
+    supports: "open(parent), write(data), onData, dispose(), clear() and getSelection(); the element must be visible when open is called; onData is meant to be passed to the backing pty"
   - title: "harbuz: Terminal (harbuz.n-uf.com/terminal)"
     url: "https://harbuz.n-uf.com/terminal"
     checked: 2026-11-20
