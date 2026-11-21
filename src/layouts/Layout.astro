@@ -102,9 +102,10 @@ const jsonLd: {
         return Object.assign({}, e, { url: u.toString() });
       };
     </script>
-    <Analytics />
   </head>
   <body>
     <slot />
+    <!-- last in the body: the component renders a <vercel-analytics> element, which in the head would close it early -->
+    <Analytics />
   </body>
 </html>
