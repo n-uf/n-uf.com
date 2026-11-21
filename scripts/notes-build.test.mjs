@@ -70,6 +70,11 @@ test("a draft only: llms.txt mentioning /notes, or a page linking to /notes, is 
   assert.ok(check(t).some((p) => /links to \/notes/.test(p)));
 });
 
+test("a draft only: another page's address that merely contains /notes in its path is not the section", () => {
+  const s = site({ "fixture-draft-note": FIXTURE }, { "llms.txt": "# n-uf\n- [x](https://n-uf.com/papyrus/notes-on-print): d\n- https://github.com/n-uf/some/notes\n" });
+  assert.deepEqual(check(s), []);
+});
+
 // ---- a live note: the section exists, and only the live notes are in it
 test("a live note: /notes, the feed, the note, the sitemap and llms.txt are all there", () => {
   const s = site(
