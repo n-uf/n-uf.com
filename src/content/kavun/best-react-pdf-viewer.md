@@ -9,7 +9,7 @@ published: 2026-12-12
 updated: 2026-12-12
 author: n-uf
 takeaways:
-  - "The best React PDF viewer depends on what you need on screen: pages only (React-PDF), a ready-made viewer (EmbedPDF, or react-pdf-viewer under a commercial licence), the rendering engine itself (PDF.js) or your own interface around any of them."
+  - "Which viewer fits depends on what you need on screen: pages only (React-PDF), a ready-made viewer (EmbedPDF, or react-pdf-viewer under a commercial licence), the rendering engine itself (PDF.js) or your own interface around any of them."
   - "React-PDF is MIT and gives you `Document`, `Page`, `Outline` and `Thumbnail`; its README documents no toolbar, so the interface is yours."
   - "react-pdf-viewer's README says a commercial licence must be bought, and its GitHub repository was archived by its owner on 25 March 2026 and is read-only."
   - "EmbedPDF is Apache-2.0 and comes as a drop-in viewer or a headless library; its page lists annotations, forms, signatures, search, redaction and stamps."
@@ -73,7 +73,7 @@ actions:
     label: "Open the kavun dossier demo"
     href: "https://kavun.n-uf.com/dossier"
 ---
-The best React PDF viewer is the one that draws what your screen needs and leaves you to build the rest. If you need pages in your own layout, React-PDF does that. If you need a finished viewer with annotation and form features, EmbedPDF's page describes one. If you need the rendering engine or a stock viewer, PDF.js is that. And if you already have a renderer and need the toolbar, panels and layout around it, that is a different job, which is the one kavun does. This page compares them from their own pages, fetched on 20 November 2026.
+There is no single best React PDF viewer: React-PDF draws pages inside your own layout, EmbedPDF and react-pdf-viewer are finished viewers, and PDF.js is the engine and stock viewer. And if you already have a renderer and need the toolbar, panels and layout around it, that is a different job, which is the one kavun does. This page compares them from their own pages, fetched on 20 November 2026.
 
 kavun is independent of React-PDF, react-pdf-viewer, EmbedPDF and PDF.js, and of their authors, and none of them endorses it. kavun is private for now: the package `@n-uf/kavun` is not on a public registry, so you can't install it yet.
 
@@ -85,9 +85,7 @@ kavun is independent of React-PDF, react-pdf-viewer, EmbedPDF and PDF.js, and of
 | Shape | React components: `Document`, `Page`, `Outline`, `Thumbnail` | A `Viewer` component with plugins | A drop-in viewer, or headless components | A library and a stock viewer, not a React component |
 | Interface | Yours to build | Default layout plugin, customizable toolbar | Prebuilt toolbar and layout, or your own | The stock viewer, or your own |
 | Licence | MIT | Commercial licence to be purchased | Apache-2.0 | Apache 2.0 |
-| State, as its page says | README for the 11.x branch | Repository archived by its owner on 25 March 2026 | Documentation for 2.x | Community-driven, supported by Mozilla |
-
-A table is a summary, and a summary loses detail. The sections below say what each page says and where each one fits.
+| State, as its page says | README for the 11.x branch | Repository archived by its owner on 25 March 2026 | Quick start loads `@embedpdf/viewer@3`; 2.x docs kept separately | Community-driven, supported by Mozilla |
 
 ## What is React-PDF?
 
@@ -109,7 +107,7 @@ Its README says the PDF engine is built on PDFium and runs as WebAssembly; React
 
 ## What is PDF.js, and where does it fit?
 
-PDF.js is the engine behind a lot of this. Its home page calls it a general-purpose, web standards-based platform for parsing and rendering PDFs, licensed under Apache 2.0, and its README says it is community-driven and supported by Mozilla. It has an online demo viewer. Its pages describe a platform and a viewer, not a React component, so in a React app you use it through a wrapper or drive it yourself.
+PDF.js is the engine under React-PDF, and react-pdf-viewer lists it in its topics. Its home page calls it a general-purpose, web standards-based platform for parsing and rendering PDFs, licensed under Apache 2.0, and its README says it is community-driven and supported by Mozilla. It has an online demo viewer. Its pages describe a platform and a viewer, not a React component, so in a React app you use it through a wrapper or drive it yourself.
 
 React-PDF's README is explicit about the relationship: it needs the PDF.js worker, with `pdfjs-dist` pinned to a matching version. react-pdf-viewer's GitHub topics include pdfjs too. EmbedPDF's README names a different engine, PDFium, so the choice of library is also a choice of engine.
 
@@ -160,7 +158,7 @@ The guides to a [React PDF viewer custom toolbar](/kavun/react-pdf-viewer-custom
 
 ## How do you choose?
 
-Choosing the best React PDF viewer starts with the screen. If you can sketch it as "pages and a few buttons", React-PDF or PDF.js is enough. If the sketch has a toolbar you do not want to write, look at the two viewers. If it has annotation tools, forms or signatures, read EmbedPDF's feature list first. If the sketch is mostly interface, with panels, a deck and a layout the reader moves, pick any renderer and put an interface kit around it.
+Start with the screen. If you can sketch it as "pages and a few buttons", React-PDF or PDF.js is enough. If the sketch has a toolbar you do not want to write, look at the two viewers. If it has annotation tools, forms or signatures, read EmbedPDF's feature list first. If the sketch is mostly interface, with panels, a deck and a layout the reader moves, pick any renderer and put an interface kit around it.
 
 Then read the licence, the repository's state and the current documentation. This page is a snapshot from 20 November 2026, built from each project's own words; it is not a benchmark, and we have not measured speed, bundle size or accuracy for any of them.
 

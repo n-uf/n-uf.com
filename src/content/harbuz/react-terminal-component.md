@@ -80,7 +80,7 @@ Ask what the screen is for. If a person works in it, with a prompt, commands and
 | Terminal programs such as `vim` | Work | Not applicable |
 | Structure of a line | Text on a screen | An entry: point, level, tags, a data payload |
 | Filter by source | Search is an addon | Built in, by point |
-| Pause, copy and clear controls | Not in the README's feature list | Built in |
+| Pause, copy and clear controls | No built-in buttons; the API has `clear()` and `getSelection()`, and there is a clipboard addon | Built in |
 | Where it stands | Public, shipped through npm | Private, not installable yet |
 
 Neither is better. They answer different questions, and a wrong choice costs more than a missing feature: an emulator for a plain event list is a lot of machinery, and a log shell can't take a command. Five questions settle it:
@@ -105,7 +105,7 @@ term.open(document.getElementById("terminal"));
 term.write("Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ");
 ```
 
-The README also says to include the `xterm.css` file, and shows `pty.onData(data => term.write(data))` and `term.onData(data => pty.write(data))` to connect the two ends. Extras are separate addons, for fitting to an element, search, web links, attaching to a server over a websocket and more. In a React app you create the terminal in an effect, open it on an element you own through a ref, and dispose of it on unmount. The API page says the element must be visible, with dimensions, when `open` is called. A sketch with a websocket standing in for the process (the server side is yours):
+The README also says to include the `xterm.css` file, and shows `pty.onData(data => term.write(data))` and `term.onData(data => pty.write(data))` to connect the two ends. Extras are separate addons, for fitting to an element, search, web links, attaching to a server over a websocket and more. In a React app you create the terminal in an effect, open it on an element you own through a ref, and dispose of it on unmount. The API page says the element must be visible, with dimensions, when `open` is called. An untested sketch with a websocket standing in for the process (the server side is yours):
 
 ```tsx
 import { useEffect, useRef } from "react";
@@ -138,7 +138,7 @@ Output goes in with `write` and keystrokes come out through `onData`, which the 
 
 ## What is HarbuzTerminal?
 
-A log shell. You give it `items`, a `renderItem` function and a `keyExtractor`, and it brings the rest: filtering by point, a sidebar of stats and shortcuts, compact and expanded views, a pause that freezes the list, a copy step and a clear. It draws the newest entry first and follows it. The rows, the data and the meaning of a point are yours.
+A log shell. You give it `items`, a `renderItem` function and a `keyExtractor`, and it brings the rest: filtering by point, a sidebar of stats and shortcuts, compact and expanded views, a pause that freezes the list, a copy step and a clear. It draws the newest entry first and follows it. The rows, the data and the meaning of a point are yours. An untested sketch:
 
 ```tsx
 import { HarbuzTerminal, LogEntry, type LogEntryData } from "@n-uf/harbuz";
@@ -180,4 +180,4 @@ Yes, and some should. The tab where an operator works in a shell is an emulator'
 
 It is not a terminal. It runs no commands, reads no input and does not connect to a process. It has no search field or level filter of its own, and it draws what its array holds, so streaming, storing and parsing logs are your app's work. For a real terminal session, use an emulator such as xterm.js.
 
-The package is private too, so you can read this page and try the demo, but you can't install it yet. Every guide to the kit is listed on the [harbuz guides](/harbuz) page. The sister kits have their own: [kavun's guides](/kavun) and [dynia's guides](/dynia). The kit's own site is [harbuz.n-uf.com](https://harbuz.n-uf.com/).
+harbuz is private, so you can read this page and try the demo, but you can't install it yet. Every guide to the kit is listed on the [harbuz guides](/harbuz) page. The sister kits have their own: [kavun's guides](/kavun) and [dynia's guides](/dynia). The kit's own site is [harbuz.n-uf.com](https://harbuz.n-uf.com/).
