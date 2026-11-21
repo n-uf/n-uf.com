@@ -13,7 +13,7 @@ import rehypeExternalLinks from './src/data/rehype-external-links.mjs';
 // isn't a change date). The hand-written pages get none. A draft isn't built in production, so it has no entry; in a
 // preview it is listed without a date.
 const lastmod = new Map();
-for (const section of ['papyrus', 'harbuz', 'kavun', 'dynia']) {
+for (const section of ['papyrus', 'harbuz', 'kavun', 'dynia', 'notes']) {
   const dir = `src/content/${section}`;
   if (!existsSync(dir)) continue;
   for (const file of readdirSync(dir).filter((name) => name.endsWith('.md'))) {

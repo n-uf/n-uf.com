@@ -11,8 +11,10 @@ import {
 } from "../data/projects";
 import { plainText } from "../data/inline-code.mjs";
 import { answerMarkdown, homeFaq, machineTransferFaq, type FaqItem } from "../data/faq";
-import { articlePath, getArticles, sections, type Entry, type SectionKey } from "../data/articles";
+import { articlePath, getArticles, getNotes, sections, type Entry, type NoteEntry, type SectionKey } from "../data/articles";
 import { kitOf } from "../data/kits";
+// @ts-ignore: plain JS module, so the tests can run it without Astro
+import { NOTES_DESCRIPTION, NOTES_FEED_PATH, NOTES_PATH, notePath } from "../data/notes.mjs";
 
 // The live articles of each project that has a collection, listed under that project (drafts only in previews);
 // a kit's are its guides
@@ -29,6 +31,26 @@ for (const key of Object.keys(sections) as SectionKey[]) {
     ];
   }
 }
+
+// The notes section, listed only while this build shows a note (live ones; drafts in previews): with none, the section
+// has no page, so llms.txt does not mention it or its feed
+const notes: NoteEntry[] = await getNotes();
+const notesBlock: string[] =
+  notes.length === 0
+    ? []
+    : [
+        "## Notes",
+        "",
+        NOTES_DESCRIPTION,
+        "",
+        `- Index: ${new URL(NOTES_PATH, siteUrl).href}`,
+        `- Feed (RSS): ${new URL(NOTES_FEED_PATH, siteUrl).href}`,
+        ...notes.map(
+          (entry: NoteEntry) =>
+            `- [${plainText(entry.data.h1)}](${new URL(notePath(entry.id), siteUrl).href}): ${plainText(entry.data.description)}`,
+        ),
+        "",
+      ];
 
 function projectBlock(project: Project): string {
   const lines: string[] = [
@@ -74,6 +96,7 @@ export const GET: APIRoute = (): Response => {
     "",
     projects.map(projectBlock).join("\n\n"),
     "",
+    ...notesBlock,
     "## Questions about n-uf",
     "",
     faqBlock(homeFaq),
