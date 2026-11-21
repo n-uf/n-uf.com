@@ -3,10 +3,12 @@
 // answers, dated drafts, no {{live:}} markers in front matter. What is different, and why (notes are first-hand pieces,
 // not product pages):
 //   - `evidence` is required: one line saying what is first-hand and where it comes from, so a note can't skip it;
-//   - `tested` (a day) says when it was tried; a note of kind `test` must have one, and none may be dated ahead;
+//   - `tested` says when and on what it was tried (day, Claude Code version, model, OS); a note of kind `test` must have
+//     one, and none may be dated ahead;
+//   - `pinned` lists a note first on the index;
 //   - `repro` is a link to the script, repo or gist that repeats it;
 //   - `topic` is `claude` or `web-ui`; there are no tag pages;
-//   - the FAQ is optional (0 to 5): a test note must not grow filler questions to meet a minimum;
+//   - the FAQ is optional, 0 or 3 to 5 questions: a test note must not grow filler questions to meet a minimum;
 //   - `actions` at most 2, and `related` must name /notes, the one page that is live whenever any note is.
 // It imports zod from astro/zod (what `z` in astro:content is), so scripts/notes.test.mjs can run it without Astro.
 import { z } from 'astro/zod';
@@ -35,7 +37,15 @@ export const noteSchema = z
     // What is first-hand about the piece: a test, data, a demo or code, in one line (shown near the top of the page)
     evidence: z.string().min(20).max(220),
     // The day it was tried (UTC). Required for kind `test`; never a future day.
-    tested: z.coerce.date().optional(),
+    // with the versions it was tried on: the day, Claude Code's version, the model and the OS
+    tested: z
+      .object({
+        day: z.coerce.date(),
+        claudeCode: z.string().min(1),
+        model: z.string().min(1),
+        os: z.string().min(1),
+      })
+      .optional(),
     // The script, repository or gist that repeats it
     repro: z.string().url().optional(),
     // The day the note goes live (UTC); for a draft, the day it is scheduled for.
@@ -43,6 +53,8 @@ export const noteSchema = z
     updated: z.coerce.date(),
     // true: scheduled, not live yet. The publish workflow flips it to false on its date.
     draft: z.boolean().default(false),
+    // true: listed first on the index (a living page such as the usage-limit changelog); the rest follow by `published`
+    pinned: z.boolean().default(false),
     author: z.literal('n-uf'),
     takeaways: z.array(z.string().min(20)).min(3).max(5),
     faq: z
@@ -87,12 +99,17 @@ export const noteSchema = z
     path: ['published'],
   })
   .refine((data) => data.kind !== 'test' || data.tested !== undefined, {
-    message: 'a note of kind "test" needs `tested`: the day the test was run',
+    message: 'a note of kind "test" needs `tested`: the day, Claude Code version, model and OS of the test',
     path: ['tested'],
   })
-  .refine((data) => data.tested === undefined || data.tested.toISOString().slice(0, 10) <= today(), {
-    message: 'tested is a future day: a note reports a test that has been run',
-    path: ['tested'],
+  .refine((data) => data.tested === undefined || data.tested.day.toISOString().slice(0, 10) <= today(), {
+    message: 'tested.day is a future day: a note reports a test that has been run',
+    path: ['tested', 'day'],
+  })
+  // 0 questions, or 3 to 5: one or two would not be a FAQ section (the FAQ check wants 3 to 5 on an inner page)
+  .refine((data) => data.faq.length === 0 || data.faq.length >= 3, {
+    message: 'faq has 0 questions, or 3 to 5',
+    path: ['faq'],
   })
   // `related` may name notes that are not live yet (production leaves those entries out until they are); /notes is
   // live whenever any note is, so it is always there on the day this note goes live.

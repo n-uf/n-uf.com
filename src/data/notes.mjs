@@ -32,8 +32,9 @@ const day = (date) => date.toISOString().slice(0, 10);
 /**
  * The notes a build shows: the live ones, plus drafts where drafts are shown (dev and Vercel previews). Newest first, by
  * the day each went live (`published`; a draft's is the day it is scheduled for), then by the day it last changed, then
- * by title. Notes are a log, so a note that is edited later keeps its place.
- * @template {{ id: string, data: { published: Date, updated: Date, title: string, draft?: boolean } }} E
+ * by title. Notes are a log, so a note that is edited later keeps its place. Pinned notes (a living page such as the
+ * changelog) come first, in the same order among themselves.
+ * @template {{ id: string, data: { published: Date, updated: Date, title: string, draft?: boolean, pinned?: boolean } }} E
  * @param {E[]} entries
  * @param {boolean} showDrafts
  * @returns {E[]}
@@ -43,11 +44,12 @@ export function visibleNotes(entries, showDrafts) {
     .filter((entry) => showDrafts || isLiveEntry(entry))
     .sort(
       (a, b) =>
+        Number(b.data.pinned === true) - Number(a.data.pinned === true) ||
         +b.data.published - +a.data.published || +b.data.updated - +a.data.updated || a.data.title.localeCompare(b.data.title),
     );
 }
 
-const XML = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" };
+const XML = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 const xml = (text) => String(text).replace(/[&<>"']/g, (c) => XML[c]);
 /** Backticks removed, as in meta tags (src/data/inline-code.mjs) */
 const plain = (text) => String(text).replace(/`/g, "");
