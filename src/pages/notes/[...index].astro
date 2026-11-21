@@ -1,0 +1,13 @@
+---
+// /notes: the index of the notes. Built only while this build shows at least one note (a live one, or a draft in dev and
+// previews): with none, getStaticPaths returns no path, so there is no page, and the sitemap, the nav and llms.txt have
+// nothing to list (src/data/notes.mjs). A rest route with an undefined param is how Astro writes /notes/index.html.
+import NotesIndex from '../../components/NotesIndex.astro';
+import { getNotes } from '../../data/articles';
+
+export async function getStaticPaths() {
+  return (await getNotes()).length > 0 ? [{ params: { index: undefined } }] : [];
+}
+---
+
+<NotesIndex />

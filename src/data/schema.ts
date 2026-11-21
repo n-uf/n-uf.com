@@ -107,3 +107,66 @@ export function techArticle(info: ArticleInfo): Node {
     about: { '@id': info.aboutId },
   };
 }
+
+export interface NoteInfo {
+  path: string;
+  headline: string;
+  description: string;
+  published: Date;
+  updated: Date;
+  /** The share image as a site path */
+  image: string;
+  /** The section the note is filed under ("Claude", "Web interfaces") */
+  section: string;
+}
+
+/**
+ * A note: an Article by the n-uf Organization (author and publisher both the shared id; the node itself comes from
+ * Layout.astro). A note belongs to no project, so it has no "about".
+ */
+export function noteArticle(info: NoteInfo): Node {
+  const url: string = absolute(info.path);
+  return {
+    '@context': context,
+    '@type': 'Article',
+    '@id': `${url}#article`,
+    url,
+    headline: info.headline,
+    description: info.description,
+    image: absolute(info.image),
+    datePublished: day(info.published),
+    dateModified: day(info.updated),
+    inLanguage: 'en',
+    articleSection: info.section,
+    author: { '@id': studioId },
+    publisher: { '@id': studioId },
+    mainEntityOfPage: url,
+  };
+}
+
+/** The notes index: a Blog whose posts are the notes the build shows, newest first */
+export function notesBlog(info: {
+  path: string;
+  name: string;
+  description: string;
+  posts: readonly { path: string; headline: string; published: Date }[];
+}): Node {
+  const url: string = absolute(info.path);
+  return {
+    '@context': context,
+    '@type': 'Blog',
+    '@id': `${url}#blog`,
+    url,
+    name: info.name,
+    description: info.description,
+    inLanguage: 'en',
+    publisher: { '@id': studioId },
+    blogPost: info.posts.map((post) => ({
+      '@type': 'BlogPosting',
+      headline: post.headline,
+      url: absolute(post.path),
+      datePublished: day(post.published),
+      author: { '@id': studioId },
+    })),
+  };
+}

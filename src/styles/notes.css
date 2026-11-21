@@ -1,0 +1,29 @@
+/* The notes section (/notes and /notes/<slug>): the guides' look (src/styles/article.css, src/styles/kit-guides.css) with
+   two small additions, built from the same tokens: the "Evidence" line under a note's title, and the date and topic under
+   an entry of the index. */
+
+/* The evidence line: what is first-hand about the note, in a box of the same family as the guides' availability note */
+.article .leaf-body .evidence {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--ink) 6.5%, transparent);
+  border-left: 3px solid var(--ink);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  color: var(--copy);
+}
+
+.article .leaf-body .evidence strong {
+  margin-right: 4px;
+  color: var(--ink);
+}
+
+/* The index: the guides list, with the date and topic as a muted line under the description */
+.article .leaf-body .guides-list .note-meta {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+}

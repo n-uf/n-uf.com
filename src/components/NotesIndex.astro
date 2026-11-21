@@ -1,0 +1,107 @@
+---
+/**
+ * The notes index (/notes): the live notes, newest first, each with its title, description, date and topic; dev and
+ * previews also list the drafts, with their go-live date, and the page then says "noindex". The route
+ * (src/pages/notes/[...index].astro) builds this page only while the build shows at least one note, so with no live
+ * note there is no /notes page, no sitemap line and no link to it (src/data/notes.mjs).
+ *
+ * Same look as the notes themselves (src/components/NoteArticle.astro): the guides' page on a plain sheet, no new style.
+ */
+import Layout from '../layouts/Layout.astro';
+import '../styles/article.css';
+import '../styles/kit-guides.css';
+import '../styles/notes.css';
+import { dateText, isLive, noteKindLabel, getNotes, type NoteEntry } from '../data/articles';
+import { inlineCodeHtml, plainText } from '../data/inline-code.mjs';
+// @ts-ignore: plain JS module, so the tests can run it without Astro
+import { NOTES_DESCRIPTION, NOTES_FEED_PATH, NOTES_FEED_TITLE, NOTES_PATH, NOTES_TITLE, notePath, topicLabel } from '../data/notes.mjs';
+import { breadcrumbList, notesBlog } from '../data/schema';
+
+const notes: NoteEntry[] = await getNotes();
+// Previews that show only drafts must not be indexed either
+const anyLive: boolean = notes.some(isLive);
+const day = (date: Date): string => date.toISOString().slice(0, 10);
+
+const structuredData = [
+  notesBlog({
+    path: NOTES_PATH,
+    name: NOTES_TITLE,
+    description: NOTES_DESCRIPTION,
+    posts: notes.filter(isLive).map((entry: NoteEntry) => ({
+      path: notePath(entry.id),
+      headline: plainText(entry.data.h1),
+      published: entry.data.published,
+    })),
+  }),
+  breadcrumbList([
+    { name: 'n-uf', path: '/' },
+    { name: 'Notes', path: NOTES_PATH },
+  ]),
+];
+---
+
+<Layout
+  title={NOTES_TITLE}
+  description={NOTES_DESCRIPTION}
+  path={NOTES_PATH}
+  robots={anyLive ? 'index, follow' : 'noindex'}
+  structuredData={structuredData}
+  feed={{ href: NOTES_FEED_PATH, title: NOTES_FEED_TITLE }}
+>
+  <div class="article" data-section="notes">
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">n-uf</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Notes</span>
+      </nav>
+      <div class="view-tools">
+        <a class="repo" href={NOTES_FEED_PATH} aria-label="RSS feed of the notes">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="square"
+              d="M2.75 2.75a10.5 10.5 0 0 1 10.5 10.5M2.75 7a6.25 6.25 0 0 1 6.25 6.25"></path>
+            <circle cx="3.5" cy="12.5" r="1.25" fill="currentColor"></circle>
+          </svg>
+          <span>RSS</span>
+          <span class="repo-path">notes</span>
+        </a>
+      </div>
+    </div>
+
+    <main>
+      <article class="paper plain" aria-labelledby="notes-title">
+        <div class="leaf-body">
+          <header class="title-block">
+            <p class="kicker">Notes</p>
+            <h1 id="notes-title">{NOTES_TITLE}</h1>
+          </header>
+
+          <p>{NOTES_DESCRIPTION}</p>
+
+          <h2>All notes</h2>
+          <ul class="guides-list">
+            {
+              notes.map((entry: NoteEntry) => (
+                <li>
+                  <a href={notePath(entry.id)} set:html={inlineCodeHtml(entry.data.h1)} />
+                  <span class="guide-note" set:html={inlineCodeHtml(entry.data.description)} />
+                  <span class="note-meta">
+                    <time datetime={day(entry.data.published)}>{dateText(entry.data.published)}</time> ·{' '}
+                    {topicLabel[entry.data.topic as 'claude' | 'web-ui']} · {noteKindLabel[entry.data.kind]}
+                  </span>
+                  {!isLive(entry) && (
+                    <span class="scheduled">Scheduled for {dateText(entry.data.published)}</span>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </article>
+    </main>
+  </div>
+</Layout>

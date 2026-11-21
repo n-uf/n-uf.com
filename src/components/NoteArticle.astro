@@ -1,0 +1,244 @@
+---
+/**
+ * One note (/notes/<slug>), from src/content/notes/<slug>.md. The route file (src/pages/notes/[slug].astro) only picks
+ * the entries; this draws the page.
+ *
+ * The look of a kit's guide (src/components/KitArticle.astro: the article look of /papyrus/<slug> on a plain, fluid sheet),
+ * with what a first-hand note adds: an "Evidence" line under the title (what was tested, when, and a link to repeat it),
+ * the topic as a label, and a link to the section's feed. The server HTML is the whole page. Drafts are built only in dev
+ * and Vercel previews (src/data/articles.ts), with a "Scheduled for" badge and noindex; production has no page for them.
+ *
+ * Head: canonical, og and twitter tags and the Organization node come from the layout; this adds Article (author and
+ * publisher: the shared Organization id), BreadcrumbList, and FAQPage when the note has a FAQ.
+ */
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import Layout from '../layouts/Layout.astro';
+import ExtLink from './ExtLink.astro';
+import '../styles/article.css';
+import '../styles/kit-guides.css';
+import '../styles/notes.css';
+import { dateText, isLive, noteKindLabel, relatedCards, showDrafts, type NoteEntry } from '../data/articles';
+import { withActions } from '../data/actions.mjs';
+import { isExternal, newTabNote } from '../data/links';
+import { inlineCodeHtml, plainText } from '../data/inline-code.mjs';
+import { withLiveBlocks } from '../data/live';
+// @ts-ignore: plain JS module, so the tests can run it without Astro
+import { NOTES_FEED_PATH, NOTES_FEED_TITLE, NOTES_PATH, notePath, topicLabel } from '../data/notes.mjs';
+import { breadcrumbList, faqPage, noteArticle } from '../data/schema';
+
+interface Props {
+  entry: NoteEntry;
+}
+
+const { entry } = Astro.props;
+const data = entry.data;
+const path: string = notePath(entry.id);
+const day = (date: Date): string => date.toISOString().slice(0, 10);
+// The note's own share card (public/og/notes/<slug>.png, drawn by scripts/render-og-pages.py) when it has one, else the site's
+const card: string = `/og/notes/${entry.id}.png`;
+const image: string = existsSync(join(process.cwd(), 'public', card)) ? card : '/og.png';
+// A draft is built only in dev and previews: it gets the "Scheduled for" badge and noindex
+const scheduled: boolean = showDrafts && !isLive(entry);
+const topic: string = topicLabel[data.topic as 'claude' | 'web-ui'];
+
+const file: string = entry.filePath ?? `src/content/notes/${entry.id}.md`;
+if (entry.rendered?.html === undefined) {
+  throw new Error(`${file}: the markdown body was not rendered`);
+}
+const live: string = await withLiveBlocks(entry.rendered.html, file);
+// The page's h1 is the front matter's h1; a "# Heading" in the body would be a second one
+if (/<h1[\s>]/i.test(live)) {
+  throw new Error(`${file}: the body has a "# " heading (an h1); the page's h1 comes from the front matter, start body headings at "##"`);
+}
+// The calls to action, where the text names the need (src/data/actions.mjs); none when the front matter has none
+const html: string = withActions(live, data.actions, {
+  page: path,
+  mainKeyword: data.mainKeyword,
+  isExternal,
+  note: newTabNote,
+});
+// A related entry that points at a note still hidden as a draft is left out until it goes live (src/data/related.mjs)
+const related = await relatedCards(data.related);
+// The contents list: the body's "## " sections, numbered as the headings are (article.css counter). Plain text: a heading
+// may hold a link or `code`, and a link inside the contents link would nest.
+const toc = [...html.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map((m, i) => ({
+  id: m[1],
+  html: m[2].replace(/<[^>]*>/g, ''),
+  n: i + 1,
+}));
+
+// Front matter may hold `inline code` (takeaways, FAQ, related cards): shown as <code> on the page, and as plain text,
+// backticks removed, in the meta tags and the structured data (src/data/inline-code.mjs)
+const plainFaq = data.faq.map(({ q, a }: { q: string; a: string }) => ({ q: plainText(q), a: plainText(a) }));
+
+const structuredData = [
+  noteArticle({
+    path,
+    headline: plainText(data.h1),
+    description: plainText(data.description),
+    published: data.published,
+    updated: data.updated,
+    image,
+    section: topic,
+  }),
+  breadcrumbList([
+    { name: 'n-uf', path: '/' },
+    { name: 'Notes', path: NOTES_PATH },
+    { name: plainText(data.h1), path },
+  ]),
+  ...(plainFaq.length > 0 ? [faqPage(plainFaq)] : []),
+];
+---
+
+<Layout
+  title={plainText(data.title)}
+  description={plainText(data.description)}
+  path={path}
+  robots={scheduled ? 'noindex' : 'index, follow'}
+  image={image}
+  imageAlt={plainText(data.h1)}
+  ogType="article"
+  structuredData={structuredData}
+  feed={{ href: NOTES_FEED_PATH, title: NOTES_FEED_TITLE }}
+>
+  <div class="article" data-section="notes">
+    <div class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">n-uf</a>
+        <span aria-hidden="true">/</span>
+        <a href={NOTES_PATH}>Notes</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{plainText(data.h1)}</span>
+      </nav>
+      <div class="view-tools">
+        <a class="repo" href={NOTES_FEED_PATH} aria-label="RSS feed of the notes">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="square"
+              d="M2.75 2.75a10.5 10.5 0 0 1 10.5 10.5M2.75 7a6.25 6.25 0 0 1 6.25 6.25"></path>
+            <circle cx="3.5" cy="12.5" r="1.25" fill="currentColor"></circle>
+          </svg>
+          <span>RSS</span>
+          <span class="repo-path">notes</span>
+        </a>
+      </div>
+    </div>
+
+    <main>
+      <article class="paper plain" data-published={day(data.published)}>
+        <div class="leaf-body">
+          <header class="title-block">
+            <p class="kicker">{noteKindLabel[data.kind]} · {topic}</p>
+            <h1>{data.h1}</h1>
+            <p class="byline">
+              Updated <time datetime={day(data.updated)}>{dateText(data.updated)}</time>
+              {
+                scheduled && (
+                  <span class="scheduled">
+                    · Scheduled for <time datetime={day(data.published)}>{dateText(data.published)}</time>
+                  </span>
+                )
+              }
+            </p>
+          </header>
+
+          <p class="evidence">
+            <strong>Evidence.</strong>
+            <span set:html={inlineCodeHtml(data.evidence)} />
+            {
+              data.tested && (
+                <>
+                  {' '}
+                  Tested <time datetime={day(data.tested)}>{dateText(data.tested)}</time>.
+                </>
+              )
+            }
+            {
+              data.repro && (
+                <>
+                  {' '}
+                  <ExtLink href={data.repro}>Repeat it yourself</ExtLink>
+                </>
+              )
+            }
+          </p>
+
+          <aside class="takeaways" aria-label="Key takeaways">
+            <p class="box-title">Key takeaways</p>
+            <ul>
+              {data.takeaways.map((takeaway: string) => <li set:html={inlineCodeHtml(takeaway)} />)}
+            </ul>
+          </aside>
+
+          {
+            toc.length > 0 && (
+              <nav class="toc" aria-labelledby="toc-title">
+                <p class="box-title" id="toc-title">Contents</p>
+                <ol>
+                  {toc.map((item) => (
+                    <li>
+                      <a href={`#${item.id}`}>
+                        <span class="toc-no">{item.n}</span>
+                        <span class="toc-text" set:html={item.html} />
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            )
+          }
+
+          <div class="prose flow" set:html={html} />
+
+          {
+            data.faq.length > 0 && (
+              <section class="faq flow" aria-labelledby="faq-title">
+                <h2 id="faq-title">Questions</h2>
+                {data.faq.map(({ q, a }: { q: string; a: string }) => (
+                  <>
+                    <h3 set:html={inlineCodeHtml(q)} />
+                    <p set:html={inlineCodeHtml(a)} />
+                  </>
+                ))}
+              </section>
+            )
+          }
+
+          {
+            data.sources.length > 0 && (
+              <section class="sources flow" aria-labelledby="sources-title">
+                <h2 id="sources-title">Sources</h2>
+                <ol>
+                  {data.sources.map((source) => (
+                    <li>
+                      <ExtLink href={source.url}>{source.title}</ExtLink>{' '}
+                      <span class="checked">checked {dateText(source.checked)}</span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )
+          }
+
+          <section class="related flow" aria-labelledby="related-title">
+            <h2 id="related-title">Related</h2>
+            <ul>
+              {
+                related.map((item) => (
+                  <li>
+                    <a href={item.path} set:html={inlineCodeHtml(item.title)} />
+                    <span class="related-note" set:html={inlineCodeHtml(item.description)} />
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+        </div>
+      </article>
+    </main>
+  </div>
+</Layout>
