@@ -9,6 +9,7 @@ import {
   studioId,
   siteUrl,
   githubOrgUrl,
+  npmUrl,
   type Project,
 } from '../data/projects';
 import { externalAttrs, isExternal, newTabNote } from '../data/links';
@@ -35,6 +36,8 @@ const projectList: Record<string, unknown> = {
     name: project.name,
     url: project.url,
     description: project.tagline,
+    // The project's packages on npmjs.com
+    ...(project.npm !== undefined && { sameAs: project.npm.map(npmUrl) }),
   })),
 };
 
@@ -72,6 +75,8 @@ function repoLine(repo: string): string {
               repoHref === undefined ? undefined : repoLine(repoHref);
             // A kit's guides live on this site (src/data/kits.ts), next to the kit's own site
             const kit: Kit | undefined = kitOf(project.id);
+            // One npm line per card, to the main package (the first); the others are in sameAs and llms.txt
+            const mainPackage: string | undefined = project.npm?.[0];
             return (
               <li data-bar={String(index % 5)}>
                 <h2 class="name-heading">
@@ -91,6 +96,14 @@ function repoLine(repo: string): string {
                   <p class="meta">
                     <a href={repoHref} {...externalAttrs(repoHref)}>
                       {repoText}
+                      <span class="sr-only">{newTabNote}</span>
+                    </a>
+                  </p>
+                )}
+                {mainPackage !== undefined && (
+                  <p class="meta">
+                    <a href={npmUrl(mainPackage)} {...externalAttrs(npmUrl(mainPackage))}>
+                      npm {mainPackage}
                       <span class="sr-only">{newTabNote}</span>
                     </a>
                   </p>
