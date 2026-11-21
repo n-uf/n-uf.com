@@ -9,7 +9,7 @@ published: 2026-12-04
 updated: 2026-12-04
 author: n-uf
 takeaways:
-  - "kavun draws the panels for React PDF viewer annotations, not the marks: `AnnotationsPanel` lists the marks a person drew, `FindingsPanel` lists what an analysis found, and your app draws the marks on the pages and keeps them."
+  - "kavun draws the panels for annotations, not the marks: `AnnotationsPanel` lists the marks a person drew, `FindingsPanel` lists what an analysis found, and your app draws the marks on the pages and keeps them."
   - "Each annotation row shows its kind, its text, how often the text occurs (`×N`) and a chip per page; a click on a chip calls your `onPageClick`, and `navigationRef.goToPage` does the jump."
   - "`AnnotationsActions` adds Export, Import and Reload words to the panel header; each is shown only when you pass its handler, and what they export is your code."
   - "`FindingsPanel` groups findings by domain and kind, with scope, level and party choices, removal to a trash and restore; `spineMarks` puts marks on the document map."
@@ -24,7 +24,7 @@ faq:
   - q: "What is the difference between annotations and findings in kavun?"
     a: "Annotations are marks a person drew by hand, each with the text under it and the pages where that text occurs. Findings are what an analysis found, grouped by domain and kind, with levels, a trash and filter rows. Machine results belong in `FindingsPanel`, not in the annotations list."
   - q: "Is there a demo of the annotations and findings panels?"
-    a: "Yes. kavun's library has an Annotations Panel page and a Findings Panel page, each with sample rows, an empty state and the header words. The package is private for now and not on a public registry, so those pages are how you see the panels today. The code on this page is the real API."
+    a: "Yes. kavun's library has an Annotations Panel page and a Findings Panel page, each with sample rows, an empty state and the header words. The package is private for now and not on a public registry, so those pages are how you see the panels today. The code on this page is an untested sketch."
 sources:
   - title: "kavun library: Annotations Panel (kavun.n-uf.com/library/blocks/annotations-panel)"
     url: "https://kavun.n-uf.com/library/blocks/annotations-panel"
@@ -66,7 +66,7 @@ actions:
 ---
 React PDF viewer annotations have two halves: drawing a mark on a page, and listing the marks so a reader can find them again. kavun does the second half. Its dossier has an annotations panel and a findings panel beside the pages, each row jumps to a page, and the header can export and import. Your app does the first half: it draws the marks on the pages and keeps them.
 
-kavun is private for now. The package `@n-uf/kavun` is not on a public registry, so you can't install it yet. The code below is its real API, and the [annotations panel in kavun's library](https://kavun.n-uf.com/library/blocks/annotations-panel) shows it with sample data.
+kavun is private for now. The package `@n-uf/kavun` is not on a public registry, so you can't install it yet. The code below is an untested sketch against its current API, and the [annotations panel in kavun's library](https://kavun.n-uf.com/library/blocks/annotations-panel) shows it with sample data.
 
 ## What does kavun draw for annotations, and what stays yours?
 
@@ -80,7 +80,7 @@ kavun draws no PDF pages and no marks. The split is the same one as for the rest
 | Machine results | `FindingsPanel` | the analysis and its findings |
 | Jumping | the page chips, `goToPage` | which page each mark is on |
 
-That is the whole contract. An app that already draws highlights or boxes on a page canvas keeps doing that, and kavun gives it the list, the jumps and the places to put them.
+An app that already draws highlights or boxes on a page canvas keeps doing that, and kavun gives it the list, the jumps and the places to put them.
 
 ## How do I add a panel for React PDF viewer annotations?
 
@@ -177,7 +177,7 @@ const groups: KavunFindingGroup[] = [
 <FindingsPanel groups={groups} onPageClick={(_, page) => goTo(page)} onRemove={(ids) => remove(ids)} />;
 ```
 
-The panel adds the rest around the list: a document-type line, `scope`, `level` and `party` as rows of choices, a per-kind Remove all, and a Trash that holds removed findings and restores them. An item can be `locked`, which draws it dimmed and marked Locked, for a finding you show but do not act on. A new analysis can light the panel's word in the deck.
+The panel adds the rest around the list: a document-type line, `scope`, `level` and `party` as rows of choices, a per-kind Remove all, and a Trash that holds removed findings and restores them. An item can be `locked`, which draws it dimmed and marked Locked, for a finding you show but do not act on. When you pass a new analysis id as `redaction.freshAnalysis`, the dossier opens Findings once for it.
 
 On the document map, `spineMarks` puts a mark at a `page` and a `position` from 0 at the top to 1 at the bottom, with an optional `tone` and `label`. The spine is a strip along the right edge, every page a block, so a reader sees where the marks cluster.
 
@@ -187,7 +187,7 @@ The tool strip on the deck is the `toolbar` prop: your tool items, the active id
 
 ## Can viewers move the panels?
 
-Yes. The panels dock on either side, float over the pages as windows and resize, and the arrangement is remembered per viewer under `layoutStorageKey`. Pages and Annotations start stacked in a left column, with Findings on the right. Under 720 pixels nothing docks, and a drawer becomes a sheet over the pages when there is no room beside it.
+Yes. The panels dock on either side, float over the pages as windows and resize, and the arrangement is remembered per viewer under `layoutStorageKey`. Pages and Annotations start stacked in a left column, with Findings on the right. Under 720 pixels the control groups stay in the deck or float, with no side bars. A drawer turns into a sheet over the pages only when there is no room for it beside them.
 
 ## Where does another viewer make more sense?
 
@@ -199,4 +199,4 @@ The word is also used for something else in PDF.js-based libraries. React-PDF's 
 
 kavun does not read or write a PDF's annotations, does not store marks and has no drawing tools of its own. The panel's wording is shaped by redaction: its empty state reads "Mark text on a page: it is redacted everywhere it occurs", and the count is how many times the marked text occurs. You can use the list for highlights and comments, but expect that vocabulary.
 
-The package is private too, so you can read this page and try the demo, but you can't install it yet. {{live:/kavun/best-react-pdf-viewer}}For a look at the viewers that draw the pages, see the comparison of the [best React PDF viewer](/kavun/best-react-pdf-viewer) options.{{/live}} Every guide to the kit is listed on the [kavun guides](/kavun) page. The sister kits have their own: [harbuz's guides](/harbuz) and [dynia's guides](/dynia). The kit's own site is [kavun.n-uf.com](https://kavun.n-uf.com/).
+kavun is private, so you can read this page and try the demo, but you can't install it yet. {{live:/kavun/best-react-pdf-viewer}}For a look at the viewers that draw the pages, see the comparison of the [best React PDF viewer](/kavun/best-react-pdf-viewer) options.{{/live}} Every guide to the kit is listed on the [kavun guides](/kavun) page. The sister kits have their own: [harbuz's guides](/harbuz) and [dynia's guides](/dynia). The kit's own site is [kavun.n-uf.com](https://kavun.n-uf.com/).

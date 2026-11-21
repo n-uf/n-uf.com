@@ -46,7 +46,7 @@ actions:
 ---
 A React data table component for a dashboard usually needs less than a grid: a header, rows that are easy to scan, numbers that line up and a totals row. dynia's `DataTable` is that and no more. It is a plain HTML table in the dashboard look, with a mono header, zebra rows, right-aligned tabular numbers, an optional totals row and a scroll region for narrow screens. It does not sort, filter or page. It draws the rows you hand it, in the order you hand them.
 
-dynia is private for now. The package `@n-uf/dynia` is not on a public registry, so you can't install it yet. The code below is its real API, and the [Tables page of dynia's library](https://dynia.n-uf.com/library/blocks/tables) shows the table working.
+dynia is private for now. The package `@n-uf/dynia` is not on a public registry, so you can't install it yet. The code below is an untested sketch against its current API, and the [Tables page of dynia's library](https://dynia.n-uf.com/library/blocks/tables) shows the table working.
 
 ## Do you need a grid library or a table component?
 
@@ -61,11 +61,11 @@ The question is what the reader does with the table. A table component draws row
 | Select rows or edit cells | Not covered | Built in |
 | Scroll thousands of rows | Not covered | Built in |
 
-No product is named in that table on purpose: which grid to pick is a separate decision, and `DataTable` makes no claim against any of them. If your table needs the last three rows, you want a grid. If it needs only the first three, read on.
+If your table needs the last three rows, you want a grid. If it needs only the first three, read on.
 
 ## What does dynia's data table give you?
 
-Everything about the look is fixed, and the markup is the part that is easy to forget:
+What it draws:
 
 - a header in the mono face, in capitals;
 - zebra rows with hairline dividers;
@@ -168,7 +168,7 @@ Filtering is the same, and so is paging: slice the array and render the page you
 
 ## Is the table accessible, and how does it behave on a phone?
 
-The table is a real `table`, with a `th scope="col"` for each header and a `th scope="row"` for each cell of a `rowHeader` column. `label` is its accessible name. With a `caption`, the caption is the table's visible name too. The wrapper is a region with the same label and `tabIndex` 0, so a keyboard user can focus it and scroll it sideways with the arrow keys.
+The table is a real `table`, with a `th scope="col"` for each header and a `th scope="row"` for each cell of a `rowHeader` column. `label` names the scroll region, and the table too unless you give a `caption`, which then names the table. The wrapper is a region with `tabIndex` 0, so a keyboard user can focus it and scroll it sideways with the arrow keys.
 
 On a narrow screen the table keeps its columns and scrolls inside the wrapper instead of squeezing them. Cells do not wrap by default; a column marked `wrap` does, which suits a long description. With no rows, the table shows one line, `// no rows`, and `empty` replaces it with your own node.
 
@@ -192,4 +192,4 @@ If a column holds a status, a short chip from the kit's primitives reads faster 
 
 It is not a grid. There is no sorting, filtering, paging, row selection, cell editing, column resizing, sticky header or virtual scrolling in it, and no way to ask it for any of them. The totals are yours too: dynia does not add up a column.
 
-The package is private as well, so you can read this page and try the demo, but you can't install it yet. {{live:/dynia/react-stepper-component}}Another part of the kit that is easy to mistake for a library job is a pipeline stepper, which has its own guide to a [React stepper component](/dynia/react-stepper-component).{{/live}} Every guide to the kit is listed on the [dynia guides](/dynia) page. The sister kits have their own: [guides to harbuz's themes and shells](/harbuz) and [guides to kavun's PDF viewer parts](/kavun). The kit's own site is [dynia.n-uf.com](https://dynia.n-uf.com/).
+dynia is private, so you can read this page and try the demo, but you can't install it yet. {{live:/dynia/react-stepper-component}}Another part of the kit that is easy to mistake for a library job is a pipeline stepper, which has its own guide to a [React stepper component](/dynia/react-stepper-component).{{/live}} Every guide to the kit is listed on the [dynia guides](/dynia) page. The sister kits have their own: [guides to harbuz's themes and shells](/harbuz) and [guides to kavun's PDF viewer parts](/kavun). The kit's own site is [dynia.n-uf.com](https://dynia.n-uf.com/).

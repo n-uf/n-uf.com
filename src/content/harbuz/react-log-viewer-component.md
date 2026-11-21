@@ -20,7 +20,7 @@ faq:
   - q: "Does the harbuz log viewer show new entries as they arrive?"
     a: "Yes. The terminal follows the top of the list, where the newest entry sits, and scrolls back there when `items` grows. If the reader scrolls away, it freezes a snapshot and shows a banner instead of moving the rows. Pause does the same on purpose. Both are lifted with one click."
   - q: "Can the React log viewer read logs from a server or a file?"
-    a: "No. `HarbuzTerminal` draws an array you pass in and keeps no connection of its own. Your app fetches, streams or parses the logs and hands it the entries. Mapping them to `LogEntryData`, or to your own type with your own `renderItem`, is the whole contract."
+    a: "No. `HarbuzTerminal` draws an array you pass in and keeps no connection of its own. Your app fetches, streams or parses the logs and hands it the entries. Mapping them to `LogEntryData`, or to your own type with your own `renderItem`; the terminal needs nothing else."
   - q: "Can I change how a log row looks?"
     a: "Yes. `HarbuzTerminal` is generic over your entry type, and `renderItem` returns any node, so a row can be `LogEntry`, a component of your own, or `LogEntry` with its `colors`. The row receives `item`, `index`, `isExpanded` and `onToggleExpand` for the open and closed state."
   - q: "Where can I try the harbuz log viewer today?"
@@ -50,7 +50,7 @@ actions:
 ---
 A React log viewer component draws a list of entries and lets the reader narrow it down, freeze it, copy it and clear it. harbuz's `HarbuzTerminal` does that over an array you pass in. It filters by point, shows stats beside the list, switches between compact and expanded views, and pauses, copies and clears. It reads no files and opens no connection: your app owns the logs, and the terminal only draws them.
 
-harbuz is private for now. The package `@n-uf/harbuz` is not on a public registry, so you can't install it yet. The code below is its real API, and the [live terminal on harbuz.n-uf.com](https://harbuz.n-uf.com/terminal) shows a log of your own visit filling up.
+harbuz is private for now. The package `@n-uf/harbuz` is not on a public registry, so you can't install it yet. The code below is an untested sketch against its current API, and the [live terminal on harbuz.n-uf.com](https://harbuz.n-uf.com/terminal) shows a log of your own visit filling up.
 
 ## What does a React log viewer component need to do?
 
@@ -145,7 +145,7 @@ export function FilteredLogs({ entries, onClear }: { entries: LogEntryData[]; on
 }
 ```
 
-`alwaysInclude` names points that stay visible whatever `isEnabled` says, such as a heartbeat you never want to lose. This is the filter's whole scope: it works on points. HarbuzTerminal has no search field or level filter of its own, so a filter by text or by `level` is yours to apply to `items` before you pass them in.
+`alwaysInclude` names points that stay visible whatever `isEnabled` says, such as a heartbeat you never want to lose. The filter works on points only. HarbuzTerminal has no search field or level filter of its own, so a filter by text or by `level` is yours to apply to `items` before you pass them in.
 
 ## What are the stats, shortcuts and view modes?
 
@@ -163,7 +163,7 @@ Pause is the same freeze, chosen by hand. While paused, the list shows the entri
 
 Clear calls your `onClear` handler; the terminal doesn't own the array, so you empty it. While following, one press clears. While paused or on a snapshot it takes two: the first press calls `onClear`, and the second, within three seconds, drops the snapshot and goes back to following.
 
-Copy is the fourth button. It steps through two states, and the shell reports the entries through `onCopy(items)`. Putting them on the clipboard, in whatever text format you want, is in your handler.
+Copy is the first button. The first press only shows a message about the newest 50 entries. The second press calls `onCopy(items)` with every entry on screen. Putting them on the clipboard, in whatever text format you want, is up to your handler.
 
 ## Does it follow the theme?
 
