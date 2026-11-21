@@ -5,7 +5,7 @@ h1: "React PDF viewer custom toolbar: tools, zoom and thumbnails"
 mainKeyword: "react pdf viewer custom toolbar"
 kind: use-case
 published: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-21
 author: n-uf
 takeaways:
   - "kavun draws no PDF pages: your app supplies each page through `renderPage`, from pdf.js or any other renderer, and kavun is the toolbar, zoom, thumbnails and panels around it."
@@ -21,7 +21,7 @@ faq:
   - q: "How do I control zoom in a React PDF viewer built with kavun?"
     a: "Hold the zoom in your own state and pass it as `zoom` with an `onZoomChange` handler; it is a percent of the page's natural width. The viewer can click the zoom field to type a value such as 120 or 1.5x, or pick a preset. `initialFit` sets whether the viewer starts fitted to height or width."
   - q: "Can viewers move the toolbar around?"
-    a: "Yes. The panel tabs, tools, commands and zoom are groups the viewer can dock in the deck, a left or right side bar or the index rail, or float over the pages. The arrangement is remembered per viewer under `layoutStorageKey`. `layoutPreset` sets the starting arrangement, and null for the key turns remembering off."
+    a: "Yes. The panel tabs, tools, commands and zoom are groups the viewer can dock in the deck, a left or right side bar or the rail of the Pages panel, or float over the pages. The arrangement is remembered per viewer under `layoutStorageKey`. `layoutPreset` sets the starting arrangement, and null for the key turns remembering off."
   - q: "Can I install kavun today?"
     a: "Not yet. The kavun package is private for now and is not on a public registry. kavun.n-uf.com is built from it and shows every part live, including the dossier with its toolbar, deck and zoom. The code on this page is the component's real API."
 sources:
@@ -68,12 +68,12 @@ The dossier is a document instrument in kavun's panel language. Around the pages
 
 - a **header row** with the window controls, a status lamp, the document name, a page readout and the zoom;
 - a **status tape** that drops in when something needs attention;
-- an **index rail** with a drawer for the PAGES thumbnails and any panels you pass, such as notes or findings;
+- **drawers** for PAGES thumbnails, ANNOTATIONS and FINDINGS (and any panels you pass), docked left or right or floating;
 - the **pages**, windowed so that only the pages near the view render;
 - a **spine**, a document map with marks;
 - a **deck** with tools, indicators, commands and zoom.
 
-You bring the rest. The shell owns only layout state: the open panel, the current page and the fit. Here is a viewer with a custom toolbar, a zoom you control and thumbnails:
+You bring the rest. The shell owns only layout state: the open panels, the current page, the fit, the theme and where each part sits. Here is a viewer with a custom toolbar, a zoom you control and thumbnails:
 
 ```tsx
 import { useState } from "react";
@@ -132,23 +132,23 @@ kavun documents − and +, the typed field and the presets, not a pinch gesture.
 
 ## How do I add page thumbnails?
 
-Pass `renderThumbnail`, a function that receives a page number and a width. Giving the dossier one turns on the PAGES panel, the thumbnails on the index rail. Draw each thumbnail the way you draw the page, at the smaller width.
+Pass `renderThumbnail`, a function that receives a page number and a width. Giving the dossier one turns on the PAGES panel, the Pages drawer of thumbnails. Draw each thumbnail the way you draw the page, at the smaller width.
 
 ## Can viewers move the toolbar?
 
-Yes. Every part of the dossier but the title bar moves. The panel tabs, the tools, the commands and the zoom are groups, and the viewer can drag them to the deck, a left or right side bar, or the index rail, or float them over the pages. Each group has one drag handle. Drawers change sides and float too.
+Yes. Every part of the dossier but the title bar moves. The panel tabs, the tools, the commands and the zoom are groups, and the viewer can drag them to the deck, a left or right side bar, or the rail of the Pages panel, or float them over the pages. Each group has one drag handle. Drawers change sides and float too.
 
-The arrangement is remembered per viewer under `layoutStorageKey`, or not at all when you pass `null`. `layoutPreset` gives a starting arrangement over the built-in one. Under 720 px nothing docks: the groups reorder in the deck, and the panels become sheets.
+The arrangement is remembered per viewer under `layoutStorageKey`, or not at all when you pass `null`. `layoutPreset` gives a starting arrangement over the built-in one. Under 720 px the groups stay in the deck or float, with no side bars or rail; a panel becomes a sheet only when there is no room for it beside the pages.
 
 ## What is it not?
 
 kavun does not parse or render a PDF, and it does not read files. Your renderer and your app own the pages and whatever is drawn on them. If you want a toolbar around pdf.js, kavun is that toolbar, and the page canvas stays pdf.js's job.
 
-kavun styles itself: its components render their own scoped stylesheets, so there is no Tailwind setup and no CSS file to import. In a Next.js app, list the package and the packages it builds on in `transpilePackages`, because they ship TypeScript source:
+kavun styles itself: its components render their own scoped stylesheets, so there is no Tailwind setup and no CSS file to import. In a Next.js app, list the package and the packages it builds on (`@n-uf/dynia`, `@n-uf/angiospermae` and `@n-uf/papyrus-react`) in `transpilePackages`, because they ship TypeScript source:
 
 ```js
 // next.config.mjs
-export default { transpilePackages: ["@n-uf/kavun", "@n-uf/angiospermae", "@n-uf/papyrus-react"] };
+export default { transpilePackages: ["@n-uf/kavun", "@n-uf/dynia", "@n-uf/angiospermae", "@n-uf/papyrus-react"] };
 ```
 
 {{live:/kavun/react-pdf-viewer-dark-mode}}The dossier also comes in five themes, which have their own guide on [dark mode and themes for a React PDF viewer](/kavun/react-pdf-viewer-dark-mode).{{/live}} Every guide to the kit is listed on the [kavun guides](/kavun) page. The sister kits have their own: [guides to harbuz's themes and shells](/harbuz) and [guides to dynia's dashboard blocks](/dynia).
