@@ -1,22 +1,15 @@
 // Content collections: the articles under a project's page, one collection per project (papyrus, in
 // src/content/papyrus/*.md, served at /papyrus/<slug>; the three kits harbuz, kavun and dynia, in src/content/<kit>/*.md,
 // served at /<kit>/<slug>). All share one schema. A file that breaks it fails the build.
+// The notes (src/content/notes/*.md, /notes/<slug>) belong to no project and have a schema of their own, next to this one.
 // Another project gets its own collection: add a folder here, an entry in `collections` below and an entry in
 // `sections` in src/data/articles.ts (its page, and for a kit its entry in src/data/kits.ts).
+import { existsSync, readdirSync } from 'node:fs';
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { hasAlwaysLiveEntry } from './data/related.mjs';
+import { noteSchema, sitePath } from './data/note-schema';
 import { fixedPagePaths } from './data/site-pages';
-
-// A path on this site in the canonical form (no trailing slash, "/" for the home page). A trailing slash is accepted
-// and removed, so "/papyrus/" and "/papyrus" mean the same page.
-const sitePath = z
-  .string()
-  .regex(
-    /^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*\/?)?$/,
-    'a site path in lower case, e.g. /papyrus/some-article',
-  )
-  .transform((path: string): string => (path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path));
 
 const article = z
   .object({
@@ -88,9 +81,19 @@ const article = z
     message: '{{live:…}} blocks work only in the markdown body, not in front matter',
   });
 
+const notesDir = './src/content/notes';
+const hasNoteFiles: boolean = existsSync(notesDir) && readdirSync(notesDir).some((name: string) => name.endsWith('.md'));
+
 export const collections = {
   papyrus: defineCollection({ loader: glob({ pattern: '*.md', base: './src/content/papyrus' }), schema: article }),
   harbuz: defineCollection({ loader: glob({ pattern: '*.md', base: './src/content/harbuz' }), schema: article }),
   kavun: defineCollection({ loader: glob({ pattern: '*.md', base: './src/content/kavun' }), schema: article }),
   dynia: defineCollection({ loader: glob({ pattern: '*.md', base: './src/content/dynia' }), schema: article }),
+  // The notes section (src/content/notes/*.md, served at /notes/<slug>): first-hand pieces that belong to no project,
+  // with their own schema (src/data/note-schema.ts). Until the first note file exists the loader is an empty one, so the
+  // glob loader does not warn "No files found" in every build.
+  notes: defineCollection({
+    loader: hasNoteFiles ? glob({ pattern: '*.md', base: './src/content/notes' }) : { name: 'notes-empty', load: async () => {} },
+    schema: noteSchema,
+  }),
 };
