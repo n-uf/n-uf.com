@@ -71,9 +71,11 @@ test("there are guides for every kit", () => {
   for (const kit of kitList) assert.ok(guides.some((g) => g.kit === kit), `${kit.id} has no guide`);
 });
 
-test("every guide is a use case that says the package is private and not installable yet", () => {
+test("every guide is a use case or an article that says the package is private and not installable yet", () => {
+  // batch 1 was use cases; batch 2 adds articles (how-to, comparison, best-tools)
+  const kinds = ["use-case", "how-to", "what-is", "comparison", "best-tools"];
   for (const g of guides) {
-    assert.equal(g.value("kind"), "use-case", g.file);
+    assert.ok(kinds.includes(g.value("kind")), `${g.file}: kind ${g.value("kind")}`);
     const everything = plain(g.front + g.body).toLowerCase();
     assert.ok(everything.includes("private"), `${g.kit.id}/${g.file} does not say the package is private`);
     assert.ok(/not (yet )?installable|can't install it yet|cannot install it yet|install .* yet|not (yet )?on a public registry/.test(everything), `${g.kit.id}/${g.file} does not say it is not installable yet`);
