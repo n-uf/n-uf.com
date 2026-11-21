@@ -6,6 +6,8 @@ import { kits, type Kit } from './kits';
 import { siteUrl } from './projects';
 import { resolveRelated } from './related.mjs';
 import { fixedPages } from './site-pages';
+// @ts-ignore: plain JS module, so the tests can run it without Astro
+import { NOTES_DESCRIPTION, NOTES_PATH, NOTES_TITLE, isLiveEntry, notePath, visibleNotes } from './notes.mjs';
 
 // Every collection has the same `article` schema (src/content.config.ts), so an entry is one shape whichever it is from
 export type SectionKey = 'papyrus' | 'harbuz' | 'kavun' | 'dynia';
@@ -77,8 +79,8 @@ export const kindLabel: Record<Entry['data']['kind'], string> = {
   'use-case': 'Use case',
 };
 
-/** The one rule for "live": an article is live unless its front matter says `draft: true`. */
-export const isLive = (entry: Entry): boolean => entry.data.draft !== true;
+/** The one rule for "live": an article is live unless its front matter says `draft: true` (src/data/notes.mjs). */
+export const isLive = (entry: Entry | NoteEntry): boolean => isLiveEntry(entry);
 
 /**
  * Dev and Vercel previews also show drafts (with a "Scheduled for" badge and noindex), so a try sees the whole
@@ -101,6 +103,30 @@ export async function getArticles(key: SectionKey): Promise<Entry[]> {
 /** "/papyrus/how-to-x" */
 export const articlePath = (key: SectionKey, id: string): string => `${sections[key].path}/${id}`;
 
+// ---- The notes (src/content/notes, /notes/<slug>): not a project's articles, so not in `sections`; they have their own
+// schema (src/data/note-schema.ts), and the same drafts rule. The index (/notes) and the feed (/notes/rss.xml) exist
+// only while this build shows at least one note.
+
+export type NoteEntry = CollectionEntry<'notes'>;
+
+export const noteKindLabel: Record<NoteEntry['data']['kind'], string> = {
+  ...kindLabel,
+  test: 'Test',
+  log: 'Log',
+};
+
+const noteFileCount: number = Object.keys(import.meta.glob('/src/content/notes/*.md')).length;
+
+/** Every note file, live or not */
+async function allNotes(): Promise<NoteEntry[]> {
+  return noteFileCount === 0 ? [] : ((await getCollection('notes')) as NoteEntry[]);
+}
+
+/** The notes this build shows, newest first: the live ones, plus drafts in dev and previews (src/data/notes.mjs). */
+export async function getNotes(): Promise<NoteEntry[]> {
+  return visibleNotes(await allNotes(), showDrafts) as NoteEntry[];
+}
+
 /** "2026-11-24" date -> "24 Nov 2026" */
 export const dateText = (date: Date): string =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(date);
@@ -112,6 +138,12 @@ export const dateText = (date: Date): string =>
  */
 export async function pageStatus(path: string): Promise<'built' | 'unbuilt' | 'none'> {
   if (fixedPages().some((page) => page.path === path)) return 'built';
+  // The notes index is built while this build shows a note; a note is a page of this build like an article
+  if (path === NOTES_PATH) return (await getNotes()).length > 0 ? 'built' : 'unbuilt';
+  if (path.startsWith(`${NOTES_PATH}/`)) {
+    const found = (await allNotes()).find((entry) => notePath(entry.id) === path);
+    return found ? (showDrafts || isLive(found) ? 'built' : 'unbuilt') : 'none';
+  }
   for (const key of Object.keys(sections) as SectionKey[]) {
     if (!path.startsWith(`${sections[key].path}/`)) continue;
     if (fileCount[key] === 0) return 'none';
@@ -124,6 +156,16 @@ export async function pageStatus(path: string): Promise<'built' | 'unbuilt' | 'n
 
 /** The day an article goes live (its `published`, YYYY-MM-DD); undefined for a fixed page or a path with no article. */
 export async function pageLiveFrom(path: string): Promise<string | undefined> {
+  const day = (date: Date): string => date.toISOString().slice(0, 10);
+  if (path === NOTES_PATH) {
+    // the index goes live with the first note
+    const days = (await allNotes()).map((entry) => day(entry.data.published)).sort();
+    return days[0];
+  }
+  if (path.startsWith(`${NOTES_PATH}/`)) {
+    const found = (await allNotes()).find((entry) => notePath(entry.id) === path);
+    return found ? day(found.data.published) : undefined;
+  }
   for (const key of Object.keys(sections) as SectionKey[]) {
     if (fileCount[key] === 0 || !path.startsWith(`${sections[key].path}/`)) continue;
     const found = ((await getCollection(key)) as Entry[]).find((entry) => articlePath(key, entry.id) === path);
@@ -146,5 +188,12 @@ export async function relatedCards(paths: string[]): Promise<{ path: string; tit
       articles.set(articlePath(key, entry.id), { title: entry.data.h1, description: entry.data.description, live: isLive(entry) });
     }
   }
+  // The notes: each by its path, and the index as a page that is live once any note is (so a related entry that names
+  // /notes is left out in production until the first note is live, like an entry that names a draft)
+  const notes = await allNotes();
+  for (const entry of notes) {
+    articles.set(notePath(entry.id), { title: entry.data.h1, description: entry.data.description, live: isLive(entry) });
+  }
+  if (notes.length > 0) articles.set(NOTES_PATH, { title: NOTES_TITLE, description: NOTES_DESCRIPTION, live: notes.some(isLive) });
   return resolveRelated(paths, { fixed, articles, showDrafts });
 }
