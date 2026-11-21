@@ -85,7 +85,7 @@ export const homeFaq: readonly FaqItem[] = [
   {
     q: 'Is n-uf free?',
     a: [
-      'Yes: none of the tools is sold, and the eight with public source are free to use. hypr-tiling, motion & placement, DOODL, debugsy, papyrus, cl_audit and cl_quick use ',
+      'Yes: none of the tools is sold, and the eight with public source are free to use. hypr-tiling, motion, DOODL, debugsy, papyrus, cl_audit and cl_quick use ',
       polyform,
       ', which lets you use, change and share them, but not to build a competing product. machine-transfer is MIT. harbuz, kavun and dynia have no public source yet.',
     ],
