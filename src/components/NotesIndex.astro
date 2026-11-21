@@ -90,8 +90,14 @@ const structuredData = [
                   <a href={notePath(entry.id)} set:html={inlineCodeHtml(entry.data.h1)} />
                   <span class="guide-note" set:html={inlineCodeHtml(entry.data.description)} />
                   <span class="note-meta">
-                    <time datetime={day(entry.data.published)}>{dateText(entry.data.published)}</time> ·{' '}
-                    {topicLabel[entry.data.topic as 'claude' | 'web-ui']} · {noteKindLabel[entry.data.kind]}
+                    <time datetime={day(entry.data.published)}>{dateText(entry.data.published)}</time>
+                    {+entry.data.updated > +entry.data.published && (
+                      <>
+                        {' '}
+                        · updated <time datetime={day(entry.data.updated)}>{dateText(entry.data.updated)}</time>
+                      </>
+                    )}{' '}
+                    · {topicLabel[entry.data.topic as 'claude' | 'web-ui']} · {noteKindLabel[entry.data.kind]}
                   </span>
                   {!isLive(entry) && (
                     <span class="scheduled">Scheduled for {dateText(entry.data.published)}</span>
