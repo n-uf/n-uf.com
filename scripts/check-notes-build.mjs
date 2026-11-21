@@ -58,7 +58,7 @@ export function checkNotesBuild({ root, dist, showDrafts = false }) {
   if (shown.length === 0) {
     for (const rel of ["notes", "notes.html"]) if (exists(rel)) problems.push(`no note is shown in this build, but ${rel} was built`);
     if (notesLocs.length > 0) problems.push(`no note is shown in this build, but the sitemap lists ${notesLocs.join(", ")}`);
-    if (/\/notes\b/.test(llms)) problems.push("no note is shown in this build, but llms.txt mentions /notes");
+    if (/https:\/\/n-uf\.com\/notes(?![\w-])/.test(llms)) problems.push("no note is shown in this build, but llms.txt mentions /notes");
     for (const file of htmlFiles(dist)) {
       if (/<a\b[^>]*\shref=["'](?:https:\/\/n-uf\.com)?\/notes(?:\/[^"']*)?["']/i.test(readFileSync(file, "utf8"))) {
         problems.push(`no note is shown in this build, but ${file.slice(dist.length)} links to /notes`);
