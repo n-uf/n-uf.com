@@ -1,49 +1,49 @@
 {
   "docs": {
     "css-page-break-print": {
-      "fingerprint": "03e454ec7d360d3abd458079019533a16a7a65dfb7b3205f66f9b34b6eb79939",
+      "fingerprint": "3bdfff0d48571047a34b63d7b9009d1e089ffbe8990ba35ead3c7bf2ea8c2bd3",
       "file": "css-page-break-print.pdf",
       "pages": 8,
       "layout": "A4 .leaf"
     },
     "css-page-size-a4": {
-      "fingerprint": "43cd681434945afb1a9cf9196402608fd0a109ead5bf858cd4a291a7e218036d",
+      "fingerprint": "498f857faeb2f78704dc3ba2990d6b7b4a5788ab2d71bfed4573956b45b17d66",
       "file": "css-page-size-a4.pdf",
       "pages": 8,
       "layout": "A4 .leaf"
     },
     "css-print-header-footer": {
-      "fingerprint": "f5ca154fe625de20dc9cb81ca244da5bcb8d9531f12f18665ca10292bc0314f9",
+      "fingerprint": "d3d9d3693ba6174bc0dcf10e99319f8ef6afcff3679000a3b8d91b64770fa47a",
       "file": "css-print-header-footer.pdf",
       "pages": 9,
       "layout": "A4 .leaf"
     },
     "css-print-page-numbers": {
-      "fingerprint": "997c016a3a7b9989b3a24263c2b8a1edf34779f2efe24243afc4633ce8179bc2",
+      "fingerprint": "d60c24d0b9c464131887945eb1cae2b6eea754ca890611de8855c23275f0d3a5",
       "file": "css-print-page-numbers.pdf",
       "pages": 9,
       "layout": "A4 .leaf"
     },
     "html-to-pdf-nodejs": {
-      "fingerprint": "9398144f8a684788686e370305b2ade102aa63cc3c7bee2f7a25f48d343a3f1b",
+      "fingerprint": "d4e5546d0ea18445ae21851cce0d24daaa4d2bb0322aacdc2dfa2918b2d555c5",
       "file": "html-to-pdf-nodejs.pdf",
       "pages": 10,
       "layout": "A4 .leaf"
     },
     "playwright-pdf-from-html": {
-      "fingerprint": "d462eb196adcb0c9dbef493dd6bd863f9b2efec5ed8e239818d97a620b71a9f6",
+      "fingerprint": "7c46ac21ef3584cfae61b8db476d83d1ef834def3c5e7877dc6b97ccf10ecfad",
       "file": "playwright-pdf-from-html.pdf",
       "pages": 9,
       "layout": "A4 .leaf"
     },
     "react-to-pdf": {
-      "fingerprint": "eb6e516908b9c490a166709760718b15201e5b10cb4a7b19f5a0a2be1bcb4edb",
+      "fingerprint": "f5f50b9ee391150e375550354ddc419a823070a1beab8b147a3dc766e11b2199",
       "file": "react-to-pdf.pdf",
       "pages": 10,
       "layout": "A4 .leaf"
     },
     "wkhtmltopdf-alternative": {
-      "fingerprint": "fda453e99d9371feef54ec3b3990dc76e6fbcb9242e05dc2da5338d7fe926a22",
+      "fingerprint": "af2d3f04eb2d05f04c2af5b8096de696cf4e5b90ccc4cfedc9b02e6e43bc5be5",
       "file": "wkhtmltopdf-alternative.pdf",
       "pages": 10,
       "layout": "A4 .leaf"
