@@ -24,7 +24,7 @@ import {
 } from '@n-uf/papyrus';
 
 export const SAMPLES_DIR = 'papyrus-samples';
-export const PAPYRUS_VERSION = '26.11.2';
+export const PAPYRUS_VERSION = '26.11.3';
 
 /**
  * A 16:9 slide as a papyrus sheet: the shape of SHEETS.A4 / SHEETS.LETTER (pageSize, width,
@@ -598,8 +598,10 @@ function buildDocs(h) {
     body:
       `<p class="eyebrow">@n-uf/papyrus</p>` +
       `<${hTitle} class="doc-title">Release notes</${hTitle}>` +
-      `<p class="doc-sub">26.11.0 to 26.11.2</p>` +
-      `<p class="callout"><strong>Same code throughout.</strong> All three releases ship the same code as 0.4.1; what changed is the versioning, the licence and where the package is released from.</p>` +
+      `<p class="doc-sub">26.11.0 to 26.11.3</p>` +
+      `<p class="callout"><strong>Same code throughout.</strong> All four releases ship the same code as 0.4.1; what changed is the versioning, the licence and where the package is released from.</p>` +
+      `<div class="release"><${hSec} class="sh">26.11.3</${hSec}><ul>` +
+      `<li>No change to the engine: released with <code>@n-uf/papyrus-react</code> 26.11.3, which adds the viewer helpers <code>DocPageSlice</code>, <code>useDocPdf</code> and <code>DocPrintView</code>. Same code as 26.11.2.</li></ul></div>` +
       `<div class="release"><${hSec} class="sh">26.11.2</${hSec}><ul>` +
       `<li>The package's homepage is now its overview page, n-uf.com/papyrus. Same code as 26.11.1.</li></ul></div>` +
       `<div class="release"><${hSec} class="sh">26.11.1</${hSec}><ul>` +
@@ -702,7 +704,7 @@ function buildDocs(h) {
     {
       id: 'release-notes',
       name: 'papyrus release notes',
-      title: 'papyrus release notes 26.11.0 to 26.11.2',
+      title: 'papyrus release notes 26.11.0 to 26.11.3',
       sheet: SHEETS.LETTER,
       sheetKey: 'letter',
       sizeLabel: 'US Letter · 8.5 × 11 in',
