@@ -4,7 +4,7 @@ description: "Set the CSS page size A4 with @page, build sheets of 210 by 297 mm
 h1: "CSS page size A4: make the printout match the screen"
 mainKeyword: "css page size a4"
 kind: how-to
-draft: true
+draft: false
 published: 2026-11-24
 updated: 2026-11-24
 author: n-uf
