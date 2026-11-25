@@ -4,7 +4,7 @@ description: "React PDF viewer dark mode with kavun: five dossier themes the vie
 h1: "React PDF viewer dark mode: five themes, remembered per viewer"
 mainKeyword: "react pdf viewer dark mode"
 kind: use-case
-draft: true
+draft: false
 published: 2026-11-25
 updated: 2026-11-25
 author: n-uf
