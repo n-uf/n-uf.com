@@ -4,7 +4,7 @@ description: "A React stepper component from dynia: numbered pipeline steps in f
 h1: "React stepper component: a pipeline of four step states"
 mainKeyword: "react stepper component"
 kind: use-case
-draft: true
+draft: false
 published: 2026-11-27
 updated: 2026-11-27
 author: n-uf
