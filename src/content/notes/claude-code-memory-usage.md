@@ -13,7 +13,7 @@ tested:
   os: "macOS 27.3, Apple M1, 16 GB"
 published: 2026-11-28
 updated: 2026-11-28
-draft: true
+draft: false
 author: n-uf
 takeaways:
   - "An idle Claude Code session took about 230 to 290 MB of RAM (RSS) on our 16 GB Mac. The one session running builds peaked at 920 MB."
